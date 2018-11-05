@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
@@ -9,8 +7,8 @@ public class OptionsMenue : AbstractUi
 	[Header("Navigation")]
 	[SerializeField] private Button _backButton;
 
-	[Header("Graphics UI")] [SerializeField]
-	private Toggle _anisotrophicFilteringToggle;
+	[Header("Graphics UI")] 
+	[SerializeField] private Toggle _anisotrophicFilteringToggle;
 
 	[SerializeField] private Toggle _shadowsToggle;
 	[SerializeField] private ShadowResolution _defaultShadowResolution = ShadowResolution.High;
@@ -80,7 +78,37 @@ public class OptionsMenue : AbstractUi
 
 	private void OnBackClick()
 	{
+		SetVisible(false);
 		_mainMenueUi.SetVisible(true);
+	}
+
+	private void Load()
+	{
+		// Graphics Settings
+		_anisotrophicFilteringToggle.isOn = QualitySettings.anisotropicFiltering == AnisotropicFiltering.Enable;
+		_shadowsToggle.isOn = QualitySettings.shadows == ShadowQuality.All;
+		_shadowQualitySlider.value = QualitySettings.shadowResolution == ShadowResolution.Low ? 0 : QualitySettings.shadowResolution == ShadowResolution.Medium ? 1 : QualitySettings.shadowResolution == ShadowResolution.High ? 2 : QualitySettings.shadowResolution == ShadowResolution.VeryHigh ? 3 : 2;
+		_antiAliasingSlider.value = QualitySettings.antiAliasing == 0 ? 0 :
+			QualitySettings.antiAliasing == 2 ? 2 :
+			QualitySettings.antiAliasing == 4 ? 4 :
+			QualitySettings.antiAliasing == 8 ? 8 : 0;
+		_textureSizeSlider.value = QualitySettings.masterTextureLimit == 2 ? 0 :
+			QualitySettings.masterTextureLimit == 1 ? 1 :
+			QualitySettings.masterTextureLimit == 0 ? 2 : 0;
+
+		// Audio Settings
+		float masterVolume;
+		_audioMixer.GetFloat("MasterVolume", out masterVolume);
+		_masterVolumeSlider.value = Mathf.Exp(masterVolume / 20);
+		float musicVolume;
+		_audioMixer.GetFloat("MusicVolume", out musicVolume);
+		_musicVolumeSlider.value = Mathf.Exp(musicVolume / 20);
+		float effectVolume;
+		_audioMixer.GetFloat("EffectVolume", out effectVolume);
+		_effectVolumeSlider.value = Mathf.Exp(effectVolume / 20);
+		float uiVolume;
+		_audioMixer.GetFloat("UiVolume", out uiVolume);
+		_uiVolumeSlider.value = Mathf.Exp(uiVolume / 20);
 	}
 
 	#endregion
@@ -102,15 +130,15 @@ public class OptionsMenue : AbstractUi
 				break;
 			case 1:
 				QualitySettings.antiAliasing = 2;
-				_antiAliasingText.text = "2x Multisampling";
+				_antiAliasingText.text = "2x";
 				break;
 			case 2:
 				QualitySettings.antiAliasing = 4;
-				_antiAliasingText.text = "4x Multisampling";
+				_antiAliasingText.text = "4x";
 				break;
 			case 3:
 				QualitySettings.antiAliasing = 8;
-				_antiAliasingText.text = "8x Multisampling";
+				_antiAliasingText.text = "8x";
 				break;
 		}
 	}
@@ -126,15 +154,19 @@ public class OptionsMenue : AbstractUi
 		{
 			case 0:
 				QualitySettings.shadowResolution = ShadowResolution.Low;
+				_shadowQualityText.text = "Low";
 				break;
 			case 1:
 				QualitySettings.shadowResolution = ShadowResolution.Medium;
+				_shadowQualityText.text = "Medium";
 				break;
 			case 2:
 				QualitySettings.shadowResolution = ShadowResolution.High;
+				_shadowQualityText.text = "High";
 				break;
 			case 3:
 				QualitySettings.shadowResolution = ShadowResolution.VeryHigh;
+				_shadowQualityText.text = "Very High";
 				break;
 			default:
 				QualitySettings.shadowResolution = _defaultShadowResolution;
@@ -144,17 +176,19 @@ public class OptionsMenue : AbstractUi
 
 	private void OnTextureSizeChange(float value)
 	{
-		QualitySettings.masterTextureLimit = (int)value;
-		switch (QualitySettings.masterTextureLimit)
+		switch ((int)value)
 		{
 			case 0:
-				_textureSizeText.text = "High";
+				_textureSizeText.text = "Low";
+				QualitySettings.masterTextureLimit = 2;
 				break;
 			case 1:
 				_textureSizeText.text = "Medium";
+				QualitySettings.masterTextureLimit = 1;
 				break;
 			case 2:
-				_textureSizeText.text = "Low";
+				_textureSizeText.text = "High";
+				QualitySettings.masterTextureLimit = 0;
 				break;
 			default:
 				_textureSizeText.text = "Default";
@@ -190,15 +224,13 @@ public class OptionsMenue : AbstractUi
 	#endregion
 
 	public override void Reset()
-	{
-	}
+	{}
 
 	protected override void OnVisibilityChange(bool visible)
 	{
-		QualitySettings.anisotropicFiltering = AnisotropicFiltering.Disable; // bool
-		QualitySettings.antiAliasing = 1; // 1x Multisampling // int
-		QualitySettings.shadows = ShadowQuality.All; // bool
-		QualitySettings.shadowResolution = ShadowResolution.High; // Low, Medium, High, Very High
-		QualitySettings.masterTextureLimit = 0; // 1 = half, 2 = quarter, 3 = eighth
+		if (visible)
+		{
+			Load();
+		}
 	}
 }

@@ -16,10 +16,10 @@ public abstract class AbstractUi : MonoBehaviour
 		}
 	}
 
-	public void SetVisible(bool visible)
+	public virtual void SetVisible(bool visible)
 	{
-		VisibleObject.SetActive(visible);
 		OnVisibilityChange(visible);
+		VisibleObject.SetActive(visible);
 	}
 
 	public abstract void Reset();
