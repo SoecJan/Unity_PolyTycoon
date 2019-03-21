@@ -2,7 +2,7 @@
 This is a hobbyist/self study project. Using Unity to create a clone of a transport tycoon genre game.
 
 # Getting Started
-Clone this repository and open the root folder using the Unity Game Engine.
+Clone this repository and open the root folder using the Unity Game Engine. Add JSON.Net from the unity asset store.
 
 # Past
 
