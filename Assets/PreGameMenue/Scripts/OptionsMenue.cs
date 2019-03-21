@@ -223,10 +223,10 @@ public class OptionsMenue : AbstractUi
 	}
 	#endregion
 
-	public override void Reset()
+	public new void Reset()
 	{}
 
-	protected override void OnVisibilityChange(bool visible)
+	protected new void OnVisibilityChange(bool visible)
 	{
 		if (visible)
 		{

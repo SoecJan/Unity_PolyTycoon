@@ -23,9 +23,9 @@ public class MultiplayerMenu : AbstractUi
 		_playMenue.SetVisible(true);
 	}
 
-	public override void Reset()
+	public new void Reset()
 	{}
 
-	protected override void OnVisibilityChange(bool visible)
+	protected new void OnVisibilityChange(bool visible)
 	{}
 }

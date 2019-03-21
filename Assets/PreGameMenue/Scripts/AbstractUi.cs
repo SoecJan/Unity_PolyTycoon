@@ -9,7 +9,7 @@ public abstract class AbstractUi : MonoBehaviour
 
 	public GameObject VisibleObject {
 		get {
-			return _visibleObject;
+			return _visibleObject? _visibleObject : gameObject;
 		}
 
 		set {
@@ -51,7 +51,13 @@ public abstract class AbstractUi : MonoBehaviour
 		animator.gameObject.SetActive(false);
 	}
 
-	public abstract void Reset();
+	public virtual void OnShortCut() { }
 
-	protected abstract void OnVisibilityChange(bool visible);
+	public void Reset()
+	{
+	}
+
+	protected void OnVisibilityChange(bool visible)
+	{
+	}
 }

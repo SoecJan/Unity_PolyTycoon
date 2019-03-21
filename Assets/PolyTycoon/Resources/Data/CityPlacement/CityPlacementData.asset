@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 144740fed12a35145996be6b62369a2c, type: 3}
+  m_Name: CityPlacementData
+  m_EditorClassIdentifier: 
+  _cityVec2:
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  _streetPrefab: {fileID: 1638137022184206, guid: 6949fe6893c461c4099f562d12fda150,
+    type: 2}
+  _mainBuildingPrefab: {fileID: 1929139518694398, guid: c829314901b6e0e49b1b2a2a155326c5,
+    type: 2}
+  _citizenBuidlingPrefab: {fileID: 1394377400257270, guid: 90d7580e8a8d1b74ea99752783dee2f9,
+    type: 2}
+  _businessBuildingPrefab: {fileID: 1436695325389036, guid: 72ee63670686af548a4512bf925714da,
+    type: 2}

@@ -55,9 +55,9 @@ public class SingleplayerMenu : AbstractUi
         SceneManager.UnloadSceneAsync("MainMenu");
     }
 
-    public override void Reset()
+    public new void Reset()
     { }
 
-    protected override void OnVisibilityChange(bool visible)
+    protected new void OnVisibilityChange(bool visible)
     { }
 }
