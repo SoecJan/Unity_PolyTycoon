@@ -235,10 +235,10 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.Placement
 				Vector2 chunkVec = TerrainGenerator.GetTerrainChunkPosition(placeableObject.transform.position.x, placeableObject.transform.position.z);
 				TerrainChunk terrainChunk = TerrainGenerator.GetTerrainChunk(chunkVec);
 				placeableObject.transform.parent = terrainChunk.meshObject.transform;
-				if (placeableObject is Factory.Factory)
-				{
-					((Factory.Factory) placeableObject).BiomeValueDictionary = GetBiomeValue(placeableObject);
-				}
+				//if (placeableObject is Factory.Factory)
+				//{
+				//	((Factory.Factory) placeableObject).BiomeValueDictionary = GetBiomeValue(placeableObject);
+				//}
 			}
 			else
 			{

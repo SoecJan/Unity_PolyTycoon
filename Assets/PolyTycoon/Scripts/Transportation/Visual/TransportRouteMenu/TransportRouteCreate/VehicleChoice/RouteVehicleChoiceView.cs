@@ -17,7 +17,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 
 		[Header("UI")]
 		[SerializeField] private ScrollViewHandle _vehicleChoiceScrollView;
-		[SerializeField] private GameObject _vehicleChoiceElementPreFab;
+		[SerializeField] private GameObject _vehicleChoiceElementPrefab;
 
 		public GameObject VisibleGameObject {
 			get {
@@ -32,7 +32,11 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 		private void Start()
 		{
 			if (!_routeVehicleChoiceController) _routeVehicleChoiceController = FindObjectOfType<RouteVehicleChoiceController>();
-			VehicleView.OnClickAction += view => _routeVehicleChoiceController.SelectedVehicle = (TransportVehicle) view.Vehicle;
+			VehicleView.OnClickAction += view =>
+			{
+				_routeVehicleChoiceController.SelectedVehicle = (TransportVehicle) view.Vehicle;
+				VisibleGameObject.SetActive(false);
+			};
 			FillView();
 		}
 
@@ -70,9 +74,10 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 			foreach (Model.Transport.Vehicle vehicle in _vehicleManager.VehicleList)
 			{
 				if (!(vehicle is TransportVehicle)) continue;
-				GameObject vehicleViewObject = _vehicleChoiceScrollView.AddObject((RectTransform)_vehicleChoiceElementPreFab.transform);
+				GameObject vehicleViewObject = _vehicleChoiceScrollView.AddObject((RectTransform)_vehicleChoiceElementPrefab.transform);
 				VehicleView vehicleView = vehicleViewObject.GetComponent<VehicleView>();
-				vehicleView.Vehicle = vehicle;
+				if (vehicleView)
+					vehicleView.Vehicle = vehicle;
 			}
 		}
 	}

@@ -16,14 +16,4 @@ public class MoneyController : MonoBehaviour
 			_moneyText.text = _playerMoney.ToString();
 		}
 	}
-
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }

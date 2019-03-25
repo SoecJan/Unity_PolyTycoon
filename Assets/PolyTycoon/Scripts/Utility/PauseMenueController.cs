@@ -28,8 +28,9 @@ public class PauseMenueController : AbstractUi
 
 	private void OnExitClick()
 	{
-		SceneController sceneController = FindObjectOfType<SceneController>();
-		sceneController.LoadScene(SceneController.Scenes.MainMenu);
+		Debug.Log("Exit Click");
+		//SceneController sceneController = FindObjectOfType<SceneController>();
+		//sceneController.LoadScene(SceneController.Scenes.MainMenu);
 	}
 
 	public override void OnShortCut()

@@ -13,15 +13,15 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 		[SerializeField] private GameObject _visibleGameObject;
 		[Header("ScrollView")]
 		[SerializeField] private ScrollViewHandle _scrollViewHandle;
-		[SerializeField] private GameObject _productUiSlotPreFab;
+		[SerializeField] private GameObject _productUiSlotPrefab;
 
-		public GameObject ProductUiSlotPreFab {
+		public GameObject ProductUiSlotPrefab {
 			get {
-				return _productUiSlotPreFab;
+				return _productUiSlotPrefab;
 			}
 
 			set {
-				_productUiSlotPreFab = value;
+				_productUiSlotPrefab = value;
 			}
 		}
 
@@ -46,7 +46,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 			ProductManager productManager = FindObjectOfType<ProductManager>();
 			foreach (ProductData product in productManager.Products)
 			{
-				GameObject productUiSlot = _scrollViewHandle.AddObject((RectTransform)ProductUiSlotPreFab.transform);
+				GameObject productUiSlot = _scrollViewHandle.AddObject((RectTransform)ProductUiSlotPrefab.transform);
 				ProductView productView = productUiSlot.GetComponent<ProductView>();
 				productView.ProductData = product;
 				productView.ProductButton.onClick.AddListener(delegate

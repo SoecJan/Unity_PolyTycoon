@@ -15,15 +15,10 @@ namespace Assets.PolyTycoon.Scripts.Construction.Visual.City
 		private CityBuilding _cityBuilding;
 		[Header("Navigation")]
 		[SerializeField] private Button _exitButton;
-		[SerializeField] private Button _cityInformationButton;
-		[SerializeField] private GameObject _cityInformationGameObject;
-		[SerializeField] private Button _buildingInformationButton;
-		[SerializeField] private GameObject _buildingInformationGameObject;
 		[Header("UI")]
 		[SerializeField] private ScrollViewHandle _neededProductScrollView;
 		[SerializeField] private GameObject _productUiPrefab;
 		[SerializeField] private Text _cityGeneralText;
-		[SerializeField] private Text _cityBuildingText;
 		#endregion
 
 		#region Getter & Setter
@@ -41,6 +36,7 @@ namespace Assets.PolyTycoon.Scripts.Construction.Visual.City
 					SetVisible(false);
 					return;
 				}
+				Debug.Log("New City selected");
 				foreach (ProductStorage productStorage in ((IConsumer)CityBuilding.CityPlaceable).NeededProducts().Values)
 				{
 					GameObject productSlot = _neededProductScrollView.AddObject((RectTransform)_productUiPrefab.transform);
@@ -57,9 +53,8 @@ namespace Assets.PolyTycoon.Scripts.Construction.Visual.City
 		#region Methods
 		private void Start()
 		{
-			_exitButton.onClick.AddListener(delegate { SetVisible(false); Reset(); });
-			_cityInformationButton.onClick.AddListener(delegate { _buildingInformationGameObject.SetActive(false); _cityInformationGameObject.SetActive(true); });
-			_buildingInformationButton.onClick.AddListener(delegate { _cityInformationGameObject.SetActive(false); _buildingInformationGameObject.SetActive(true); });
+			_exitButton.onClick.AddListener(delegate { SetVisible(false); Reset();;
+			});
 		}
 
 		/// <summary>
@@ -71,8 +66,7 @@ namespace Assets.PolyTycoon.Scripts.Construction.Visual.City
 			while (_cityBuilding != null)
 			{
 				ProductStorage cityProduct = ((IConsumer) CityBuilding.CityPlaceable).NeededProducts().Values.ElementAt(0);
-				_cityGeneralText.text = "Size: " + CityBuilding.CityPlaceable.ChildMapPlaceables.Count.ToString() + "\nLocation: " + CityBuilding.CityPlaceable.CenterPosition.ToString() + "\nPeople: " + CityBuilding.CityPlaceable.CurrentInhabitantCount() + "\nProducts: " + cityProduct.ToString();
-				_cityBuildingText.text = "People: " + _cityBuilding.CurrentResidentCount + "/" + _cityBuilding.MaxResidentCount;
+				_cityGeneralText.text = "Size: " + CityBuilding.CityPlaceable.ChildMapPlaceables.Count.ToString() + "\nLocation: " + CityBuilding.CityPlaceable.CenterPosition.ToString() + "\nPeople: " + CityBuilding.CityPlaceable.CurrentInhabitantCount() + "\nProducts: " + cityProduct.StoredProductData.ProductName;
 				foreach (RectTransform rectTransform in _neededProductScrollView.ContentObjects)
 				{
 					NeededProductView productView = rectTransform.gameObject.GetComponent<NeededProductView>();
@@ -85,8 +79,6 @@ namespace Assets.PolyTycoon.Scripts.Construction.Visual.City
 
 		public new void Reset()
 		{
-			_buildingInformationGameObject.SetActive(false); 
-			_cityInformationGameObject.SetActive(true);
 			_neededProductScrollView.ClearObjects();
 		}
 		#endregion
