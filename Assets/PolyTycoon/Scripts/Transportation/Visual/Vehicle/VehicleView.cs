@@ -46,9 +46,5 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.Vehicle
 			}
 		}
 		#endregion
-
-		#region Methods
-
-		#endregion
 	}
 }

@@ -4,7 +4,8 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -25,13 +26,13 @@ MonoBehaviour:
     startHeight: 0.025
     blendStrength: 0
     textureScale: 1
-  - texture: {fileID: 2800000, guid: 4d32b2925d2476a42be2e55908ec60e9, type: 3}
+  - texture: {fileID: 2800000, guid: 6bec678eaa5964c4b93aa20d902f8262, type: 3}
     tint: {r: 0.20588236, g: 0.26125747, b: 0.8235294, a: 0}
     tintStrength: 0
     startHeight: 0.037
     blendStrength: 0.013
     textureScale: 1
-  - texture: {fileID: 2800000, guid: 07690fcd6ed4f634f8082b504789c563, type: 3}
+  - texture: {fileID: 2800000, guid: 6025a425e132f9e4bb5b6822711dd7c8, type: 3}
     tint: {r: 0.20588236, g: 0.26125747, b: 0.8235294, a: 0}
     tintStrength: 0
     startHeight: 0.126

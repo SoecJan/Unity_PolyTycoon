@@ -58,20 +58,20 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.Factory
 			}
 		}
 
-		public Dictionary<BiomeGenerator.Biome, float> BiomeValueDictionary {
-			get {
-				return _biomeValueDictionary;
-			}
+		//public Dictionary<BiomeGenerator.Biome, float> BiomeValueDictionary {
+		//	get {
+		//		return _biomeValueDictionary;
+		//	}
 
-			set {
-				_biomeValueDictionary = value;
-				Debug.Log("Biome Values Set");
-				foreach (float biomeValue in _biomeValueDictionary.Values)
-				{
-					Debug.Log(biomeValue);
-				}
-			}
-		}
+		//	set {
+		//		_biomeValueDictionary = value;
+		//		Debug.Log("Biome Values Set");
+		//		foreach (float biomeValue in _biomeValueDictionary.Values)
+		//		{
+		//			Debug.Log(biomeValue);
+		//		}
+		//	}
+		//}
 
 		public ProductStorage ProductStorage() {
 			return _producedProduct;

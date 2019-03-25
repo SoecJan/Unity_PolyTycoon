@@ -40,7 +40,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 		{
 			_routeCreateController = FindObjectOfType<TransportRouteCreateController>();
 			_routeSettingProductSelector = FindObjectOfType<RouteSettingProductSelector>();
-			_exitButton.onClick.AddListener(delegate { _visibleGameObject.SetActive(false); Reset(); });
+			//_exitButton.onClick.AddListener(delegate { _visibleGameObject.SetActive(false); Reset(); });
 			_addButton.onClick.AddListener(AddSetting);
 		}
 
@@ -102,8 +102,8 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 				}
 			}
 
-			_loadSumText.text = loadAmount.ToString();
-			_unloadSumText.text = unloadAmount.ToString();
+			//_loadSumText.text = loadAmount.ToString();
+			//_unloadSumText.text = unloadAmount.ToString();
 		}
 	}
 }

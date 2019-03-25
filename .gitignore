@@ -1,8 +1,11 @@
 /[Ll]ibrary/
+/[Ll]ogs/
+/[Pp]ackages/
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
+/Assets/ConnectUI/Plugins/JsonDotNet/
 
 /Assets/AssetStoreTools*
 

@@ -11,8 +11,8 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.City
 		[SerializeField] private CityPlacementData _cityPlacementData;
 		[SerializeField] private CityPlaceable[] _possibleCityPlaceables;
 
-		private TerrainGenerator _mTerrainGenerator; // Needed to determine if the terrain Mesh is ready for placement and to get TerrainChunk information
-		private GroundPlacementController _mGroundPlacementController; // Needed to determine if the position is occupied or not
+		private TerrainGenerator _terrainGenerator; // Needed to determine if the terrain Mesh is ready for placement and to get TerrainChunk information
+		private GroundPlacementController _groundPlacementController; // Needed to determine if the position is occupied or not
 		private List<CityPlaceable> _citiesToPlace; // A Queue of cities to be placed
 		#endregion
 
@@ -30,21 +30,21 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.City
 
 		public GroundPlacementController GroundPlacementController {
 			get {
-				return _mGroundPlacementController;
+				return _groundPlacementController;
 			}
 
 			set {
-				_mGroundPlacementController = value;
+				_groundPlacementController = value;
 			}
 		}
 
 		public TerrainGenerator TerrainGenerator {
 			get {
-				return _mTerrainGenerator;
+				return _terrainGenerator;
 			}
 
 			set {
-				_mTerrainGenerator = value;
+				_terrainGenerator = value;
 			}
 		}
 
