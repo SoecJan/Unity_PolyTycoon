@@ -69,10 +69,13 @@ public class CityManager : MonoBehaviour
 
 				CityPlaceable city = cityInstance.GetComponent<CityPlaceable>();
 				city.Translate(cityToPlace.Offset.x, 0, cityToPlace.Offset.y);
-				
-				GameObject uiGameObject = _worldToScreenUiManager.Add(_cityWorldToScreenUi.gameObject, city.gameObject.transform, new Vector3(0,50f,0));
-				CityWorldToScreenUi worldToScreenUi = uiGameObject.GetComponent<CityWorldToScreenUi>();
-				worldToScreenUi.Text.text = "".Equals(city.CityName) || city.CityName == null ? "Default Name" : city.CityName;
+				if (_worldToScreenUiManager)
+				{
+					GameObject uiGameObject = _worldToScreenUiManager.Add(_cityWorldToScreenUi.gameObject, city.gameObject.transform, new Vector3(0,50f,0));
+					CityWorldToScreenUi worldToScreenUi = uiGameObject.GetComponent<CityWorldToScreenUi>();
+					worldToScreenUi.Text.text = "".Equals(city.CityName) || city.CityName == null ? "Default Name" : city.CityName;
+				}
+					
 
 				yield return Move(city);
 			}

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Assets.PolyTycoon.Resources.Data.ProductData;
-using Assets.PolyTycoon.Scripts.Construction.Model.Factory;
 using Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding;
 using Assets.PolyTycoon.Scripts.Transportation.Model.Product;
 using Assets.PolyTycoon.Scripts.Transportation.Model.TransportRoute;

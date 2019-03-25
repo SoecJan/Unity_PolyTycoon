@@ -34,7 +34,7 @@ public abstract class AbstractUi : MonoBehaviour
 			}
 			else
 			{
-				gameObject.SetActive(false);
+				VisibleObject.SetActive(false);
 			}
 		}
 	}

@@ -15,7 +15,6 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.Placement
 	/// </summary>
 	public class BuildingManager
 	{
-
 		#region Attributes
 		private static TransportRouteCreateController _routeCreateController;
 		private static FactoryView _factoryView;
@@ -49,6 +48,24 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.Placement
 			{
 				positionVector.y = 0f;
 				return placedBuildingDictionary[positionVector];
+			}
+			catch (KeyNotFoundException)
+			{
+				return null;
+			}
+		}
+
+		public SimpleMapPlaceable GetNode(Vector3 position)
+		{
+			Vector3 positionVector = Vector3Int.FloorToInt(position) + new Vector3(0.5f, position.y, 0.5f);
+			try
+			{
+				positionVector.y = 0f;
+				SimpleMapPlaceable simpleMapPlaceable = placedBuildingDictionary[positionVector];
+				Vector3 comparedVector3 = simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0];
+				comparedVector3.y = 0f;
+				if (positionVector.Equals(comparedVector3)) return simpleMapPlaceable;
+				return null;
 			}
 			catch (KeyNotFoundException)
 			{
@@ -132,7 +149,6 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.Placement
 
 				if (!placedBuildingDictionary.ContainsKey(occupiedSpace))
 				{
-					placedObject.OnPlacement();
 					placedBuildingDictionary.Add(occupiedSpace, placedObject);
 				}
 				else
@@ -146,6 +162,7 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.Placement
 					return false;
 				}
 			}
+			placedObject.OnPlacement();
 			placedObject.OnClickAction -= OnPlaceableClick;
 			placedObject.OnClickAction += OnPlaceableClick;
 			return true;
@@ -182,7 +199,8 @@ namespace Assets.PolyTycoon.Scripts.Construction.Model.Placement
 
 		private void OnPlaceableClick(SimpleMapPlaceable mapPlaceable)
 		{
-			if (_routeCreateController.VisibleObject.activeSelf)
+			Debug.Log("Placeable Clicked");
+			if (_routeCreateController && _routeCreateController.VisibleObject.activeSelf)
 			{
 				if (mapPlaceable is CityBuilding)
 				{
