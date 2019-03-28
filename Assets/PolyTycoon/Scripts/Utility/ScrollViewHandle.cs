@@ -10,8 +10,6 @@ namespace Assets.PolyTycoon.Scripts.Utility
 	public class ScrollViewHandle : MonoBehaviour
 	{
 		#region Attributes
-
-		[SerializeField] private float _offset = 10f;
 		[SerializeField] [Range(1, 20)]  private int _rowsColumnCount = 1;
 		[SerializeField] private bool _horizontal = false;
 		[SerializeField] private ScrollRect _scrollView;

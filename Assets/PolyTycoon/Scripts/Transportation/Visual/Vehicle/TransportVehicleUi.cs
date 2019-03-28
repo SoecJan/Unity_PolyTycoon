@@ -50,9 +50,6 @@ public class TransportVehicleUi : AbstractUi
 				_capacityText.text = _displayedTransportVehicle.TotalCapacity.ToString();
 				_currentSpeedText.text = _displayedTransportVehicle.UnloadSpeed.ToString();
 				if (_coroutine == null) _coroutine = StartCoroutine(UpdateUi());
-				_lineRenderer.positionCount = _displayedTransportVehicle.TransportRoute
-					.TransportRouteElements[_displayedTransportVehicle.RouteIndex].Path.WayPoints.Count;
-				_lineRenderer.SetPositions(_displayedTransportVehicle.TransportRoute.TransportRouteElements[_displayedTransportVehicle.RouteIndex].Path.WayPoints.ToArray());
 				SetVisible(true);
 			}
 		}

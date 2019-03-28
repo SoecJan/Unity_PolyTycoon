@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Assets.PolyTycoon.Scripts.Construction.Model.Factory;
 using Assets.PolyTycoon.Scripts.Transportation.Model.TransportRoute;
 using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate.RouteElement;
 using Assets.PolyTycoon.Scripts.Utility;
@@ -10,8 +9,6 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 {
 	public class RouteElementController : MonoBehaviour
 	{
-		private List<RouteElementView> _transportRouteElements;
-		private RouteElementView _selectedRouteElement;
 		[Header("General")]
 		[SerializeField] private InputField _routeNameField;
 		[SerializeField] private GameObject _visibleGameObject;
@@ -25,7 +22,6 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 
 		private void Start()
 		{
-			_transportRouteElements = new List<RouteElementView>();
 			_routeVehicleChoiceController = FindObjectOfType<RouteVehicleChoiceController>();
 			_userInformationPopup = FindObjectOfType<UserInformationPopup>();
 		}
@@ -53,15 +49,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 			}
 		}
 
-		public RouteElementView SelectedRouteElement {
-			get {
-				return _selectedRouteElement;
-			}
-
-			set {
-				_selectedRouteElement = value;
-			}
-		}
+		public RouteElementView SelectedRouteElement { get; set; }
 
 		public GameObject VisibleGameObject {
 			get {

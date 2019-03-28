@@ -48,11 +48,11 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding
 	public class Path
 	{
 		#region Attributes
-		private List<Vector3> _wayPoints; // Nodes that need to be visited one after the other
+		private List<WayPoint> _wayPoints; // Nodes that need to be visited one after the other
 		#endregion
 
 		#region Getter & Setter
-		public List<Vector3> WayPoints {
+		public List<WayPoint> WayPoints {
 			get {
 				return _wayPoints;
 			}
@@ -66,9 +66,52 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding
 		#region Constructor
 		public Path()
 		{
-			WayPoints = new List<Vector3>();
+			WayPoints = new List<WayPoint>();
 		}
 		#endregion
+	}
+
+	public struct WayPoint
+	{
+		private Vector3[] _traversalVectors;
+		private float _radius;
+
+		public WayPoint(Vector3 fromVector3, Vector3 toVector3)
+		{
+			_traversalVectors = new Vector3[2];
+			_traversalVectors[0] = fromVector3;
+			_traversalVectors[1] = toVector3;
+			_radius = 0f;
+		}
+
+		public WayPoint(Vector3 fromVector3, Vector3 offsetVector3, Vector3 toVector3, float radius)
+		{
+			_traversalVectors = new Vector3[3];
+			_traversalVectors[0] = fromVector3;
+			_traversalVectors[1] = offsetVector3;
+			_traversalVectors[2] = toVector3;
+			_radius = radius;
+		}
+
+		public Vector3[] TraversalVectors {
+			get { return _traversalVectors; }
+			set { _traversalVectors = value; }
+		}
+
+		public float Radius {
+			get { return _radius; }
+			set { _radius = value; }
+		}
+
+		public override string ToString()
+		{
+			String output = "TraversalVectors: ";
+			foreach (Vector3 traversalVector in _traversalVectors)
+			{
+				output += traversalVector.ToString() + ", ";
+			}
+			return output;
+		}
 	}
 
 	class Node : IHeapItem<Node>
@@ -95,8 +138,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding
 		#endregion
 
 		#region Getter & Setter
-		public int FCost
-		{
+		public int FCost {
 			get { return HCost + GCost; }
 		}
 
@@ -195,7 +237,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding
 					if (!neighbor || (!neighbor.IsTraversable() && neighbor != endNode) || closedSet.Contains(neighbor)) continue;
 
 					int newMovementCostToNeighbor = currentNode.GCost + GetDistance(currentNode.PathFindingNode, neighbor);
-					Node neighborNode = new Node(neighbor, GetDistance(neighbor, endNode), newMovementCostToNeighbor) {Parent = currentNode};
+					Node neighborNode = new Node(neighbor, GetDistance(neighbor, endNode), newMovementCostToNeighbor) { Parent = currentNode };
 					if (!openSet.Contains(neighborNode))
 					{
 						openSet.Add(neighborNode);
@@ -212,14 +254,72 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding
 		Path RetracePath(PathFindingNode fromNode, Node toNode)
 		{
 			Path path = new Path();
+
+			Node lastNode = null;
 			Node currentNode = toNode;
+
+
 			while (currentNode.PathFindingNode != fromNode)
 			{
-				path.WayPoints.Add(currentNode.PathFindingNode.transform.position);
+				path.WayPoints.Add(CalculateTraversalVectors(lastNode, currentNode));
+				lastNode = currentNode;
 				currentNode = currentNode.Parent;
 			}
+			path.WayPoints.Add(CalculateTraversalVectors(lastNode, currentNode));
 			path.WayPoints.Reverse();
 			return path;
+		}
+
+		/// <summary>
+		/// Returns the Traversal Vectors as a WayPoint Object from a given set of PathfindingNodes
+		/// </summary>
+		/// <param name="lastNode"></param>
+		/// <param name="currentNode"></param>
+		/// <returns></returns>
+		WayPoint CalculateTraversalVectors(Node lastNode, Node currentNode)
+		{
+			Node nextNode = currentNode.Parent;
+
+			Vector3 fromVector3 = new Vector3();
+			if (lastNode != null)
+			{
+				fromVector3 = (lastNode.PathFindingNode.transform.position - currentNode.PathFindingNode.transform.position).normalized;
+			}
+
+			Vector3 toVector3 = new Vector3();
+			if (nextNode != null)
+			{
+				toVector3 = (nextNode.PathFindingNode.transform.position - currentNode.PathFindingNode.transform.position).normalized;
+			}
+
+			int fromDirection = DirectionVectorToInt(fromVector3);
+			int toDirection = DirectionVectorToInt(toVector3);
+
+			//Debug.Log(fromVector3.ToString() + ": " + fromDirection + ", " + toVector3.ToString() + ": " + toDirection);
+
+			return currentNode.PathFindingNode.GetTraversalVectors(toDirection, fromDirection);
+		}
+
+		int DirectionVectorToInt(Vector3 normalizedDirection)
+		{
+			if (normalizedDirection.Equals(Vector3.forward))
+			{
+				return PathFindingNode.Up;
+			}
+			else if (normalizedDirection.Equals(Vector3.right))
+			{
+				return PathFindingNode.Right;
+			}
+			else if (normalizedDirection.Equals(Vector3.back))
+			{
+				return PathFindingNode.Down;
+			}
+			else if (normalizedDirection.Equals(Vector3.left))
+			{
+				return PathFindingNode.Left;
+			}
+
+			return -1;
 		}
 		#endregion
 	}

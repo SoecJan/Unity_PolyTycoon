@@ -18,6 +18,7 @@ public class CityManager : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		_placedCities = new List<CityPlaceable>();
 		_groundPlacementController = FindObjectOfType<GroundPlacementController>();
 		_worldToScreenUiManager = FindObjectOfType<WorldToScreenUiManager>();
 		_citiesToPlace = new List<CityToPlace>();

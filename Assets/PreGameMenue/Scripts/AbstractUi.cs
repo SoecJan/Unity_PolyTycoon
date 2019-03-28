@@ -47,7 +47,6 @@ public abstract class AbstractUi : MonoBehaviour
 			Debug.Log(animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
 			yield return null;
 		}
-		Debug.Log("Inactive");
 		animator.gameObject.SetActive(false);
 	}
 
