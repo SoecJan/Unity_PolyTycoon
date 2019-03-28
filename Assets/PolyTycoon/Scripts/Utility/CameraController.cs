@@ -5,7 +5,6 @@ namespace Assets.PolyTycoon.Scripts.Utility
 {
 	public class CameraController : MonoBehaviour
 	{
-		private Camera _camera;
 		[SerializeField] private Transform _moveTransform;
 		[SerializeField] private float _speed = 2f;
 		[SerializeField] private float _minYValue = 4f;
@@ -13,7 +12,6 @@ namespace Assets.PolyTycoon.Scripts.Utility
 
 		void Start()
 		{
-			_camera = Camera.main;
 			if (!_moveTransform) _moveTransform = transform;
 		}
 

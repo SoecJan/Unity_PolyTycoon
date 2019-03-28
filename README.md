@@ -18,7 +18,9 @@ Clone this repository and open the root folder using the Unity Game Engine. Add 
 
 11.2018 - Moved the project to this repository, fix problems
 
-12.2018 - 
+12.2018 - Break due to university
+
+03.2019 - Updated Ui Design
 
 # Future Plans
 
