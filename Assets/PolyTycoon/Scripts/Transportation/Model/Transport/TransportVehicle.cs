@@ -81,6 +81,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Transport
 
 		protected override void OnArrive()
 		{
+			
 			StartCoroutine(HandleLoad());
 		}
 
@@ -92,6 +93,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Transport
 			foreach (TransportRouteSetting setting in element.RouteSettings)
 			{
 				if (setting.IsLoad || !consumer.NeededProducts().ContainsKey(setting.ProductData)) continue;
+				Debug.Log(setting.ProductData);
 				while (LoadedProducts[setting.ProductData].Amount > 0)
 				{
 					LoadedProducts[setting.ProductData].Amount -= 1;

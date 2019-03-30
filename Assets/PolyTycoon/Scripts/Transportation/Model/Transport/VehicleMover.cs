@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class VehicleMover : MonoBehaviour
 {
-	private bool _wait = true;
+	public bool _wait = true;
 	private bool _isWayPointReached = false;
 	private float progress = 0f;
 	private float _speed = 2f;
@@ -48,7 +48,6 @@ public class VehicleMover : MonoBehaviour
 	private void Move()
 	{
 		if (_wayPointList == null) return;
-		
 		WayPoint currentWayPoint = _wayPointList[_wayPointIndex];
 		if (currentWayPoint.TraversalVectors.Length == 2)
 		{
@@ -81,9 +80,9 @@ public class VehicleMover : MonoBehaviour
 				//}
 			}
 		}
-
 		if (_wayPointIndex == _wayPointList.Count)
 		{
+			_wait = true;
 			OnArrive();
 		}
 	}

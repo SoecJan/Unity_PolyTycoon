@@ -51,7 +51,12 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 			RouteSettingView routeSettingView = elementGameObject.GetComponent<RouteSettingView>();
 			routeSettingView.RouteSetting = routeSetting;
 			routeSettingView.OnValueChangeAction += OnValueChange;
-			_routeCreateController.RouteElementController.SelectedRouteElement.TransportRouteElement.RouteSettings.Add(routeSetting);
+			_routeCreateController
+				.RouteElementController
+				.SelectedRouteElement
+				.TransportRouteElement
+				.RouteSettings
+				.Add(routeSetting);
 		}
 
 		public void RemoveRouteSetting(RouteSettingView routeSettingView)
@@ -73,6 +78,7 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.Tra
 			_routeSettingScrollView.ClearObjects();
 			foreach (TransportRouteSetting routeSetting in transportRouteElement.RouteSettings)
 			{
+				Debug.Log("Setting");
 				GameObject instantiatedGameObject = RouteSettingScrollView.AddObject((RectTransform)_elementPrefab.gameObject.transform);
 				RouteSettingView routeSettingView = instantiatedGameObject.GetComponent<RouteSettingView>();
 				routeSettingView.RouteSetting = routeSetting;

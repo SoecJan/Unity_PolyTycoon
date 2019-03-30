@@ -12,7 +12,7 @@ public class TransportVehicleUi : AbstractUi
 	private static TransportRouteCreateController _transportRouteCreateController;
 	private TransportVehicle _displayedTransportVehicle;
 	private Coroutine _coroutine;
-	[SerializeField] private LineRenderer _lineRenderer;
+	//[SerializeField] private LineRenderer _lineRenderer;
 	[SerializeField] private Image _vehicleImage;
 	[SerializeField] private Button _vehicleRouteButton;
 	[SerializeField] private Button _exitButton;
