@@ -20,7 +20,7 @@ Clone this repository and open the root folder using the Unity Game Engine. Add 
 
 12.2018 - Break due to university
 
-03.2019 - Updated Ui Design
+03.2019 - Updated Ui Design, added proper curve animations for vehicles
 
 # Future Plans
 
