@@ -24,18 +24,23 @@ Clone this repository and open the root folder using the Unity Game Engine. Add 
 
 # Future Plans
 
-Terrain Generation
+## Terrain Generation
 - Water & Deep Water zones
-- Biomes as a factor for factory productivity
+- Water animation
 
-Building System
-- Demolition of buildings/roads
+## Transport System
+- Visuals: Loaded products visible
+- More vehicles: planes, trains, ships
+- Storage buildings
 
-Transport System
-- Visuals
-
-Traffic System
-- Nice vehicle path animation
+## Traffic System
 - Stopping on intersections
 - Slow down behind slower vehicles
 
+## Progression System
+- Unlock new buildings and vehicles
+- Bigger supply chains require better vehicles
+
+## Performance
+- Pathsfinding process moved from vehicles to buildings -> Easier update of the current situation
+- Multithreading for vehicle movement and loading logic -> Find a workaround for multithreading in Unity
