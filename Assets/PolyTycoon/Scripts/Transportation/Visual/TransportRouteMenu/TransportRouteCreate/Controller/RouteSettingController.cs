@@ -1,5 +1,4 @@
 ﻿using Assets.PolyTycoon.Scripts.Transportation.Model.TransportRoute;
-using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate.RouteElement;
 using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate.Setting;
 using Assets.PolyTycoon.Scripts.Utility;
 using UnityEngine;
