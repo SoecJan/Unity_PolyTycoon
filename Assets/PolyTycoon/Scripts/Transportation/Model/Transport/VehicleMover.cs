@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding;
 using UnityEngine;
 
 public class VehicleMover : MonoBehaviour

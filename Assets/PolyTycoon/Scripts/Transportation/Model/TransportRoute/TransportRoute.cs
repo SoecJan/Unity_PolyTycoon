@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Transport;
 
-namespace Assets.PolyTycoon.Scripts.Transportation.Model.TransportRoute
-{
+
 	public class TransportRoute
 	{
 		#region Attributes
@@ -61,4 +59,3 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.TransportRoute
 		}
 		#endregion
 	}
-}

@@ -27,7 +27,7 @@ public abstract class AbstractUi : MonoBehaviour
 		}
 		else
 		{
-			
+			Reset();
 			if (anim)
 			{
 				StartCoroutine(TransitionEndAwait(anim));
@@ -37,6 +37,8 @@ public abstract class AbstractUi : MonoBehaviour
 				VisibleObject.SetActive(false);
 			}
 		}
+
+		
 	}
 
 	private IEnumerator TransitionEndAwait(Animator animator)

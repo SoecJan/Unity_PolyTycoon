@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using Assets.PolyTycoon.Resources.Data.ProductData;
 using UnityEngine;
 
-namespace Assets.PolyTycoon.Scripts.Transportation.Model.Product
-{
 	public class ProductManager : MonoBehaviour {
 
 		#region Attributes
@@ -56,4 +53,3 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Product
 		}
 		#endregion
 	}
-}

@@ -1,6 +1,4 @@
-﻿using Assets.PolyTycoon.Scripts.Construction.Model.Placement;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Pathfinding;
-using System;
+﻿using System;
 using UnityEngine;
 
 /// <summary>

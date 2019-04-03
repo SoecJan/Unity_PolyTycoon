@@ -1,138 +1,133 @@
-﻿using Assets.PolyTycoon.Scripts.Transportation.Model.TransportRoute;
-using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate.Controller;
-using Assets.PolyTycoon.Scripts.Utility;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate.RouteElement
+public class RouteElementView : PoolableObject
 {
-	public class RouteElementView : PoolableObject {
-		private static RouteElementController _routeViewController;
-		private static RouteSettingController _routeSettingController;
-		private TransportRouteElement _transportRouteElement;
+	private static RouteElementController _routeViewController;
+	private static RouteSettingController _routeSettingController;
+	private TransportRouteElement _transportRouteElement;
 
-		[Header("Navigation")] 
-		[SerializeField] private Button _editButton;
-		[SerializeField] private Button _removeButton;
+	[Header("Navigation")]
+	[SerializeField] private Button _editButton;
+	[SerializeField] private Button _removeButton;
 
-		[Header("UI")]
-		[SerializeField] private Image _fromNodeImage;
-		[SerializeField] private Text _fromNodeText;
-		[SerializeField] private Image _toNodeImage;
-		[SerializeField] private Text _toNodeText;
+	[Header("UI")]
+	[SerializeField] private Image _fromNodeImage;
+	[SerializeField] private Text _fromNodeText;
+	[SerializeField] private Image _toNodeImage;
+	[SerializeField] private Text _toNodeText;
 
-		public PathFindingNode FromNode
-		{
-			get {
-				return TransportRouteElement.FromNode;
-			}
-
-			set {
-				TransportRouteElement.FromNode = value;
-				_fromNodeText.text = FromNode ? value.BuildingName : "None";
-			}
+	public PathFindingNode FromNode {
+		get {
+			return TransportRouteElement.FromNode;
 		}
 
-		public PathFindingNode ToNode {
-			get {
-				return TransportRouteElement.ToNode;
-			}
+		set {
+			TransportRouteElement.FromNode = value;
+			_fromNodeText.text = FromNode ? value.BuildingName : "None";
+		}
+	}
 
-			set {
-				TransportRouteElement.ToNode = value;
-				ToNodeText.text = ToNode ? value.BuildingName : "None";
-			}
+	public PathFindingNode ToNode {
+		get {
+			return TransportRouteElement.ToNode;
 		}
 
-		public Image FromNodeImage {
-			get {
-				return _fromNodeImage;
-			}
+		set {
+			TransportRouteElement.ToNode = value;
+			ToNodeText.text = ToNode ? value.BuildingName : "None";
+		}
+	}
 
-			set {
-				_fromNodeImage = value;
-			}
+	public Image FromNodeImage {
+		get {
+			return _fromNodeImage;
 		}
 
-		public Text FromNodeText {
-			get {
-				return _fromNodeText;
-			}
+		set {
+			_fromNodeImage = value;
+		}
+	}
 
-			set {
-				_fromNodeText = value;
-			}
+	public Text FromNodeText {
+		get {
+			return _fromNodeText;
 		}
 
-		public Image ToNodeImage {
-			get {
-				return _toNodeImage;
-			}
+		set {
+			_fromNodeText = value;
+		}
+	}
 
-			set {
-				_toNodeImage = value;
-			}
+	public Image ToNodeImage {
+		get {
+			return _toNodeImage;
 		}
 
-		public Text ToNodeText {
-			get {
-				return _toNodeText;
-			}
+		set {
+			_toNodeImage = value;
+		}
+	}
 
-			set {
-				_toNodeText = value;
-			}
+	public Text ToNodeText {
+		get {
+			return _toNodeText;
 		}
 
-		public TransportRouteElement TransportRouteElement {
-			get {
-				return _transportRouteElement;
-			}
+		set {
+			_toNodeText = value;
+		}
+	}
 
-			set {
-				_transportRouteElement = value;
-
-				if (_transportRouteElement == null || !_transportRouteElement.FromNode || !_transportRouteElement.ToNode || _transportRouteElement.Path == null) return;
-				FromNodeText.text = _transportRouteElement.FromNode.BuildingName;
-				ToNodeText.text = _transportRouteElement.ToNode.BuildingName;
-			}
+	public TransportRouteElement TransportRouteElement {
+		get {
+			return _transportRouteElement;
 		}
 
-		void Awake () {
-			// Find static instances
-			if (!_routeViewController) _routeViewController = FindObjectOfType<RouteElementController>();
-			if (!_routeSettingController) _routeSettingController = FindObjectOfType<RouteSettingController>();
-			// Init 
-			TransportRouteElement = new TransportRouteElement();
-			// Setup callbacks
-			_editButton.onClick.AddListener(OnEditClick);
-			_removeButton.onClick.AddListener(OnRemoveClick);
-		}
+		set {
+			_transportRouteElement = value;
 
-		public void OnRemoveClick()
-		{
-			_routeViewController.RemoveTransportRouteElement(this);
+			if (_transportRouteElement == null || !_transportRouteElement.FromNode || !_transportRouteElement.ToNode || _transportRouteElement.Path == null) return;
+			FromNodeText.text = _transportRouteElement.FromNode.BuildingName;
+			ToNodeText.text = _transportRouteElement.ToNode.BuildingName;
 		}
+	}
 
-		public void OnEditClick()
-		{
-			_routeViewController.SelectedRouteElement = this;
-			_routeSettingController.LoadRouteElementSettings(_transportRouteElement);
-		}
+	void Awake()
+	{
+		// Find static instances
+		//if (!_routeViewController) _routeViewController = FindObjectOfType<RouteElementController>();
+		//if (!_routeSettingController) _routeSettingController = FindObjectOfType<RouteSettingController>();
+		// Init 
+		TransportRouteElement = new TransportRouteElement();
+		// Setup callbacks
+		_editButton.onClick.AddListener(OnEditClick);
+		_removeButton.onClick.AddListener(OnRemoveClick);
+	}
 
-		public override void Show()
-		{
-			base.Show();
-		}
+	public void OnRemoveClick()
+	{
+		_routeViewController.RemoveTransportRouteElement(this);
+	}
 
-		public override void Hide()
-		{
-			base.Hide();
-			TransportRouteElement = new TransportRouteElement();
-			FromNodeImage.sprite = null;
-			ToNodeImage.sprite = null;
-			FromNodeText.text = "";
-			ToNodeText.text = "";
-		}
+	public void OnEditClick()
+	{
+		//_routeViewController.SelectedRouteElement = this;
+		_routeSettingController.LoadRouteElementSettings(_transportRouteElement);
+	}
+
+	public override void Show()
+	{
+		base.Show();
+	}
+
+	public override void Hide()
+	{
+		base.Hide();
+		TransportRouteElement = new TransportRouteElement();
+		FromNodeImage.sprite = null;
+		ToNodeImage.sprite = null;
+		FromNodeText.text = "";
+		ToNodeText.text = "";
 	}
 }

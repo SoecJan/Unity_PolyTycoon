@@ -1,6 +1,4 @@
-﻿using Assets.PolyTycoon.Resources.Data.ProductData;
-using Assets.PolyTycoon.Scripts.Utility;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>

@@ -1,14 +1,11 @@
-﻿using Assets.PolyTycoon.Scripts.Transportation.Model.TransportRoute;
-using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu;
-using Assets.PolyTycoon.Scripts.Utility;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class TransportRouteOverview : AbstractUi
 {
 	[Header("Scroll View")]
-	[SerializeField] private GameObject _overviewElementPrefab;
-	[SerializeField] private ScrollViewHandle _routeOverviewScrollView;
+	[SerializeField] private TransportRouteOverviewElement _overviewElementPrefab;
+	[SerializeField] private RectTransform _routeOverviewScrollView;
 
 	[Header("Navigation")] 
 	[SerializeField] private Button _showButton;
@@ -27,21 +24,21 @@ public class TransportRouteOverview : AbstractUi
 
 	public TransportRouteOverviewElement Add(TransportRoute transportRoute)
 	{
-		GameObject transportRouteOverviewView = _routeOverviewScrollView.AddObject((RectTransform)_overviewElementPrefab.transform);
-		TransportRouteOverviewElement overviewElement = transportRouteOverviewView.GetComponent<TransportRouteOverviewElement>();
-		overviewElement.TransportRoute = transportRoute;
-		return overviewElement;
+		TransportRouteOverviewElement transportRouteOverviewView = GameObject.Instantiate(_overviewElementPrefab, _routeOverviewScrollView);
+		transportRouteOverviewView.TransportRoute = transportRoute;
+		return transportRouteOverviewView;
 	}
 
 	public bool Remove(TransportRoute transportRoute)
 	{
-		foreach (var routeOverview in _routeOverviewScrollView.ContentObjects)
-		{
-			TransportRouteOverviewElement element = routeOverview.gameObject.GetComponent<TransportRouteOverviewElement>();
-			if (element.TransportRoute != transportRoute) continue;
-			_routeOverviewScrollView.RemoveObject((RectTransform) element.transform);
-			return true;
-		}
+		Debug.Log("Remove Overview Element");
+		//foreach (var routeOverview in _routeOverviewScrollView.ContentObjects)
+		//{
+		//	TransportRouteOverviewElement element = routeOverview.gameObject.GetComponent<TransportRouteOverviewElement>();
+		//	if (element.TransportRoute != transportRoute) continue;
+		//	_routeOverviewScrollView.RemoveObject((RectTransform) element.transform);
+		//	return true;
+		//}
 
 		return false;
 	}
