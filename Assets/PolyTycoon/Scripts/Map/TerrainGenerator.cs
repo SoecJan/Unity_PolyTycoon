@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using Assets.PolyTycoon.Scripts.Construction.Model.Placement;
 
 public class TerrainGenerator : MonoBehaviour {
 

@@ -1,8 +1,6 @@
-﻿using Assets.PolyTycoon.Resources.Data.ProductData;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Assets.PolyTycoon.Scripts.Transportation.Model.Product
-{
+
 	/// <summary>
 	/// This is the base class of Products that need to be stored.
 	/// </summary>
@@ -127,4 +125,3 @@ namespace Assets.PolyTycoon.Scripts.Transportation.Model.Product
 		}
 		#endregion
 	}
-}

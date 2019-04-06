@@ -19,15 +19,15 @@ public abstract class AbstractUi : MonoBehaviour
 
 	public virtual void SetVisible(bool visible)
 	{
-		OnVisibilityChange(visible);
-		Animator anim = GetComponentInChildren<Animator>();
+		Animator anim = VisibleObject.GetComponent<Animator>();
+		if (!anim) anim = GetComponentInChildren<Animator>();
 		if (visible)
 		{
 			VisibleObject.SetActive(visible);
 		}
 		else
 		{
-			
+			Reset();
 			if (anim)
 			{
 				StartCoroutine(TransitionEndAwait(anim));
@@ -37,6 +37,8 @@ public abstract class AbstractUi : MonoBehaviour
 				VisibleObject.SetActive(false);
 			}
 		}
+
+		
 	}
 
 	private IEnumerator TransitionEndAwait(Animator animator)
@@ -53,10 +55,6 @@ public abstract class AbstractUi : MonoBehaviour
 	public virtual void OnShortCut() { }
 
 	public void Reset()
-	{
-	}
-
-	protected void OnVisibilityChange(bool visible)
 	{
 	}
 }

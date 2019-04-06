@@ -1,8 +1,4 @@
 ﻿using System.Collections;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Product;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Transport;
-using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate;
-using Assets.PolyTycoon.Scripts.Utility;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;

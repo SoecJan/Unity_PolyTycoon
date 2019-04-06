@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mover: {fileID: 114503501640823664}
-  _sprite: {fileID: 21300000, guid: d672689b654774042b02bba2414281f7, type: 3}
+  _sprite: {fileID: 21300000, guid: 1c9ed2ff5878f4e459535f72ce6eb093, type: 3}
   _unloadSpeed: 1
 --- !u!114 &114503501640823664
 MonoBehaviour:
@@ -183,6 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67777f536c970b34389c8c3a500588fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _wait: 1
 --- !u!65 &65906080502413396
 BoxCollider:
   m_ObjectHideFlags: 0

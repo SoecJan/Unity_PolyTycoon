@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Assets.PolyTycoon.Scripts.Construction.Model.City;
-using Assets.PolyTycoon.Scripts.Construction.Model.Placement;
 using UnityEngine;
 
 public class CityManager : MonoBehaviour
