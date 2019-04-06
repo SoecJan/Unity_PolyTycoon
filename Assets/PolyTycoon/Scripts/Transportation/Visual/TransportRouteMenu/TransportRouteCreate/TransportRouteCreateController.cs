@@ -2,19 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.WSA.WebCam;
 using Object = UnityEngine.Object;
 
 public class TransportRouteCreateController : AbstractUi
 {
+	#region Attributes
+
+	private TransportRoute _selectedTransportRoute;
+	private UserInformationPopup _userInformationPopup;
 	[Header("Navigation")]
-	[SerializeField] private Button _createRouteButton;
 	[SerializeField] private Button _showButton;
 	[SerializeField] private Button _exitButton;
+	[SerializeField] private Toggle _vehicleToggle;
 	[SerializeField] private Toggle _routeToggle;
-	[SerializeField] private Button _createToggle;
+	[SerializeField] private Button _createButton;
+	[SerializeField] private Button _applyButton;
 	[Header("Controller")]
 	[SerializeField] private TransportRouteManager _transportRouteManager;
-	[SerializeField] private RouteVehicleChoiceController _vehicleChoiceController;
+	[SerializeField] private RouteVehicleChooser _vehicleChooser;
 	[SerializeField] private RouteSettingController _settingController;
 	[SerializeField] private RouteElementController _routeElementController;
 
@@ -38,64 +44,78 @@ public class TransportRouteCreateController : AbstractUi
 		}
 	}
 
-	public RouteVehicleChoiceController VehicleChoiceController {
+	public RouteVehicleChooser VehicleChooser {
 		get {
-			return _vehicleChoiceController;
+			return _vehicleChooser;
 		}
 
 		set {
-			_vehicleChoiceController = value;
+			_vehicleChooser = value;
 		}
 	}
 
-	public Toggle RouteToggle {
-		get { return _routeToggle; }
-		set { _routeToggle = value; }
+	public Toggle VehicleToggle
+	{
+		get { return _vehicleToggle; }
 	}
 
+	public Toggle RouteToggle
+	{
+		get { return _routeToggle; }
+	}
+
+	public UserInformationPopup UserInformationPopup {
+		get { return _userInformationPopup; }
+		set { _userInformationPopup = value; }
+	}
+
+	#endregion
+
+	#region Standard Methods
 	private void Start()
 	{
-		_createRouteButton.onClick.AddListener(_transportRouteManager.OnTransportRouteCreate);
-		_showButton.onClick.AddListener(delegate { SetVisible(!VisibleObject.activeSelf); });
-		_exitButton.onClick.AddListener(delegate { SetVisible(false); Reset(); });
-		_vehicleChoiceController.RouteCreateController = this;
+		_userInformationPopup = FindObjectOfType<UserInformationPopup>();
+		_vehicleChooser.RouteCreateController = this;
 		_settingController.RouteCreateController = this;
 		_routeElementController.RouteCreateController = this;
-		RouteToggle.onValueChanged.AddListener(delegate
+		
+		_showButton.onClick.AddListener(delegate { SetVisible(!VisibleObject.activeSelf); });
+		_exitButton.onClick.AddListener(delegate { SetVisible(false); Reset(); });
+		
+		RouteToggle.onValueChanged.AddListener(delegate (bool value)
 		{
-			VehicleChoiceController.VisibleGameObject.SetActive(false);
-			RouteElementController.VisibleGameObject.SetActive(true);
-		});
-		_routeToggle.onValueChanged.AddListener(delegate (bool value)
-		{
-			_vehicleChoiceController.VisibleGameObject.SetActive(!value);
+			_vehicleChooser.VisibleGameObject.SetActive(!value);
 			_routeElementController.VisibleGameObject.SetActive(value);
 			if (value) SettingController.OnShow();
 		});
-		_createToggle.onClick.AddListener(delegate
+		_createButton.onClick.AddListener(delegate
 		{
-			Debug.Log("Go!");
+			if (!_vehicleChooser.SelectedVehicle) _userInformationPopup.InformationText = "Vehicle needs to be set first!";
+			if (_routeElementController.TransportRouteElementViews.Count <= 1) _userInformationPopup.InformationText = "A route needs more than 1 station!";
 			_transportRouteManager.OnTransportRouteCreate();
 		});
-	}
+		_applyButton.onClick.AddListener(delegate
+		{
+			if (!_vehicleChooser.SelectedVehicle) _userInformationPopup.InformationText = "Vehicle needs to be set first!";
+			if (_routeElementController.TransportRouteElementViews.Count <= 1) _userInformationPopup.InformationText = "A route needs more than 1 station!";
 
-	public void CheckIfReady()
-	{
-		if (!_vehicleChoiceController.SelectedVehicle) return;
-		if (_routeElementController.TransportRouteElementViews.Count <= 1) return;
-		_createToggle.interactable = true;
-	}
-
-	public void LoadTransportRoute(TransportRoute transportRoute)
-	{
-		SetVisible(true);
-		VehicleChoiceController.SelectedVehicle = transportRoute.Vehicle;
-		RouteElementController.LoadTransportRoute(transportRoute);
+			_selectedTransportRoute.Vehicle = _vehicleChooser.SelectedVehicle;
+			_selectedTransportRoute.RouteName = _routeElementController.RouteNameField.text;
+			_selectedTransportRoute.TransportRouteElements = _routeElementController.TransportRouteElements;
+			_transportRouteManager.OnTransportRouteChange(_selectedTransportRoute);
+		});
 	}
 
 	public new void Reset()
 	{
-		_vehicleChoiceController.Reset();
+		_selectedTransportRoute = null;
+		_createButton.gameObject.SetActive(true);
+		_applyButton.gameObject.SetActive(false);
+		_vehicleToggle.isOn = true;
+		RouteToggle.isOn = false;
+		RouteToggle.interactable = false;
+		_createButton.interactable = false;
+		_vehicleChooser.Reset();
 		_settingController.Reset();
 		_routeElementController.Reset();
 	}
@@ -104,11 +124,43 @@ public class TransportRouteCreateController : AbstractUi
 	{
 		SetVisible(true);
 	}
+	#endregion
+
+	public void CheckIfReady()
+	{
+		if (!_vehicleChooser.SelectedVehicle) return;
+		if (_routeElementController.RouteNameField.text.Equals("")) return;
+		if (_routeElementController.TransportRouteElementViews.Count <= 1) return;
+		_createButton.interactable = true;
+	}
+
+	public void LoadTransportRoute(TransportRoute transportRoute)
+	{
+		_selectedTransportRoute = transportRoute;
+		_createButton.gameObject.SetActive(false);
+		_applyButton.gameObject.SetActive(true);
+		SetVisible(true);
+		VehicleChooser.SelectedVehicle = _selectedTransportRoute.Vehicle;
+		RouteElementController.LoadTransportRoute(_selectedTransportRoute);
+	}
+
+	public override void SetVisible(bool visible)
+	{
+		base.SetVisible(visible);
+		if (visible)
+		{
+			_routeElementController.RouteNameField.text = "Route #" + TransportRoute.RouteIndex;
+		}
+	}
 }
 
 [Serializable]
-public class RouteVehicleChoiceController
+public class RouteVehicleChooser
 {
+	#region Attributes
+
+	private TransportRouteCreateController _routeCreateController;
+
 	[SerializeField] private Text _titleText;
 	private TransportVehicle _selectedVehicle;
 	[SerializeField] private GameObject _visibleGameObject;
@@ -133,7 +185,7 @@ public class RouteVehicleChoiceController
 
 		set {
 			_selectedVehicle = value;
-			RouteToggle.interactable = _selectedVehicle;
+			_routeCreateController.RouteToggle.interactable = _selectedVehicle;
 			UpdateUi(SelectedVehicle);
 		}
 	}
@@ -149,19 +201,37 @@ public class RouteVehicleChoiceController
 	}
 
 	public TransportRouteCreateController RouteCreateController {
-		set {
-			RouteToggle = value.RouteToggle;
+		set
+		{
+			_routeCreateController = value;
 			FillVehicleView();
 		}
 	}
+	#endregion
 
-	public Toggle RouteToggle { get; set; }
+	#region Standard Methods
+	public void Reset()
+	{
+		VisibleGameObject.SetActive(true);
+		
+		SelectedVehicle = null;
+		_titleText.text = "Vehicle Amount";
+		_speedText.text = "-";
+		_strengthText.text = "-";
+		_capacityText.text = "-";
+		_unloadSpeedText.text = "-";
+		_costText.text = "-";
+		_dailyCostText.text = "-";
+	}
+	#endregion
 
 	private void OnVehicleSelectClick(Vehicle vehicle)
 	{
 		Debug.Log("Vehicle selected: " + vehicle.name);
 		if (vehicle is TransportVehicle)
+		{
 			SelectedVehicle = (TransportVehicle)vehicle;
+		}
 	}
 
 	private void FillVehicleView()
@@ -174,23 +244,12 @@ public class RouteVehicleChoiceController
 			vehicleOptionObject.SelectToggle.onValueChanged.AddListener(delegate (bool isActive)
 			{
 				if (isActive)
+				{
 					OnVehicleSelectClick(vehicleOptionObject.Vehicle);
+				}
 			});
 			vehicleOptionObject.SelectToggle.group = _vehicleChoiceToggleGroup;
 		}
-	}
-
-	public void Reset()
-	{
-		_vehicleChoiceToggleGroup.SetAllTogglesOff();
-		SelectedVehicle = null;
-		_titleText.text = "Vehicle Amount";
-		_speedText.text = "Speed";
-		_strengthText.text = "Strength";
-		_capacityText.text = "Capacity";
-		_unloadSpeedText.text = "Unload";
-		_costText.text = "Cost";
-		_dailyCostText.text = "DailyCost";
 	}
 
 	private void UpdateUi(TransportVehicle vehicle)
@@ -203,13 +262,13 @@ public class RouteVehicleChoiceController
 		_unloadSpeedText.text = vehicle.UnloadSpeed.ToString();
 		_costText.text = "100k";
 		_dailyCostText.text = "2k";
-
 	}
 }
 
 [Serializable]
 public class RouteElementController
 {
+	#region Attributes
 	[Header("General")]
 	[SerializeField] private InputField _routeNameField;
 	[SerializeField] private GameObject _visibleGameObject;
@@ -220,19 +279,8 @@ public class RouteElementController
 	[SerializeField] private UserInformationPopup _userInformationPopup;
 
 	private TransportRouteCreateController _routeCreateController;
-	private RouteVehicleChoiceController _routeVehicleChoiceController;
+	private RouteVehicleChooser _routeVehicleChooser;
 	private RouteSettingController _settingController;
-
-	public TransportRouteCreateController RouteCreateController {
-		set
-		{
-			_routeCreateController = value;
-			_routeVehicleChoiceController = value.VehicleChoiceController;
-			_settingController = value.SettingController;
-			_userInformationPopup = Object.FindObjectOfType<UserInformationPopup>();
-			_routeNameField.onEndEdit.AddListener(delegate { value.CheckIfReady(); });
-		}
-	}
 
 	public InputField RouteNameField {
 		get {
@@ -246,13 +294,25 @@ public class RouteElementController
 
 	public List<TransportRouteElementView> TransportRouteElementViews {
 		get {
-			if (SelectedRouteElement)_settingController.Save(SelectedRouteElement.RouteElement);
+			if (SelectedRouteElement) _settingController.Save(SelectedRouteElement.RouteElement);
 			List<TransportRouteElementView> routeElementViews = new List<TransportRouteElementView>();
 			for (int i = 0; i < _routeElementScrollView.childCount; i++)
 			{
 				routeElementViews.Add(GetElementView(i));
 			}
 			return routeElementViews;
+		}
+	}
+
+	public List<TransportRouteElement> TransportRouteElements {
+		get {
+			if (SelectedRouteElement) _settingController.Save(SelectedRouteElement.RouteElement);
+			List<TransportRouteElement> routeElements = new List<TransportRouteElement>();
+			for (int i = 0; i < _routeElementScrollView.childCount; i++)
+			{
+				routeElements.Add(GetElementView(i).RouteElement);
+			}
+			return routeElements;
 		}
 	}
 
@@ -267,6 +327,30 @@ public class RouteElementController
 			_visibleGameObject = value;
 		}
 	}
+	#endregion
+
+	#region Standard Methods
+	public void Reset()
+	{
+		for (int i = 0; i < _routeElementScrollView.childCount; i++)
+		{
+			TransportRouteElementView element = GetElementView(i);
+			GameObject.Destroy(element.gameObject);
+		}
+		RouteNameField.text = "";
+		VisibleGameObject.SetActive(false);
+	}
+	#endregion
+
+	public TransportRouteCreateController RouteCreateController {
+		set {
+			_routeCreateController = value;
+			_routeVehicleChooser = value.VehicleChooser;
+			_settingController = value.SettingController;
+			_userInformationPopup = value.UserInformationPopup;
+			_routeNameField.onEndEdit.AddListener(delegate { value.CheckIfReady(); });
+		}
+	}
 
 	private TransportRouteElementView GetElementView(int index)
 	{
@@ -276,42 +360,54 @@ public class RouteElementController
 	public void OnTransportStationClick(PathFindingNode pathFindingNode)
 	{
 		if (!VisibleGameObject.activeSelf) return;
-		if (_routeVehicleChoiceController.SelectedVehicle == null)
+		if (_routeVehicleChooser.SelectedVehicle == null)
 		{
 			_userInformationPopup.InformationText = "Vehicle needs to be set first.";
 			return;
 		}
+
+		if (_routeElementScrollView.childCount > 0 && GetElementView(_routeElementScrollView.childCount - 1).FromNode == pathFindingNode)
+		{
+			_userInformationPopup.InformationText = "Route needs to have unique stations.";
+			return;
+		}
+		AddNode(pathFindingNode);
+		_routeCreateController.CheckIfReady();
+	}
+
+	private void AddNode(PathFindingNode pathFindingNode)
+	{
 		TransportRouteElementView elementView = GameObject.Instantiate(_routeElementPrefab, _routeElementScrollView);
 		elementView.SelectButton.onClick.AddListener(delegate
 		{
-			_settingController.Save(elementView.RouteElement);
+			if (SelectedRouteElement)
+			{
+				_settingController.Save(SelectedRouteElement.RouteElement);
+			}
+
 			SelectedRouteElement = elementView;
 			_settingController.LoadRouteElementSettings(elementView.RouteElement);
-			Debug.Log("TransportElement selected");
+			Debug.Log("TransportElement selected; Setting Amount: " + elementView.RouteElement.RouteSettings.Count);
 		});
 		elementView.FromNode = pathFindingNode;
-		if (_routeElementScrollView.childCount > 1)
-		{
-			TransportRouteElementView routeElementViewFirst = GetElementView(0);
-			TransportRouteElementView routeElementViewSecondLast = GetElementView(_routeElementScrollView.childCount - 2);
-			TransportRouteElementView routeElementViewLast = GetElementView(_routeElementScrollView.childCount - 1);
-			routeElementViewSecondLast.ToNode = routeElementViewLast.FromNode;
-			routeElementViewLast.ToNode = routeElementViewFirst.FromNode;
-			_settingController.VisibleGameObject.SetActive(true);
-			//_routeCreateController.CheckIfReady();
-		}
+		if (_routeElementScrollView.childCount <= 1) return;
+		TransportRouteElementView routeElementViewFirst = GetElementView(0);
+		TransportRouteElementView routeElementViewSecondLast = GetElementView(_routeElementScrollView.childCount - 2);
+		TransportRouteElementView routeElementViewLast = GetElementView(_routeElementScrollView.childCount - 1);
+		routeElementViewSecondLast.ToNode = routeElementViewLast.FromNode;
+		routeElementViewLast.ToNode = routeElementViewFirst.FromNode;
+		_settingController.VisibleGameObject.SetActive(true);
 	}
 
 	public void LoadTransportRoute(TransportRoute transportRoute)
 	{
-		//foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
-		//{
-		//	TransportRouteElementView elementView = GameObject.Instantiate(_routeElementPrefab, _routeElementScrollView);
-		//	elementView.TransportRouteElement = transportRouteElement;
-		//}
+		foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
+		{
+			AddNode(transportRouteElement.FromNode);
+		}
 	}
 
-	public void RemoveTransportRouteElement(RouteElementView routeElementView)
+	public void RemoveTransportRouteElement(TransportRouteElementView routeElementView)
 	{
 		for (int i = 0; i < _routeElementScrollView.childCount; i++)
 		{
@@ -330,17 +426,6 @@ public class RouteElementController
 			break;
 		}
 	}
-
-	public void Reset()
-	{
-		for (int i = 0; i < _routeElementScrollView.childCount; i++)
-		{
-			TransportRouteElementView element = GetElementView(i);
-			GameObject.Destroy(element.gameObject);
-		}
-		RouteNameField.text = "";
-		_settingController.VisibleGameObject.SetActive(false);
-	}
 }
 
 /// <summary>
@@ -349,6 +434,7 @@ public class RouteElementController
 [Serializable]
 public class RouteSettingController
 {
+	#region Attributes
 	private TransportRouteCreateController _routeCreateController;
 	private RouteSettingProductSelector _routeSettingProductSelector;
 
@@ -359,23 +445,25 @@ public class RouteSettingController
 	[SerializeField] private TransportProductView _elementPrefab;
 	[SerializeField] private ToggleGroup _toggleGroup;
 
-	public TransportRouteCreateController RouteCreateController {
-		get { return _routeCreateController; }
-		set {
-			_routeCreateController = value;
-			_routeSettingProductSelector = Object.FindObjectOfType<RouteSettingProductSelector>();
-		}
-	}
-
 	public GameObject VisibleGameObject {
 		get { return _visibleGameObject; }
+	}
+	#endregion
+
+	#region Standard Methods
+
+	public void Reset()
+	{
+		ClearObjects();
+		_routeSettingProductSelector.VisibleGameObject.SetActive(false);
+		VisibleGameObject.SetActive(false);
 	}
 
 	public void OnShow()
 	{
 		_routeSettingProductSelector.OnProductSelectAction += ProductSelected;
 		for (int i = 0; i < _routeCreateController
-							.VehicleChoiceController
+							.VehicleChooser
 							.SelectedVehicle
 							.TotalCapacity; i++)
 		{
@@ -384,34 +472,23 @@ public class RouteSettingController
 		}
 	}
 
+	#endregion
+
+	public TransportRouteCreateController RouteCreateController {
+		get { return _routeCreateController; }
+		set {
+			_routeCreateController = value;
+			_routeSettingProductSelector = Object.FindObjectOfType<RouteSettingProductSelector>();
+		}
+	}
+
 	public void Save(TransportRouteElement transportRouteElement)
 	{
 		Debug.Log("Saved Settings (Needs optimization)");
 		List<TransportRouteSetting> settings = new List<TransportRouteSetting>();
 
-		for (int i = 0; i < _unloadSettingScrollView.childCount; i++)
-		{
-			TransportProductView productView = _unloadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
-			if (productView.Product == null) continue;
-
-			TransportRouteSetting setting = new TransportRouteSetting();
-			setting.IsLoad = false;
-			setting.Amount = 1;
-			setting.ProductData = productView.Product;
-			settings.Add(setting);
-		}
-
-		for (int i = 0; i < _unloadSettingScrollView.childCount; i++)
-		{
-			TransportProductView productView = _unloadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
-			if (productView.Product == null) continue;
-
-			TransportRouteSetting setting = new TransportRouteSetting();
-			setting.IsLoad = true;
-			setting.Amount = 1;
-			setting.ProductData = productView.Product;
-			settings.Add(setting);
-		}
+		ExtractSettingInformation(settings, _loadSettingScrollView, true);
+		ExtractSettingInformation(settings, _unloadSettingScrollView, false);
 
 		foreach (TransportRouteSetting setting in settings)
 		{
@@ -420,11 +497,27 @@ public class RouteSettingController
 		transportRouteElement.RouteSettings = settings;
 	}
 
+	private void ExtractSettingInformation(List<TransportRouteSetting> settings, Transform parentTransform, bool isLoad)
+	{
+		for (int i = 0; i < parentTransform.childCount; i++)
+		{
+			TransportProductView productView = parentTransform.GetChild(i).gameObject.GetComponent<TransportProductView>();
+			if (productView.Product == null) continue;
+
+			TransportRouteSetting setting = new TransportRouteSetting
+			{ IsLoad = isLoad, Amount = 1, ProductData = productView.Product };
+			settings.Add(setting);
+		}
+	}
+
+	#region List Actions
 	private TransportProductView AddSetting(Transform parentTransform)
 	{
+		
 		TransportProductView elementGameObject = GameObject.Instantiate(_elementPrefab, parentTransform);
+		elementGameObject.SelectionButton.group = _toggleGroup;
 		//RouteCreateController.RouteElementController.SelectedRouteElement.TransportRouteElement.RouteSettings.Add(elementGameObject.Setting);
-		elementGameObject.SelectionButton.onClick.AddListener(delegate
+		elementGameObject.SelectionButton.onValueChanged.AddListener(delegate
 		{
 			_routeSettingProductSelector.VisibleGameObject.SetActive(!_routeSettingProductSelector.VisibleGameObject.activeSelf);
 			Debug.Log("Show ProductSelector");
@@ -434,62 +527,11 @@ public class RouteSettingController
 		return elementGameObject;
 	}
 
-	private void ProductSelected(ProductData productData)
-	{
-		Debug.Log("Product " + productData.ProductName);
-
-		for (int i = 0; i < _unloadSettingScrollView.childCount; i++)
-		{
-			TransportProductView productView = _unloadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
-			if (!productView.Product)
-			{
-				productView.Product = productData;
-				return;
-			}
-		}
-
-		for (int i = 0; i < _loadSettingScrollView.childCount; i++)
-		{
-			TransportProductView productView = _loadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
-			if (!productView.Product)
-			{
-				productView.Product = productData;
-				return;
-			}
-		}
-
-	}
-
 	public void RemoveRouteSetting(TransportProductView routeSettingView)
 	{
 		Debug.Log("Remove Product");
 		routeSettingView.Product = null;
 		//	UnloadSettingScrollView.RemoveObject((RectTransform)routeSettingView.transform);
-	}
-
-	public void Reset()
-	{
-		ClearObjects();
-		_routeSettingProductSelector.VisibleGameObject.SetActive(false);
-	}
-
-	public void LoadRouteElementSettings(TransportRouteElement transportRouteElement)
-	{
-		ClearObjects();
-
-		foreach (TransportRouteSetting routeSetting in transportRouteElement.RouteSettings)
-		{
-			if (routeSetting.IsLoad)
-			{
-				TransportProductView instantiatedGameObject = AddSetting(_loadSettingScrollView);
-				instantiatedGameObject.Setting = routeSetting;
-			}
-			else
-			{
-				TransportProductView instantiatedGameObject = AddSetting(_unloadSettingScrollView);
-				instantiatedGameObject.Setting = routeSetting;
-			}
-		}
 	}
 
 	private void ClearObjects()
@@ -501,8 +543,57 @@ public class RouteSettingController
 		}
 		for (int i = 0; i < _loadSettingScrollView.childCount; i++)
 		{
-			TransportProductView productView = _unloadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
+			TransportProductView productView = _loadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
 			GameObject.Destroy(productView.gameObject);
+		}
+	}
+	#endregion
+
+	private void ProductSelected(ProductData productData)
+	{
+		Debug.Log("Product " + productData.ProductName);
+		foreach (Toggle activeToggle in _toggleGroup.ActiveToggles())
+		{
+			activeToggle.gameObject.GetComponent<TransportProductView>().Product = productData;
+		}
+	}
+
+	public void LoadRouteElementSettings(TransportRouteElement transportRouteElement)
+	{
+		//ClearObjects();
+
+		for (int i = 0; i < _unloadSettingScrollView.childCount; i++)
+		{
+			TransportProductView productView = _unloadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
+			if (!productView) continue;
+			productView.Product = null;
+		}
+
+		for (int i = 0; i < _loadSettingScrollView.childCount; i++)
+		{
+			TransportProductView productView = _loadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportProductView>();
+			if (!productView) continue;
+			productView.Product = null;
+		}
+
+		int unloadIndex = 0;
+		int loadIndex = 0;
+
+		for (int i = 0; i < transportRouteElement.RouteSettings.Count; i++)
+		{
+			TransportRouteSetting setting = transportRouteElement.RouteSettings[i];
+			if (setting.IsLoad)
+			{
+				TransportProductView transportProductView = _loadSettingScrollView.GetChild(loadIndex).gameObject.GetComponent<TransportProductView>();
+				transportProductView.Setting = setting;
+				loadIndex++;
+			}
+			else
+			{
+				TransportProductView transportProductView = _unloadSettingScrollView.GetChild(unloadIndex).gameObject.GetComponent<TransportProductView>();
+				transportProductView.Setting = setting;
+				unloadIndex++;
+			}
 		}
 	}
 }

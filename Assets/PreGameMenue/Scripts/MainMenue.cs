@@ -35,7 +35,4 @@ public class MainMenue : AbstractUi
 
 	public new void Reset()
 	{}
-
-	protected new void OnVisibilityChange(bool visible)
-	{}
 }

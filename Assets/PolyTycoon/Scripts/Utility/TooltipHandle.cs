@@ -11,16 +11,11 @@ public class TooltipHandle : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 	[SerializeField] private Vector3 _offset;
 	[SerializeField] private RectTransform _tipTransform;
 	[SerializeField] private float _timeUntilDisplay = 1f;
-	private static Tooltip _tooltip;
 	private Coroutine _coroutine;
 	#endregion
 
 	void Start()
-	{
-		if (!_tooltip) _tooltip = FindObjectOfType<Tooltip>();
-		_tipTransform.SetParent(_tooltip.transform);
-		//_tipTransform.position = Vector3.zero;
-	}
+	{}
 
 	#region Methods
 	void LateUpdate()

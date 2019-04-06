@@ -7,7 +7,7 @@ public class TransportProductView : PoolableObject
 	private TransportRouteSetting _setting;
 	private static Sprite _defaultSprite;
 	[SerializeField] private Image _productImage;
-	[SerializeField] private Button _selectionButton;
+	[SerializeField] private Toggle _selectionButton;
 
 	public ProductData Product
 	{
@@ -31,7 +31,7 @@ public class TransportProductView : PoolableObject
 		}
 	}
 
-	public Button SelectionButton
+	public Toggle SelectionButton
 	{
 		get { return _selectionButton; }
 		set { _selectionButton = value; }

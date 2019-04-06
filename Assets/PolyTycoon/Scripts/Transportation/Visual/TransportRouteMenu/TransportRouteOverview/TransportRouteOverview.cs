@@ -32,14 +32,13 @@ public class TransportRouteOverview : AbstractUi
 	public bool Remove(TransportRoute transportRoute)
 	{
 		Debug.Log("Remove Overview Element");
-		//foreach (var routeOverview in _routeOverviewScrollView.ContentObjects)
-		//{
-		//	TransportRouteOverviewElement element = routeOverview.gameObject.GetComponent<TransportRouteOverviewElement>();
-		//	if (element.TransportRoute != transportRoute) continue;
-		//	_routeOverviewScrollView.RemoveObject((RectTransform) element.transform);
-		//	return true;
-		//}
-
+		for (int i = 0; i < _routeOverviewScrollView.childCount; i++)
+		{
+			TransportRouteOverviewElement element = _routeOverviewScrollView.GetChild(i).gameObject.GetComponent<TransportRouteOverviewElement>();
+			if (element.TransportRoute != transportRoute) continue;
+			Destroy(_routeOverviewScrollView.GetChild(i).gameObject);
+			return true;
+		}
 		return false;
 	}
 }

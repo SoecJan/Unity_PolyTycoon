@@ -30,7 +30,6 @@ public class TransportRouteManager : MonoBehaviour
 		_vehicleManager = FindObjectOfType<VehicleManager>();
 		_userPopup = FindObjectOfType<UserInformationPopup>();
 		_pathFinder = FindObjectOfType<PathFinder>();
-		_pathFinder.OnPathFound += OnTransportRoutePathFound;
 	}
 
 	private void Reset()
@@ -50,14 +49,37 @@ public class TransportRouteManager : MonoBehaviour
 
 		TransportRoute transportRoute = new TransportRoute
 		{
-			Vehicle = RouteCreateController.VehicleChoiceController.SelectedVehicle,
+			Vehicle = RouteCreateController.VehicleChooser.SelectedVehicle,
 			RouteName = RouteCreateController.RouteElementController.RouteNameField.text
 		};
 		foreach (TransportRouteElementView view in RouteCreateController.RouteElementController.TransportRouteElementViews)
 		{
 			transportRoute.TransportRouteElements.Add(view.RouteElement);
 		}
-		_pathFinder.FindPath(transportRoute);
+		PrintNodes(transportRoute);
+		_pathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+	}
+
+	private void PrintNodes(TransportRoute transportRoute)
+	{
+		foreach (TransportRouteElement element in transportRoute.TransportRouteElements)
+		{
+			Debug.Log("From: " + element.FromNode + "; To: " + element.ToNode);
+		}
+	}
+
+	public void OnTransportRouteChange(TransportRoute transportRoute)
+	{
+		PrintNodes(transportRoute);
+		_pathFinder.FindPath(transportRoute, OnTransportRouteChangePathFound);
+	}
+
+	private void OnTransportRouteChangePathFound(TransportRoute transportRoute)
+	{
+		Debug.Log("Route updated");
+		transportRoute.Vehicle.TransportRoute = transportRoute;
+		RouteCreateController.SetVisible(false);
+		Reset();
 	}
 
 	private void OnTransportRoutePathFound(TransportRoute transportRoute)

@@ -4,6 +4,8 @@
 	public class TransportRoute
 	{
 		#region Attributes
+
+		public static int RouteIndex = 0;
 		private string _routeName;
 		private List<TransportRouteElement> _transportRouteElements;
 		private TransportVehicle _vehicle;
@@ -12,6 +14,7 @@
 		#region Constructor
 		public TransportRoute()
 		{
+			RouteIndex += 1;
 			_transportRouteElements = new List<TransportRouteElement>();
 		}
 		#endregion

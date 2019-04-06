@@ -7,7 +7,6 @@ public class TransportRouteElementView : MonoBehaviour
 	private TransportRouteElement _transportRouteElement;
 
 	[SerializeField] private Text _fromText;
-	[SerializeField] private Text _toText;
 	[SerializeField] private Button _selectButton;
 
 
@@ -16,8 +15,9 @@ public class TransportRouteElementView : MonoBehaviour
 		get { return _transportRouteElement.FromNode; }
 		set
 		{
+			if (_transportRouteElement == null) _transportRouteElement = new TransportRouteElement();
 			_transportRouteElement.FromNode = value;
-			_fromText.text = "From " + value.BuildingName;
+			_fromText.text = value.BuildingName;
 		}
 	}
 
@@ -27,14 +27,18 @@ public class TransportRouteElementView : MonoBehaviour
 		set
 		{
 			_transportRouteElement.ToNode = value;
-			_toText.text = "To " + value.BuildingName;
 		}
 	}
 
 	public TransportRouteElement RouteElement
 	{
 		get { return _transportRouteElement; }
-		set { _transportRouteElement = value; }
+		set
+		{
+			_transportRouteElement = value;
+			_fromText.text = value.FromNode.BuildingName;
+			ToNode = value.ToNode;
+		}
 	}
 
 	public Button SelectButton
@@ -45,7 +49,7 @@ public class TransportRouteElementView : MonoBehaviour
 
 	void Awake()
 	{
-		_transportRouteElement = new TransportRouteElement();
+		if (_transportRouteElement == null) _transportRouteElement = new TransportRouteElement();
 		_transportRouteElement.RouteSettings = new List<TransportRouteSetting>();
 	}
 }

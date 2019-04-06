@@ -6,7 +6,6 @@ using UnityEngine;
 public class PathFinder : MonoBehaviour
 {
 	#region Attributes
-	public System.Action<TransportRoute> OnPathFound;
 	private IPathFindingAlgorithm _pathFindingAlgorithm;
 	#endregion
 
@@ -16,9 +15,9 @@ public class PathFinder : MonoBehaviour
 		_pathFindingAlgorithm = new AStarPathFinding();
 	}
 
-	public void FindPath(TransportRoute transportRoute)
+	public void FindPath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
 	{
-		StartCoroutine(CalculatePath(transportRoute));
+		StartCoroutine(CalculatePath(transportRoute, callback));
 	}
 
 	/// <summary>
@@ -28,14 +27,14 @@ public class PathFinder : MonoBehaviour
 	/// <param name="endNode"></param>
 	/// <param name="callback"></param>
 	/// <returns></returns>
-	IEnumerator CalculatePath(TransportRoute transportRoute)
+	IEnumerator CalculatePath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
 	{
 		foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
 		{
 			Path path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
 			transportRouteElement.Path = path;
 		}
-		OnPathFound(transportRoute);
+		callback(transportRoute);
 		yield return null;
 	}
 	#endregion
@@ -292,7 +291,7 @@ public class AStarPathFinding : IPathFindingAlgorithm
 		int toDirection = DirectionVectorToInt(toVector3);
 
 		//Debug.Log(fromVector3.ToString() + ": " + fromDirection + ", " + toVector3.ToString() + ": " + toDirection);
-
+		Debug.Log(currentNode + " ;; " + currentNode.PathFindingNode);
 		return currentNode.PathFindingNode.GetTraversalVectors(toDirection, fromDirection);
 	}
 

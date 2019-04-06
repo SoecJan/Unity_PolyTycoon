@@ -32,7 +32,7 @@ public class RouteSettingProductSelector : MonoBehaviour
 		{
 			TransportProductView productUiSlot = GameObject.Instantiate(_productUiSlotPrefab, _scrollView);
 			productUiSlot.Product = product;
-			productUiSlot.SelectionButton.onClick.AddListener(delegate
+			productUiSlot.SelectionButton.onValueChanged.AddListener(delegate
 			{
 				OnProductSelectAction(productUiSlot.Product);
 			});
