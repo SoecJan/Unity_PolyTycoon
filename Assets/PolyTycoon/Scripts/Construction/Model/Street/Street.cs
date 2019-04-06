@@ -1,4 +1,5 @@
-﻿
+﻿using Debug = UnityEngine.Debug;
+
 public class Street : PathFindingNode
 {
 	#region Methods

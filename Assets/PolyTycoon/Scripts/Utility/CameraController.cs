@@ -9,6 +9,7 @@ public class CameraController : MonoBehaviour
 
 	void Start()
 	{
+		Camera.main.depthTextureMode = DepthTextureMode.DepthNormals;
 		if (!_moveTransform) _moveTransform = transform;
 	}
 

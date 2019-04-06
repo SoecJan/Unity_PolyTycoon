@@ -36,6 +36,9 @@ public class TerrainGenerator : MonoBehaviour {
 	[SerializeField]
 	private float m_terrainAlignOffset = -0.01f;
 
+	[SerializeField]
+	private GameObject _waterMeshPrefab;
+
 	#endregion
 
 	#region Getter & Setter
@@ -272,7 +275,8 @@ public class TerrainGenerator : MonoBehaviour {
                         terrainChunkDictionary[viewedChunkCoord].UpdateTerrainChunk();
                     } else {
 					// Didn't find an existing chunk -> create a new one and add it to our Dictionary
-                        TerrainChunk newChunk = new TerrainChunk(viewedChunkCoord, heightMapSettings, meshSettings, biomeSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial);
+	                    TerrainChunk newChunk = new TerrainChunk(viewedChunkCoord, heightMapSettings, meshSettings,
+		                    biomeSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial,_waterMeshPrefab);
                         terrainChunkDictionary.Add(viewedChunkCoord, newChunk);
                         newChunk.onVisibilityChanged += OnTerrainChunkVisibilityChanged; // Subscribe to Event
                         newChunk.Load();

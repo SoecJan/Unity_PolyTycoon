@@ -37,7 +37,7 @@ public class BuildingManager
 	/// <returns>The MapPlaceable at the given position. May be null. </returns>
 	public SimpleMapPlaceable GetMapPlaceable(Vector3 position)
 	{
-		Vector3 positionVector = Vector3Int.FloorToInt(position) + new Vector3(0.5f, position.y, 0.5f);
+		Vector3 positionVector = Vector3Int.FloorToInt(position) + new Vector3(0.5f, 0f, 0.5f);
 		try
 		{
 			positionVector.y = 0f;
@@ -51,14 +51,14 @@ public class BuildingManager
 
 	public SimpleMapPlaceable GetNode(Vector3 position)
 	{
-		Vector3 positionVector = Vector3Int.FloorToInt(position) + new Vector3(0.5f, position.y, 0.5f);
+		Vector3 positionVector = Vector3Int.FloorToInt(position) + new Vector3(0.5f, 0f, 0.5f);
 		try
 		{
 			positionVector.y = 0f;
 			SimpleMapPlaceable simpleMapPlaceable = placedBuildingDictionary[positionVector];
 			Vector3 comparedVector3 = simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0];
 			comparedVector3.y = 0f;
-			if (positionVector.Equals(comparedVector3)) return simpleMapPlaceable;
+			if (Vector3Int.FloorToInt(positionVector).Equals(Vector3Int.FloorToInt(comparedVector3))) return simpleMapPlaceable;
 			return null;
 		}
 		catch (KeyNotFoundException)
@@ -111,7 +111,7 @@ public class BuildingManager
 	public bool AddMapPlaceable(ComplexMapPlaceable placedObject)
 	{
 		if (!placedObject) return false;
-
+		Debug.Log(placedObject.transform.name);
 		for (int i = 0; i < placedObject.ChildMapPlaceables.Count; i++)
 		{
 			// Place Object and if not successful remove all placed Objects before the failed one.
@@ -134,6 +134,7 @@ public class BuildingManager
 	public bool AddMapPlaceable(SimpleMapPlaceable placedObject)
 	{
 		if (!placedObject) return false;
+		
 		for (int i = 0; i < placedObject.UsedCoordinates.Count; i++)
 		{
 			Vector3 placedPosition = Vector3Int.FloorToInt(placedObject.transform.position);
