@@ -1,8 +1,12 @@
 # Unity PolyTycoon
 This is a hobbyist/self study project. Using Unity to create a clone of a transport tycoon genre game.
 
+Trello: https://trello.com/b/bPIOa4Pt/polytycoon
+
 # Getting Started
-Clone this repository and open the root folder using the Unity Game Engine. Add JSON.Net from the unity asset store.
+Clone this repository and open the root folder using the Unity Game Engine. 
+- Add JSON.Net from the unity asset store.
+- Add PostProcessing Stack from the Package Manager.
 
 # Past
 
