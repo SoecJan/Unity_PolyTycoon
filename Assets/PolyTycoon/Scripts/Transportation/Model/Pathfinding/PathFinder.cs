@@ -290,8 +290,7 @@ public class AStarPathFinding : IPathFindingAlgorithm
 		int fromDirection = DirectionVectorToInt(fromVector3);
 		int toDirection = DirectionVectorToInt(toVector3);
 
-		//Debug.Log(fromVector3.ToString() + ": " + fromDirection + ", " + toVector3.ToString() + ": " + toDirection);
-		Debug.Log(currentNode + " ;; " + currentNode.PathFindingNode);
+		//Debug.Log(fromVector3.ToString() + ": " + fromDirection + ", " + toVector3.ToString() + ": " + toDirection)
 		return currentNode.PathFindingNode.GetTraversalVectors(toDirection, fromDirection);
 	}
 

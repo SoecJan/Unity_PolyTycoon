@@ -889,7 +889,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _childMapPlaceables:
-  - {fileID: 114398129449612512}
+  - {fileID: 9161302712849855683}
   - {fileID: 114644906442422128}
   - {fileID: 114249615394809986}
   - {fileID: 114465435671126946}
@@ -897,7 +897,8 @@ MonoBehaviour:
   - {fileID: 114905869857614972}
   - {fileID: 114536003594543432}
   - {fileID: 114524929426483440}
-  _mainBuilding: {fileID: 0}
+  _mainBuilding: {fileID: 9161302712849855683}
+  _producedProduct: {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28, type: 2}
 --- !u!1 &1878917813285660
 GameObject:
   m_ObjectHideFlags: 0
@@ -907,7 +908,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4155783268789912}
-  - component: {fileID: 114398129449612512}
+  - component: {fileID: 9161302712849855683}
   m_Layer: 10
   m_Name: Main1x1
   m_TagString: Untagged
@@ -930,7 +931,7 @@ Transform:
   m_Father: {fileID: 4752424874274766}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114398129449612512
+--- !u!114 &9161302712849855683
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -939,17 +940,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1878917813285660}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce6434ca843de0e458145f747f72c25b, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f68bf472d2b369428e99747fc70116d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _constructionUiSprite: {fileID: 0}
   _usedCoordinates:
   - {x: 0, y: 0, z: 0}
-  - {x: 1, y: 0, z: 0}
-  _buildingName: MainBuidling
+  _buildingName: MainBuilding
   neighborNodes: []
   _consumedProducts: []
-  _cityPlaceable: {fileID: 0}
+  _cityPlaceable: {fileID: 114824951060089850}
 --- !u!1 &1899652948683708
 GameObject:
   m_ObjectHideFlags: 0

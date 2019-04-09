@@ -806,6 +806,7 @@ MonoBehaviour:
   - {fileID: 114323125367730058}
   - {fileID: 114610108844718554}
   _mainBuilding: {fileID: 114610108844718554}
+  _producedProduct: {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28, type: 2}
 --- !u!1 &1720535967887184
 GameObject:
   m_ObjectHideFlags: 0

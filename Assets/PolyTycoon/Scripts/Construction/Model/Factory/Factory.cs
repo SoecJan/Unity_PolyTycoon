@@ -18,17 +18,17 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 	#region Getter & Setter
 	public ProductData ProductData {
 		get {
-			return ProductStorage().StoredProductData;
+			return ProducedProductStorage().StoredProductData;
 		}
 
 		set {
 			// Don't alter if this is the same Product
-			if (ProductStorage().StoredProductData != null && ProductStorage().StoredProductData.Equals(value)) return;
+			if (ProducedProductStorage().StoredProductData != null && ProducedProductStorage().StoredProductData.Equals(value)) return;
 
 			// Change Product to selected
-			ProductStorage().StoredProductData = value;
-			ProductStorage().MaxAmount = _tempMaxAmount;
-			ProductStorage().Amount = 0;
+			ProducedProductStorage().StoredProductData = value;
+			ProducedProductStorage().MaxAmount = _tempMaxAmount;
+			ProducedProductStorage().Amount = 0;
 			_elapsedTime = 0f;
 
 			// Setup needed Products
@@ -69,7 +69,7 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 	//	}
 	//}
 
-	public ProductStorage ProductStorage()
+	public ProductStorage ProducedProductStorage()
 	{
 		return _producedProduct;
 	}
@@ -122,7 +122,7 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 			bool enoughNeeded = needed && NeededProducts()[ProductData.NeededProduct.Product].Amount >= ProductData.NeededProduct.Amount;
 
 			// Wait until there are enough needed products
-			while ((needed && !enoughNeeded) || ProductStorage().Amount == ProductStorage().MaxAmount)
+			while ((needed && !enoughNeeded) || ProducedProductStorage().Amount == ProducedProductStorage().MaxAmount)
 			{
 				yield return new WaitForSeconds(0.5f);
 				needed = ProductData != null && ProductData.NeededProduct.Product != null;
@@ -138,12 +138,12 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 			// Produce
 			_isProducing = true;
 			yield return new WaitForSeconds(ProductData.ProductionTime);
-			ProductStorage().Amount += 1;
+			ProducedProductStorage().Amount += 1;
 			_isProducing = false;
 			_elapsedTime = 0f;
 
 			// Debug
-			if (needed) Debug.Log("Product Finished: " + ProductStorage().StoredProductData.ProductName + ": " + ProductStorage().Amount);
+			if (needed) Debug.Log("Product Finished: " + ProducedProductStorage().StoredProductData.ProductName + ": " + ProducedProductStorage().Amount);
 		}
 	}
 	#endregion

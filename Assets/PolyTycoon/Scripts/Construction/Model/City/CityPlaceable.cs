@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 ///  Holds a reference to all buildings contained in this cityPlaceable. 
 /// </summary>
-public class CityPlaceable : ComplexMapPlaceable, IConsumer
+public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 {
 	#region Attributes
 
@@ -15,12 +15,19 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer
 	private int _size;
 
 	[SerializeField] private CityMainBuilding _mainBuilding;
+	[SerializeField] private ProductData _producedProduct;
+	private ProductStorage _productStorage;
 	#endregion
 
 	#region Getter & Setter
 	Dictionary<ProductData, ProductStorage> IConsumer.NeededProducts()
 	{
 		return _neededProductStorages;
+	}
+	
+	public ProductStorage ProducedProductStorage()
+	{
+		return _productStorage;
 	}
 
 	public Vector2 CenterPosition {
@@ -80,6 +87,7 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer
 			}
 		}
 		_neededProductStorages = new Dictionary<ProductData, ProductStorage>();
+		_productStorage = new ProductStorage(_producedProduct, 3);
 		transform.eulerAngles = new Vector3Int(0, Random.Range(0, 4) * 90, 0);
 		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
 		{

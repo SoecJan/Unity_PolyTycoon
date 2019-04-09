@@ -28,6 +28,7 @@ public abstract class AbstractUi : MonoBehaviour
 		else
 		{
 			Reset();
+			Debug.Log("Reset");
 			if (anim)
 			{
 				StartCoroutine(TransitionEndAwait(anim));
@@ -54,7 +55,7 @@ public abstract class AbstractUi : MonoBehaviour
 
 	public virtual void OnShortCut() { }
 
-	public void Reset()
+	public virtual void Reset()
 	{
 	}
 }

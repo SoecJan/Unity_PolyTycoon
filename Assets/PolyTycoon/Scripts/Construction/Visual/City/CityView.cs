@@ -11,8 +11,9 @@ public class CityView : AbstractUi
 	[Header("Navigation")]
 	[SerializeField] private Button _exitButton;
 	[Header("UI")]
-	[SerializeField] private ScrollViewHandle _neededProductScrollView;
-	[SerializeField] private GameObject _productUiPrefab;
+	[SerializeField] private RectTransform _neededProductScrollView;
+	[SerializeField] private RectTransform _producedProductScrollView;
+	[SerializeField] private NeededProductView _productUiPrefab;
 	[SerializeField] private Text _cityGeneralText;
 	#endregion
 
@@ -32,13 +33,18 @@ public class CityView : AbstractUi
 				return;
 			}
 			Debug.Log("New City selected");
-			foreach (ProductStorage productStorage in ((IConsumer)CityBuilding.CityPlaceable).NeededProducts().Values)
+			foreach (ProductStorage neededProductStorage in ((IConsumer)CityBuilding.CityPlaceable).NeededProducts().Values)
 			{
-				GameObject productSlot = _neededProductScrollView.AddObject((RectTransform)_productUiPrefab.transform);
-				NeededProductView productUiSlot = productSlot.GetComponent<NeededProductView>();
-				productUiSlot.ProductData = productStorage.StoredProductData;
-				productUiSlot.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+				NeededProductView neededProductView = GameObject.Instantiate(_productUiPrefab, _neededProductScrollView);
+				neededProductView.ProductData = neededProductStorage.StoredProductData;
+				neededProductView.NeededAmountText.text = neededProductStorage.Amount + "/" + neededProductStorage.MaxAmount;
 			}
+
+			ProductStorage producedProductStorage = ((IProducer) CityBuilding.CityPlaceable).ProducedProductStorage();
+			NeededProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
+			producedProductView.ProductData = producedProductStorage.StoredProductData;
+			producedProductView.NeededAmountText.text = producedProductStorage.Amount + "/" + producedProductStorage.MaxAmount;
+			
 			StartCoroutine(UpdateUi());
 			SetVisible(true);
 		}
@@ -62,12 +68,18 @@ public class CityView : AbstractUi
 	{
 		while (_cityBuilding != null)
 		{
-			ProductStorage cityProduct = ((IConsumer)CityBuilding.CityPlaceable).NeededProducts().Values.ElementAt(0);
-			_cityGeneralText.text = "Size: " + CityBuilding.CityPlaceable.ChildMapPlaceables.Count.ToString() + "\nLocation: " + CityBuilding.CityPlaceable.CenterPosition.ToString() + "\nPeople: " + CityBuilding.CityPlaceable.CurrentInhabitantCount() + "\nProducts: " + cityProduct.StoredProductData.ProductName;
-			foreach (RectTransform rectTransform in _neededProductScrollView.ContentObjects)
+			_cityGeneralText.text = "Name: " + CityBuilding.CityPlaceable.CityName + 
+			                        "\nPeople: " + CityBuilding.CityPlaceable.CurrentInhabitantCount();
+			for (int i = 0; i < _neededProductScrollView.childCount; i++)
 			{
-				NeededProductView productView = rectTransform.gameObject.GetComponent<NeededProductView>();
+				NeededProductView productView = _neededProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
 				ProductStorage productStorage = ((IConsumer)_cityBuilding.CityPlaceable).NeededProducts()[productView.ProductData];
+				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+			}
+			for (int i = 0; i < _producedProductScrollView.childCount; i++)
+			{
+				NeededProductView productView = _producedProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
+				ProductStorage productStorage = ((IProducer)_cityBuilding.CityPlaceable).ProducedProductStorage();
 				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
 			}
 			yield return new WaitForSeconds(1);
@@ -76,7 +88,15 @@ public class CityView : AbstractUi
 
 	public new void Reset()
 	{
-		_neededProductScrollView.ClearObjects();
+		for (int i = 0; i < _neededProductScrollView.childCount; i++)
+		{
+			Destroy(_neededProductScrollView.transform.GetChild(i).gameObject);
+		}
+
+		for (int i = 0; i < _producedProductScrollView.childCount; i++)
+		{
+			Destroy(_producedProductScrollView.transform.GetChild(i).gameObject);
+		}
 	}
 	#endregion
 }

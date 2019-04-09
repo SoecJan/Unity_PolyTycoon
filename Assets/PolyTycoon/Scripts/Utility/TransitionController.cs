@@ -11,7 +11,7 @@ public class TransitionController : MonoBehaviour
 
 	private MoneyController _moneyController;
 	private CityManager _cityManager;
-	private CompanyUi _companyUi;
+	private CompanyInformationView _companyUi;
 
 	public void StartTransition()
 	{

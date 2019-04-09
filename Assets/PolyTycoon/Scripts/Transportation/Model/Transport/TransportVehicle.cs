@@ -88,7 +88,6 @@ public class TransportVehicle : Vehicle
 		foreach (TransportRouteSetting setting in element.RouteSettings)
 		{
 			if (setting.IsLoad || !consumer.NeededProducts().ContainsKey(setting.ProductData)) continue;
-			Debug.Log(setting.ProductData);
 			while (LoadedProducts[setting.ProductData].Amount > 0)
 			{
 				LoadedProducts[setting.ProductData].Amount -= 1;
@@ -103,12 +102,12 @@ public class TransportVehicle : Vehicle
 		{
 			foreach (TransportRouteSetting setting in element.RouteSettings)
 			{
-				if (!setting.IsLoad || !setting.ProductData.Equals(producer.ProductStorage().StoredProductData)) continue;
+				if (!setting.IsLoad || !setting.ProductData.Equals(producer.ProducedProductStorage().StoredProductData)) continue;
 				int loadAmount = setting.Amount;
 				while (loadAmount > 0)
 				{
-					while (producer.ProductStorage().Amount == 0) { yield return new WaitForSeconds(0.1f); }
-					producer.ProductStorage().Amount -= 1;
+					while (producer.ProducedProductStorage().Amount == 0) { yield return new WaitForSeconds(0.1f); }
+					producer.ProducedProductStorage().Amount -= 1;
 					if (!LoadedProducts.ContainsKey(setting.ProductData)) LoadedProducts.Add(setting.ProductData, new ProductStorage(setting.ProductData) { MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
 					LoadedProducts[setting.ProductData].Amount += 1;
 					loadAmount--;

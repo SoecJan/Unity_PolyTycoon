@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using UnityEditorInternal.Profiling.Memory.Experimental;
+using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 /// <summary>
@@ -41,6 +43,11 @@ public class ProductView : MonoBehaviour
 		}
 	}
 
+	public System.Action<ProductData> ClickCallBack
+	{
+		get; set;
+	}
+
 	//public static FactoryView FactoryUI {
 	//	get {
 	//		return factoryUI;
@@ -59,6 +66,10 @@ public class ProductView : MonoBehaviour
 		//{
 		//	FactoryUI = GameObject.FindObjectOfType<FactoryView>(); // Get the static reference 
 		//}
+		_productButton.onClick.AddListener(delegate
+		{
+			ClickCallBack(_productData);
+		});
 	}
 	#endregion
 
