@@ -5,7 +5,10 @@
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
+/.idea/
 /Assets/ConnectUI/Plugins/JsonDotNet/
+/Assets/Plugins/
+/Assets/Plugins.meta
 
 /Assets/AssetStoreTools*
 
