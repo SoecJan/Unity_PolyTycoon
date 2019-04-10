@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3e302dd8b58f5446bdc14d15f0a1c70, type: 3}
+  m_Name: Bread
+  m_EditorClassIdentifier: 
+  _productSprite: {fileID: 21300000, guid: f2e434f834f69d04bb02615f4bc453e4, type: 3}
+  _productName: Bread
+  _description: Tasty bread.
+  _productionTime: 10
+  _neededProduct:
+  - product: {fileID: 11400000, guid: 87937c70aeb5c6c4293c156ba4e1a307, type: 2}
+    amount: 3
+  - product: {fileID: 11400000, guid: 06fb8c233c970324f8a2f146ee94b7ce, type: 2}
+    amount: 1

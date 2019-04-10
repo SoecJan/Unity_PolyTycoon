@@ -52,7 +52,9 @@ public class FactoryView : AbstractUi
                 return;
             }
 
-            LoadNeededProducts();
+            _productChangeButton.interactable = _factory.IsProductSelectable;
+            OnProductChange(_factory.ProductData);
+//            LoadNeededProducts();
             _titleText.text = _factory.BuildingName;
             SetVisible(true);
             _productSelector.OnProductSelectAction = OnProductChange;
@@ -85,13 +87,22 @@ public class FactoryView : AbstractUi
             return;
         }
 
+        // Add NeededProduct views to UI
         foreach (ProductStorage neededProductStorage in _factory.NeededProducts().Values)
         {
             NeededProductStorageView neededProductStorageView = GameObject.Instantiate(_factoryNeededProductView.NeededProductStorageViewPrefab,
                 _factoryNeededProductView.ScrollView);
             neededProductStorageView.ProductData = neededProductStorage.StoredProductData;
             neededProductStorageView.NeededAmountText.text = neededProductStorage.Amount + "/" + neededProductStorage.MaxAmount;
-            neededProductStorageView.StoredProductAmountText.text = _factory.ProductData.NeededProduct.Amount.ToString();
+            foreach (NeededProduct neededProduct in _factory.ProductData.NeededProduct)
+            {
+                if (neededProductStorageView.ProductData.Equals(neededProduct.Product))
+                {
+                    neededProductStorageView.StoredProductAmountText.text = neededProduct.Amount.ToString();
+                    continue;
+                }
+            }
+            
         }
     }
 
@@ -106,13 +117,13 @@ public class FactoryView : AbstractUi
         if (!_factory) return;
         _factory.ProductData = productData;
         _productSelector.VisibleGameObject.SetActive(false);
+        LoadNeededProducts();
 
+        if (!productData) return;
+        // Update Tooltip
         _factoryProductToolTip.Image.sprite = productData.ProductSprite;
         _factoryProductToolTip.ProductNameText.text = productData.ProductName;
-        _factoryProductToolTip.ProductInformationText.text =
-            productData.Description + "\nProduction Time: " + productData.ProductionTime;
-
-        LoadNeededProducts();
+        _factoryProductToolTip.ProductInformationText.text = productData.Description + "\nProduction Time: " + productData.ProductionTime;
     }
 
     private IEnumerator UpdateUI()

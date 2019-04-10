@@ -48,6 +48,8 @@ public class VehicleMover : MonoBehaviour
 	{
 		if (_wayPointList == null) return;
 		WayPoint currentWayPoint = _wayPointList[_wayPointIndex];
+		
+		// Drive Straight
 		if (currentWayPoint.TraversalVectors.Length == 2)
 		{
 			if (DriveStraightToDestination(currentWayPoint.TraversalVectors[1]))
@@ -57,6 +59,7 @@ public class VehicleMover : MonoBehaviour
 		}
 		else
 		{
+			// Drive straight to Corner
 			if (!_isWayPointReached)
 			{
 				_isWayPointReached = DriveStraightToDestination(currentWayPoint.TraversalVectors[0]); // Drive to Corner intersection
@@ -79,11 +82,10 @@ public class VehicleMover : MonoBehaviour
 				//}
 			}
 		}
-		if (_wayPointIndex == _wayPointList.Count)
-		{
-			_wait = true;
-			OnArrive();
-		}
+
+		if (_wayPointIndex != _wayPointList.Count) return;
+		_wait = true;
+		OnArrive();
 	}
 
 	bool DriveStraightToDestination(Vector3 destinationVector3)
@@ -95,6 +97,7 @@ public class VehicleMover : MonoBehaviour
 
 		if (difference.magnitude > futureDifference.magnitude)
 		{
+			transform.LookAt(futurePosition);
 			transform.position = futurePosition;
 			return false;
 		}

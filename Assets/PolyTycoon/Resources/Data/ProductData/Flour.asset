@@ -4,17 +4,18 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3e302dd8b58f5446bdc14d15f0a1c70, type: 3}
-  m_Name: WheatBread
+  m_Name: Flour
   m_EditorClassIdentifier: 
-  _productSprite: {fileID: 21300000, guid: f2e434f834f69d04bb02615f4bc453e4, type: 3}
-  _productName: Bread
-  _description: Soft tasty bread
+  _productSprite: {fileID: 21300000, guid: 76718eb53ba43ad4db0b47890d46e33b, type: 3}
+  _productName: Flour
+  _description: Can be used to make bread.
   _productionTime: 10
   _neededProduct:
-    product: {fileID: 11400000, guid: 16044fb5c98cc1246a06bf469737162e, type: 2}
+  - product: {fileID: 11400000, guid: 16044fb5c98cc1246a06bf469737162e, type: 2}
     amount: 4

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityScript.Scripting.Pipeline;
 
 public class Factory : PathFindingNode, IConsumer, IProducer
 {
@@ -8,6 +9,7 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 
 	[SerializeField] private Dictionary<ProductData, ProductStorage> _neededProducts; // Dict of needed Products
 	[SerializeField] private ProductStorage _producedProduct; // The currently produced product
+	private bool _isProductSelectable = true;
 	private bool _isProducing = false;
 	private float _elapsedTime; // Time elapsed since the begin of the production process
 	private int _tempMaxAmount = 20;
@@ -27,24 +29,7 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 
 			// Change Product to selected
 			ProducedProductStorage().StoredProductData = value;
-			ProducedProductStorage().MaxAmount = _tempMaxAmount;
-			ProducedProductStorage().Amount = 0;
-			_elapsedTime = 0f;
-
-			// Setup needed Products
-			_neededProducts.Clear();
-			if (ProductData.NeededProduct.Product != null)
-			{
-				_neededProducts.Add(ProductData.NeededProduct.Product, new ProductStorage(ProductData.NeededProduct.Product, _tempMaxAmount));
-			}
-
-			// Start production of the new product
-			if (_produceCoroutine != null)
-			{
-				StopCoroutine(_produceCoroutine);
-				_produceCoroutine = null;
-			}
-			_produceCoroutine = StartCoroutine(Produce());
+			if (ProductData) InitializeProduction();
 		}
 	}
 
@@ -52,6 +37,11 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 		get {
 			return _elapsedTime / ProductData.ProductionTime;
 		}
+	}
+
+	public bool IsProductSelectable
+	{
+		get { return _isProductSelectable; }
 	}
 
 	//public Dictionary<BiomeGenerator.Biome, float> BiomeValueDictionary {
@@ -96,8 +86,39 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 	{
 		base.Initialize();
 		IsClickable = true;
-		_producedProduct = new ProductStorage();
 		_neededProducts = new Dictionary<ProductData, ProductStorage>();
+		
+		// Initialize production if a product has been set in advance.
+		if (_producedProduct.StoredProductData == null) return;
+		
+		InitializeProduction();
+		_isProductSelectable = false;
+	}
+
+	private void InitializeProduction()
+	{
+		ProducedProductStorage().MaxAmount = _tempMaxAmount;
+		ProducedProductStorage().Amount = 0;
+		_isProducing = false;
+		_elapsedTime = 0f;
+
+		// Setup needed Products
+		_neededProducts.Clear();
+		if (ProductData.NeededProduct.Length > 0)
+		{
+			foreach (NeededProduct neededProduct in ProductData.NeededProduct)
+			{
+				_neededProducts.Add(neededProduct.Product, new ProductStorage(neededProduct.Product, _tempMaxAmount));
+			}
+		}
+
+		// Start production of the new product
+		if (_produceCoroutine != null)
+		{
+			StopCoroutine(_produceCoroutine);
+			_produceCoroutine = null;
+		}
+		_produceCoroutine = StartCoroutine(Produce());
 	}
 
 	private void Update()
@@ -118,21 +139,19 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 	{
 		while (ProductData != null)
 		{
-			bool needed = ProductData != null && ProductData.NeededProduct.Product != null;
-			bool enoughNeeded = needed && NeededProducts()[ProductData.NeededProduct.Product].Amount >= ProductData.NeededProduct.Amount;
-
 			// Wait until there are enough needed products
-			while ((needed && !enoughNeeded) || ProducedProductStorage().Amount == ProducedProductStorage().MaxAmount)
+			while (!IsProductionReady())
 			{
 				yield return new WaitForSeconds(0.5f);
-				needed = ProductData != null && ProductData.NeededProduct.Product != null;
-				enoughNeeded = needed && NeededProducts()[ProductData.NeededProduct.Product].Amount >= ProductData.NeededProduct.Amount;
 			}
 
 			// Remove needed products from storage
-			if (needed)
+			if (NeededProducts().Count > 0)
 			{
-				NeededProducts()[ProductData.NeededProduct.Product].Amount -= ProductData.NeededProduct.Amount;
+				foreach (NeededProduct neededProduct in ProductData.NeededProduct)
+				{
+					NeededProducts()[neededProduct.Product].Amount -= neededProduct.Amount;
+				}
 			}
 
 			// Produce
@@ -143,8 +162,22 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 			_elapsedTime = 0f;
 
 			// Debug
-			if (needed) Debug.Log("Product Finished: " + ProducedProductStorage().StoredProductData.ProductName + ": " + ProducedProductStorage().Amount);
+			Debug.Log("Product Finished: " + ProducedProductStorage().StoredProductData.ProductName + ": " + ProducedProductStorage().Amount);
 		}
+	}
+
+	private bool IsProductionReady()
+	{
+		bool productionReady = ProductData != null && ProducedProductStorage().Amount < ProducedProductStorage().MaxAmount;
+		if (!productionReady) return productionReady;
+		foreach (NeededProduct neededProduct in ProductData.NeededProduct)
+		{
+			if (neededProduct.Amount > NeededProducts()[neededProduct.Product].Amount)
+			{
+				productionReady = false;
+			}
+		}
+		return productionReady;
 	}
 	#endregion
 }

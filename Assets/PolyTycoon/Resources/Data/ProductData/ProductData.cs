@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -19,7 +20,7 @@ public class ProductData : ScriptableObject
 	[Tooltip("The product time needed to produce one product")]
 	[SerializeField] private float _productionTime;
 	[Tooltip("The product needed for production")]
-	[SerializeField] private NeededProduct _neededProduct;
+	[SerializeField] private NeededProduct[] _neededProduct;
 	#endregion
 
 	#region Getter & Setter
@@ -47,13 +48,9 @@ public class ProductData : ScriptableObject
 		}
 	}
 
-	public NeededProduct NeededProduct {
+	public NeededProduct[] NeededProduct {
 		get {
 			return _neededProduct;
-		}
-
-		set {
-			_neededProduct = value;
 		}
 	}
 	#endregion

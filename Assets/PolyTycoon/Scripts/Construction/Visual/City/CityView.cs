@@ -54,10 +54,7 @@ public class CityView : AbstractUi
 	#region Methods
 	private void Start()
 	{
-		_exitButton.onClick.AddListener(delegate
-		{
-			SetVisible(false); Reset(); ;
-		});
+		_exitButton.onClick.AddListener(delegate { CityBuilding = null; });
 	}
 
 	/// <summary>
@@ -86,7 +83,7 @@ public class CityView : AbstractUi
 		}
 	}
 
-	public new void Reset()
+	public override void Reset()
 	{
 		for (int i = 0; i < _neededProductScrollView.childCount; i++)
 		{

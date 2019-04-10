@@ -57,8 +57,9 @@ MonoBehaviour:
   _buildingName: Bakery
   neighborNodes: []
   _producedProduct:
-    _storedProductData: {fileID: 0}
-    _maxAmount: 0
+    _storedProductData: {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28,
+      type: 2}
+    _maxAmount: 8
     _storedAmount: 0
     _growthBiome: 0
     _baseGrowthValue: 0.5

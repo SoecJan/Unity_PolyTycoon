@@ -211,7 +211,9 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   _buildingName: 
   neighborNodes: []
-  _consumedProducts: []
+  _consumedProducts:
+  - product: {fileID: 11400000, guid: 06fb8c233c970324f8a2f146ee94b7ce, type: 2}
+    amount: 1
   _cityPlaceable: {fileID: 114998447412958178}
 --- !u!65 &65976982982046648
 BoxCollider:
@@ -277,7 +279,7 @@ MonoBehaviour:
   _buildingName: 
   neighborNodes: []
   _consumedProducts:
-  - product: {fileID: 11400000, guid: 16044fb5c98cc1246a06bf469737162e, type: 2}
+  - product: {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28, type: 2}
     amount: 5
   _cityPlaceable: {fileID: 114998447412958178}
 --- !u!65 &65918366206122516
@@ -528,7 +530,9 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   _buildingName: 
   neighborNodes: []
-  _consumedProducts: []
+  _consumedProducts:
+  - product: {fileID: 11400000, guid: 87937c70aeb5c6c4293c156ba4e1a307, type: 2}
+    amount: 1
   _cityPlaceable: {fileID: 114998447412958178}
 --- !u!65 &65764936296441698
 BoxCollider:
@@ -593,7 +597,9 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   _buildingName: 
   neighborNodes: []
-  _consumedProducts: []
+  _consumedProducts:
+  - product: {fileID: 11400000, guid: 06fb8c233c970324f8a2f146ee94b7ce, type: 2}
+    amount: 2
   _cityPlaceable: {fileID: 114998447412958178}
 --- !u!65 &65794630626147302
 BoxCollider:
@@ -806,7 +812,7 @@ MonoBehaviour:
   - {fileID: 114323125367730058}
   - {fileID: 114610108844718554}
   _mainBuilding: {fileID: 114610108844718554}
-  _producedProduct: {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28, type: 2}
+  _producedProduct: {fileID: 11400000, guid: 481aafaf9623bc84f857b6587f327264, type: 2}
 --- !u!1 &1720535967887184
 GameObject:
   m_ObjectHideFlags: 0

@@ -471,6 +471,7 @@ public class RouteSettingController
     [SerializeField] private TransportRouteProductView _elementPrefab;
     [SerializeField] private Text _fromToText;
     [SerializeField] private ToggleGroup _toggleGroup;
+    [SerializeField] private RectTransform _productSelectorAnchor;
 
     public GameObject VisibleGameObject
     {
@@ -559,6 +560,10 @@ public class RouteSettingController
             {
                 _routeSettingProductSelector.VisibleGameObject.SetActive(!_routeSettingProductSelector.VisibleGameObject
                     .activeSelf);
+                if (_routeCreateController.VisibleObject.activeSelf)
+                {
+                    _routeSettingProductSelector.VisibleGameObject.transform.position = _productSelectorAnchor.position;
+                }
             }
             Debug.Log("Show ProductSelector");
             

@@ -28,7 +28,6 @@ public abstract class AbstractUi : MonoBehaviour
 		else
 		{
 			Reset();
-			Debug.Log("Reset");
 			if (anim)
 			{
 				StartCoroutine(TransitionEndAwait(anim));

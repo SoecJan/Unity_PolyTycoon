@@ -82,12 +82,12 @@ public class TransportVehicle : Vehicle
 
 	private IEnumerator HandleLoad() // TODO: Missing: Maximum Amounts of Storage
 	{
+		// Unload Products
 		TransportRouteElement element = _transportRoute.TransportRouteElements[(RouteIndex + 1) % _transportRoute.TransportRouteElements.Count];
-
 		IConsumer consumer = (IConsumer)element.FromNode;
 		foreach (TransportRouteSetting setting in element.RouteSettings)
 		{
-			if (setting.IsLoad || !consumer.NeededProducts().ContainsKey(setting.ProductData)) continue;
+			if (setting.IsLoad || !consumer.NeededProducts().ContainsKey(setting.ProductData) || !LoadedProducts.ContainsKey(setting.ProductData)) continue;
 			while (LoadedProducts[setting.ProductData].Amount > 0)
 			{
 				LoadedProducts[setting.ProductData].Amount -= 1;
@@ -97,6 +97,7 @@ public class TransportVehicle : Vehicle
 			}
 		}
 
+		// Load Products
 		IProducer producer = element.FromNode as IProducer;
 		if (producer != null)
 		{

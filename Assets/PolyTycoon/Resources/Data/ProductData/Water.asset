@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3e302dd8b58f5446bdc14d15f0a1c70, type: 3}
-  m_Name: Wheat
+  m_Name: Water
   m_EditorClassIdentifier: 
-  _productSprite: {fileID: 21300000, guid: d672689b654774042b02bba2414281f7, type: 3}
-  _productName: Wheat
-  _description: Can be used to make flour.
-  _productionTime: 5
+  _productSprite: {fileID: 21300000, guid: db07dd48b773ad24d81eb161baa777b5, type: 3}
+  _productName: Water
+  _description: Tasteless fluid.
+  _productionTime: 10
   _neededProduct: []
