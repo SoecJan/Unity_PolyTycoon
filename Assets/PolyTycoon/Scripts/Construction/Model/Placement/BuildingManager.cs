@@ -13,6 +13,7 @@ public class BuildingManager
 	private static TransportRouteCreateController _routeCreateController;
 	private static FactoryView _factoryView;
 	private static CityView _cityView;
+	private static WarehouseView _warehouseView;
 
 	private Dictionary<Vector3, SimpleMapPlaceable> placedBuildingDictionary; // A dict of all placed Object in the map. Used to avoid collisions.
 	#endregion
@@ -24,6 +25,7 @@ public class BuildingManager
 		_routeCreateController = Object.FindObjectOfType<TransportRouteCreateController>();
 		_factoryView = Object.FindObjectOfType<FactoryView>();
 		_cityView = Object.FindObjectOfType<CityView>();
+		_warehouseView = Object.FindObjectOfType<WarehouseView>();
 	}
 	#endregion
 
@@ -212,6 +214,10 @@ public class BuildingManager
 		else if (mapPlaceable is CityBuilding)
 		{
 			_cityView.CityBuilding = (CityBuilding)mapPlaceable;
+		}
+		else if (mapPlaceable is Warehouse)
+		{
+			_warehouseView.Warehouse = (Warehouse) mapPlaceable;
 		}
 	}
 	#endregion
