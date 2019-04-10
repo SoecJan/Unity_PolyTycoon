@@ -194,7 +194,7 @@ public class BuildingManager
 
 	private void OnPlaceableClick(SimpleMapPlaceable mapPlaceable)
 	{
-		Debug.Log("Placeable Clicked");
+		Debug.Log("Placeable clicked: " + mapPlaceable.BuildingName);
 		if (_routeCreateController && _routeCreateController.VisibleObject.activeSelf)
 		{
 			if (mapPlaceable is CityBuilding)

@@ -84,36 +84,103 @@ public class TransportVehicle : Vehicle
 	{
 		// Unload Products
 		TransportRouteElement element = _transportRoute.TransportRouteElements[(RouteIndex + 1) % _transportRoute.TransportRouteElements.Count];
-		IConsumer consumer = (IConsumer)element.FromNode;
-		foreach (TransportRouteSetting setting in element.RouteSettings)
+		IConsumer consumer = element.FromNode as IConsumer;
+		if (consumer != null)
 		{
-			if (setting.IsLoad || !consumer.NeededProducts().ContainsKey(setting.ProductData) || !LoadedProducts.ContainsKey(setting.ProductData)) continue;
-			while (LoadedProducts[setting.ProductData].Amount > 0)
+			foreach (TransportRouteSetting setting in element.RouteSettings)
 			{
-				LoadedProducts[setting.ProductData].Amount -= 1;
-				consumer.NeededProducts()[setting.ProductData].Amount += 1;
-				yield return new WaitForSeconds(_unloadSpeed);
-				if (LoadedProducts[setting.ProductData].Amount == 0 || consumer.NeededProducts()[setting.ProductData].Amount == consumer.NeededProducts()[setting.ProductData].MaxAmount) break;
+				if (setting.IsLoad || !consumer.NeededProducts().ContainsKey(setting.ProductData) || !LoadedProducts.ContainsKey(setting.ProductData)) continue;
+				
+				int unloadAmount = setting.Amount;
+				while (unloadAmount > 0 
+				       && LoadedProducts[setting.ProductData].Amount > 0
+				       && consumer.NeededProducts()[setting.ProductData].Amount < consumer.NeededProducts()[setting.ProductData].MaxAmount)
+				{
+					unloadAmount--;
+					LoadedProducts[setting.ProductData].Amount -= 1;
+					consumer.NeededProducts()[setting.ProductData].Amount += 1;
+					yield return new WaitForSeconds(_unloadSpeed);
+				}
 			}
 		}
-
+		
 		// Load Products
 		IProducer producer = element.FromNode as IProducer;
 		if (producer != null)
 		{
 			foreach (TransportRouteSetting setting in element.RouteSettings)
 			{
-				if (!setting.IsLoad || !setting.ProductData.Equals(producer.ProducedProductStorage().StoredProductData)) continue;
-				int loadAmount = setting.Amount;
-				while (loadAmount > 0)
+				if (!setting.IsLoad) continue;
+				if (!setting.ProductData.Equals(producer.ProducedProductStorage().StoredProductData)) continue;
+				
+				if (!LoadedProducts.ContainsKey(setting.ProductData))
 				{
-					while (producer.ProducedProductStorage().Amount == 0) { yield return new WaitForSeconds(0.1f); }
-					producer.ProducedProductStorage().Amount -= 1;
-					if (!LoadedProducts.ContainsKey(setting.ProductData)) LoadedProducts.Add(setting.ProductData, new ProductStorage(setting.ProductData) { MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
-					LoadedProducts[setting.ProductData].Amount += 1;
+					LoadedProducts.Add(setting.ProductData, new ProductStorage(setting.ProductData) 
+						{ MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
+				}
+				
+				int loadAmount = setting.Amount;
+				while (loadAmount > 0 
+				       && LoadedProducts[setting.ProductData].Amount != LoadedProducts[setting.ProductData].MaxAmount)
+				{
 					loadAmount--;
+					while (producer.ProducedProductStorage().Amount == 0) 
+						{ yield return new WaitForSeconds(0.1f); }
+					producer.ProducedProductStorage().Amount -= 1;
+					LoadedProducts[setting.ProductData].Amount += 1;
 					yield return new WaitForSeconds(_unloadSpeed);
-					if (LoadedProducts[setting.ProductData].Amount == LoadedProducts[setting.ProductData].MaxAmount) break;
+				}
+			}
+		}
+		
+		// Storage loading/unloading
+		IStore storage = element.FromNode as IStore;
+		if (storage != null)
+		{
+			// Unload to storage
+			foreach (TransportRouteSetting setting in element.RouteSettings)
+			{
+				if (setting.IsLoad) continue;
+				if (!LoadedProducts.ContainsKey(setting.ProductData)) continue;
+				if (!(LoadedProducts[setting.ProductData].Amount > 0)) continue;
+				
+				if (!storage.StoredProducts().ContainsKey(setting.ProductData))
+				{
+					storage.StoredProducts().Add(setting.ProductData, new ProductStorage(setting.ProductData) 
+						{ MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
+				}
+				
+				int unloadAmount = setting.Amount;
+				while (unloadAmount > 0 && LoadedProducts[setting.ProductData].Amount > 0)
+				{
+					unloadAmount--;
+					LoadedProducts[setting.ProductData].Amount -= 1;
+					storage.StoredProducts()[setting.ProductData].Amount += 1;
+					yield return new WaitForSeconds(_unloadSpeed);
+				}
+			}
+			
+			// Load from storage
+			foreach (TransportRouteSetting setting in element.RouteSettings)
+			{
+				if (!setting.IsLoad) continue;
+				if (!storage.StoredProducts().ContainsKey(setting.ProductData)) continue;
+				if (!(storage.StoredProducts()[setting.ProductData].Amount > 0)) continue;
+				if (!LoadedProducts.ContainsKey(setting.ProductData))
+				{
+					LoadedProducts.Add(setting.ProductData, new ProductStorage(setting.ProductData) 
+						{ MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
+				}
+				
+				int loadAmount = setting.Amount;
+				while (loadAmount > 0 
+				       && storage.StoredProducts()[setting.ProductData].Amount > 0 
+				       && LoadedProducts[setting.ProductData].Amount != LoadedProducts[setting.ProductData].MaxAmount)
+				{
+					loadAmount--;
+					storage.StoredProducts()[setting.ProductData].Amount -= 1;
+					LoadedProducts[setting.ProductData].Amount += 1;
+					yield return new WaitForSeconds(_unloadSpeed);
 				}
 			}
 		}
