@@ -139,15 +139,24 @@ MonoBehaviour:
   _constructionUiSprite: {fileID: 21300000, guid: bea2defb7698b60419806955cbd03077,
     type: 3}
   _usedCoordinates:
-  - {x: -1, y: 0, z: 0}
-  - {x: 0, y: 0, z: -1}
-  - {x: 0, y: 0, z: 1}
-  - {x: 1, y: 0, z: 0}
-  - {x: -1, y: 0, z: -1}
-  - {x: -1, y: 0, z: 1}
-  - {x: 0, y: 0, z: 0}
-  - {x: 1, y: 0, z: -1}
-  - {x: 1, y: 0, z: 1}
+  - _usedCoordinate: {x: -1, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: 1}
+    _terrainType: 3
   _buildingName: Warehouse
   neighborNodes: []
   _maxCapacity: 256

@@ -6,8 +6,12 @@ using UnityEngine;
 public class Vehicle : MonoBehaviour
 {
 	#region Attributes
+
+	public enum PathType { Water, Road, Rail, Air };
+	
 	private int _routeIndex = -1;
 	private List<Path> _pathList;
+	[SerializeField] private PathType _pathType = PathType.Road;
 	[SerializeField] private VehicleMover _mover;
 	[SerializeField] private Sprite _sprite;
 	#endregion
@@ -45,6 +49,13 @@ public class Vehicle : MonoBehaviour
 			return _routeIndex;
 		}
 	}
+
+	public PathType MoveType
+	{
+		get { return _pathType; }
+		set { _pathType = value; }
+	}
+
 	#endregion
 
 	#region Methods

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5407359743178086189}
   - component: {fileID: 1673746562593025173}
   m_Layer: 10
-  m_Name: TrainStation3x4
+  m_Name: TrainStation2x3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -66,12 +66,18 @@ MonoBehaviour:
   _constructionUiSprite: {fileID: 21300000, guid: bea2defb7698b60419806955cbd03077,
     type: 3}
   _usedCoordinates:
-  - {x: 0, y: 0, z: 1}
-  - {x: 0, y: 0, z: 0}
-  - {x: 1, y: 0, z: 1}
-  - {x: 1, y: 0, z: 0}
-  - {x: -1, y: 0, z: 0}
-  - {x: -1, y: 0, z: 1}
+  - _usedCoordinate: {x: 0, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: 1}
+    _terrainType: 3
   _buildingName: Trainstation
   neighborNodes:
   - {fileID: 0}
@@ -305,6 +311,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5471062723989478433}
     m_Modifications:
+    - target: {fileID: 100000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
+      propertyPath: m_Name
+      value: Warehouse
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -347,14 +361,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
-      propertyPath: m_Name
-      value: Warehouse
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

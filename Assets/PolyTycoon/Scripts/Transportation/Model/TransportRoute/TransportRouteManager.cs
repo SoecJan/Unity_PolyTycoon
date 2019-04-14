@@ -8,7 +8,8 @@ public class TransportRouteManager : MonoBehaviour
 	[SerializeField] private TransportRouteOverview _transportRouteOverview;
 	[SerializeField] private VehicleManager _vehicleManager;
 
-	private PathFinder _pathFinder;
+	private NetworkPathFinder _networkPathFinder;
+	private TerrainPathFinder _terrainPathFinder;
 	private UserInformationPopup _userPopup;
 	#endregion
 
@@ -29,7 +30,8 @@ public class TransportRouteManager : MonoBehaviour
 	{
 		_vehicleManager = FindObjectOfType<VehicleManager>();
 		_userPopup = FindObjectOfType<UserInformationPopup>();
-		_pathFinder = FindObjectOfType<PathFinder>();
+		_networkPathFinder = FindObjectOfType<NetworkPathFinder>();
+		_terrainPathFinder = FindObjectOfType<TerrainPathFinder>();
 	}
 
 	private void Reset()
@@ -57,7 +59,15 @@ public class TransportRouteManager : MonoBehaviour
 			transportRoute.TransportRouteElements.Add(view.RouteElement);
 		}
 		PrintNodes(transportRoute);
-		_pathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+		if (transportRoute.Vehicle.MoveType == Vehicle.PathType.Road)
+		{
+			_networkPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+		}
+		else
+		{
+			Debug.Log("Terrain Path Finder");
+			_terrainPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+		}
 	}
 
 	private void PrintNodes(TransportRoute transportRoute)
@@ -71,7 +81,7 @@ public class TransportRouteManager : MonoBehaviour
 	public void OnTransportRouteChange(TransportRoute transportRoute)
 	{
 		PrintNodes(transportRoute);
-		_pathFinder.FindPath(transportRoute, OnTransportRouteChangePathFound);
+		_networkPathFinder.FindPath(transportRoute, OnTransportRouteChangePathFound);
 	}
 
 	private void OnTransportRouteChangePathFound(TransportRoute transportRoute)
