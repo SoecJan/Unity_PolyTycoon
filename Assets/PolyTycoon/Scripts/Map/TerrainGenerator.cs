@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
-using UnityEngine.WSA;
+using UnityEngine.UI;
 
 public class TerrainGenerator : MonoBehaviour
 {
@@ -291,6 +291,8 @@ public class TerrainGenerator : MonoBehaviour
 
 	// Called every frame
 	void Update() {
+		if (Input.GetKeyDown(KeyCode.R)) textureSettings.ApplyToMaterial(mapMaterial);
+	
         viewerPosition = new Vector2(viewer.position.x, viewer.position.z);
 
 		// If viewer position has changed -> call chunk.UpdateCollisionMesh()

@@ -46,7 +46,7 @@ public abstract class AbstractUi : MonoBehaviour
 		animator.SetTrigger("Transition");
 		while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
 		{
-			Debug.Log(animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+//			Debug.Log(animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
 			yield return null;
 		}
 		animator.gameObject.SetActive(false);

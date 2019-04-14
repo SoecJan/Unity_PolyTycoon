@@ -960,7 +960,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: d6a134992e6f3fd4fbd22a6b12e7ae10, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -9229,6 +9229,7 @@ Transform:
   - {fileID: 949419158}
   - {fileID: 1510628776}
   - {fileID: 248922554}
+  - {fileID: 2048247389}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12922,18 +12923,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shortCutTriggers:
+  - _keyCode: 27
+    _abstractUi: {fileID: 2048247393}
   - _keyCode: 121
-    _abstractUi: {fileID: 0}
+    _abstractUi: {fileID: 1823281250}
   - _keyCode: 120
     _abstractUi: {fileID: 1902906163}
   - _keyCode: 99
     _abstractUi: {fileID: 1394011818}
-  - _keyCode: 118
-    _abstractUi: {fileID: 292748744}
-  - _keyCode: 98
-    _abstractUi: {fileID: 188893030}
-  - _keyCode: 9
-    _abstractUi: {fileID: 2048247393}
 --- !u!1 &861346249
 GameObject:
   m_ObjectHideFlags: 0
@@ -21376,6 +21373,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1374522738}
+  - component: {fileID: 1374522739}
   m_Layer: 5
   m_Name: VisibleObject
   m_TagString: Untagged
@@ -21404,6 +21402,25 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!95 &1374522739
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1374522737}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d5de23670e9f98a4a96b58e2a67cb652, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &1375692209
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23122,6 +23139,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114575752569077550, guid: fafd5e0672f94194ba1a8b4fcd94d602,
+        type: 3}
+      propertyPath: m_Text
+      value: Poly Tycoon
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fafd5e0672f94194ba1a8b4fcd94d602, type: 3}
 --- !u!1 &1495964433
@@ -23662,7 +23684,6 @@ Transform:
   - {fileID: 554334301}
   - {fileID: 800323031}
   - {fileID: 1505628246}
-  - {fileID: 2048247389}
   m_Father: {fileID: 658644182}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -30954,8 +30975,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 1374522738}
-  m_Father: {fileID: 1510628776}
-  m_RootOrder: 5
+  m_Father: {fileID: 658644182}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
