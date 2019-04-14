@@ -82,6 +82,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 	void OnDrawGizmos()
 	{
+		
 		for (int i = 0; i < NeighborNodes.Length; i++)
 		{
 			if (NeighborNodes[i])
@@ -89,13 +90,13 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 				Gizmos.color = Color.yellow;
 				Gizmos.DrawSphere(transform.position + (Vector3.up*2), 0.3f);
 			}
-			Gizmos.color = Color.blue;
-			foreach (Vector3 usedCoordinate in UsedCoordinates)
+			foreach (NeededSpace coordinate in UsedCoordinates)
 			{
-				Gizmos.DrawSphere(transform.position + usedCoordinate, 0.3f);
-			}
+				Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.yellow;
+				Gizmos.DrawSphere(gameObject.transform.position + coordinate.UsedCoordinate, 0.5f);
+			}	
 			Gizmos.color = Color.red;
-			Gizmos.DrawSphere(transform.position + UsedCoordinates[0] + Vector3.up, 0.3f);
+			Gizmos.DrawSphere(transform.position + UsedCoordinates[0].UsedCoordinate + Vector3.up, 0.3f);
 		}
 	}
 

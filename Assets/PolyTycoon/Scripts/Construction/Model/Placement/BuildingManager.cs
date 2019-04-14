@@ -58,7 +58,7 @@ public class BuildingManager
 		{
 			positionVector.y = 0f;
 			SimpleMapPlaceable simpleMapPlaceable = placedBuildingDictionary[positionVector];
-			Vector3 comparedVector3 = simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0];
+			Vector3 comparedVector3 = simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate;
 			comparedVector3.y = 0f;
 			if (Vector3Int.FloorToInt(positionVector).Equals(Vector3Int.FloorToInt(comparedVector3))) return simpleMapPlaceable;
 			return null;
@@ -88,11 +88,11 @@ public class BuildingManager
 	/// <returns></returns>
 	public bool IsPlaceable(SimpleMapPlaceable placedObject)
 	{
-		foreach (Vector3 usedCoordinate in placedObject.UsedCoordinates)
+		foreach (NeededSpace usedCoordinate in placedObject.UsedCoordinates)
 		{
 			Vector3 placedPosition = Vector3Int.FloorToInt(placedObject.transform.position);
 			placedPosition = placedPosition + new Vector3(0.5f, 0, 0.5f);
-			Vector3 occupiedSpace = placedPosition + usedCoordinate;
+			Vector3 occupiedSpace = placedPosition + usedCoordinate.UsedCoordinate;
 			occupiedSpace.y = 0f;
 			if (placedBuildingDictionary.ContainsKey(occupiedSpace))
 			{
@@ -141,7 +141,7 @@ public class BuildingManager
 		{
 			Vector3 placedPosition = Vector3Int.FloorToInt(placedObject.transform.position);
 			placedPosition = placedPosition + new Vector3(0.5f, 0, 0.5f);
-			Vector3 occupiedSpace = placedPosition + placedObject.UsedCoordinates[i];
+			Vector3 occupiedSpace = placedPosition + placedObject.UsedCoordinates[i].UsedCoordinate;
 			occupiedSpace.y = 0f;
 
 			if (!placedBuildingDictionary.ContainsKey(occupiedSpace))
@@ -153,7 +153,7 @@ public class BuildingManager
 				// Remove all previously added entries
 				for (int removeIndex = i; removeIndex > 0; removeIndex--)
 				{
-					Vector3 removedSpace = placedObject.transform.position + placedObject.UsedCoordinates[removeIndex];
+					Vector3 removedSpace = placedObject.transform.position + placedObject.UsedCoordinates[removeIndex].UsedCoordinate;
 					placedBuildingDictionary.Remove(removedSpace);
 				}
 				return false;
@@ -176,9 +176,9 @@ public class BuildingManager
 		SimpleMapPlaceable mapPlaceable = placedBuildingDictionary[position];
 		if (mapPlaceable)
 		{
-			foreach (Vector3 usedCoordinate in mapPlaceable.UsedCoordinates)
+			foreach (NeededSpace usedCoordinate in mapPlaceable.UsedCoordinates)
 			{
-				Vector3 occupiedSpace = position + usedCoordinate;
+				Vector3 occupiedSpace = position + usedCoordinate.UsedCoordinate;
 				if (!placedBuildingDictionary.Remove(occupiedSpace))
 				{
 					Debug.LogError("Position was already empty. " + occupiedSpace.ToString());

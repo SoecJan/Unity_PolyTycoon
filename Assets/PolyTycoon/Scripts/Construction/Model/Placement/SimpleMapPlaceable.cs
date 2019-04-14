@@ -17,7 +17,7 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	protected bool IsClickable;
 	private static System.Action<SimpleMapPlaceable> _onClickAction;
 	[SerializeField] private Sprite _constructionUiSprite;
-	[SerializeField] private List<Vector3> _usedCoordinates; // All coordinates that are blocked relative to this transform
+	[SerializeField] private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
 	[SerializeField] private string _buildingName; // Name of this building
 
 	private bool _isPlaced = false; // Whether it is placed on the map or not
@@ -39,9 +39,11 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	/// </summary>
 	void OnDrawGizmos()
 	{
-		Gizmos.color = Color.yellow;
-		foreach (Vector3 coordinate in UsedCoordinates)
-			Gizmos.DrawSphere(gameObject.transform.position + coordinate, 0.5f);
+		foreach (NeededSpace coordinate in UsedCoordinates)
+		{
+			Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.yellow;
+			Gizmos.DrawSphere(gameObject.transform.position + coordinate.UsedCoordinate, 0.5f);
+		}	
 	}
 
 	/// <summary>
@@ -58,7 +60,7 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	#endregion
 
 	#region Getter & Setter
-	public List<Vector3> UsedCoordinates {
+	public List<NeededSpace> UsedCoordinates {
 		get {
 			return _usedCoordinates;
 		}
@@ -141,9 +143,28 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	{
 		for (int i = 0; i < _usedCoordinates.Count; i++)
 		{
-			Vector3 rotatedOffset = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * _usedCoordinates[i];
-			_usedCoordinates[i] = Vector3Int.RoundToInt(rotatedOffset);
+			Vector3 rotatedOffset = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * _usedCoordinates[i].UsedCoordinate;
+			_usedCoordinates[i].UsedCoordinate = Vector3Int.RoundToInt(rotatedOffset);
 		}
 	}
 	#endregion
+}
+
+[Serializable]
+public class NeededSpace
+{
+	[SerializeField] private Vector3Int _usedCoordinate;
+	[SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland;
+
+	public Vector3Int UsedCoordinate
+	{
+		get { return _usedCoordinate; }
+		set { _usedCoordinate = value; }
+	}
+
+	public TerrainGenerator.TerrainType TerrainType
+	{
+		get { return _terrainType; }
+		set { _terrainType = value; }
+	}
 }

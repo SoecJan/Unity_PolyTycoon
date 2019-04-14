@@ -1,9 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
+using UnityEngine.WSA;
 
-public class TerrainGenerator : MonoBehaviour {
+public class TerrainGenerator : MonoBehaviour
+{
 
 	#region Attributes
+
+	public enum TerrainType { Obstructed, Mountain, Hill, Flatland, Coast, Ocean };
+	
 	const float viewerMoveThresholdForChunkUpdate = 25f; // Distance for the viewer to travel until chunkupdate is invoked
     const float sqrViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
 
@@ -31,8 +38,8 @@ public class TerrainGenerator : MonoBehaviour {
 	[SerializeField] private Material testMaterial;
 	[SerializeField]
 	private float m_terrainPlaceableHeight = 0.08534841f;
-	[SerializeField]
-	private float m_terrainHeightTolerance = 0.01f;
+	[FormerlySerializedAs("m_terrainHeightTolerance")] [SerializeField]
+	private float _terrainHeightTolerance = 0.01f;
 	[SerializeField]
 	private float m_terrainAlignOffset = -0.01f;
 
@@ -133,6 +140,68 @@ public class TerrainGenerator : MonoBehaviour {
 		return vertices != null;
 	}
 
+	public TerrainChunk GetChunk(float x, float z)
+	{
+		Vector2 chunkVec = GetTerrainChunkPosition(x, z);
+		return GetTerrainChunk(chunkVec);
+	}
+
+	public bool IsSuitedTerrain(TerrainType terrainType, Vector3 position)
+	{
+		return IsSuitedTerrain(terrainType, position.x, position.z);
+	}
+	
+	public bool IsSuitedTerrain(TerrainType terrainType, float x, float z)
+	{
+		TerrainChunk terrainChunk = GetChunk(x, z);
+		Vector3 position = new Vector3(x, 0f, z);
+		return terrainType == TileType(terrainChunk.meshFilter.sharedMesh.vertices, position);
+	}
+	
+	private TerrainType TileType(Vector3[] meshVertices, Vector3 position)
+	{
+		float positionOffset = 22.5f;
+		Vector3 placedPosition = Vector3Int.FloorToInt(position);
+		placedPosition = placedPosition + new Vector3(0.5f, 0, 0.5f);
+		int[] indices = GetMeshIndices((int)(placedPosition.x + positionOffset), (int)(placedPosition.z + positionOffset));
+
+		float min = meshVertices[indices[0]].y;
+		float max = meshVertices[indices[0]].y;
+		for (int i = 1; i < indices.Length; i++)
+		{
+			if (meshVertices[indices[i]].y > max)
+			{
+				max = meshVertices[indices[i]].y;
+			}
+			else if (meshVertices[indices[i]].y < min)
+			{
+				min = meshVertices[indices[i]].y;
+			}
+		}
+
+		// Flat terrains
+		if (Math.Abs(min - max) < 0.1f)
+		{
+			if (Mathf.Abs(min - TerrainPlaceableHeight) < _terrainHeightTolerance)
+			{
+				return TerrainType.Flatland;
+			} 
+			else if (Mathf.Abs(min - 0) < 0.1f)
+			{
+				return TerrainType.Ocean;
+			}
+		}
+		else
+		{
+			if (Mathf.Abs(min - 0) < 0.1f && Mathf.Abs(max - TerrainPlaceableHeight) < _terrainHeightTolerance)
+			{
+				return TerrainType.Coast;
+			}
+		}
+		
+		return TerrainType.Mountain;
+	}
+	
 	/// <summary>
 	/// Finds all Vertices close to the given position.
 	/// </summary>
@@ -142,6 +211,7 @@ public class TerrainGenerator : MonoBehaviour {
 	/// <returns>Transformed Mesh Information. May be null</returns>
 	public Vector3[] CalculateMeshTransformation(Vector3[] meshVertices, SimpleMapPlaceable mapPlaceable)
 	{
+		Debug.Log(TileType(meshVertices, mapPlaceable.transform.position));
 		// Get information references
 		float objectBottomHeight = mapPlaceable.GetHeight() / 2f;
 		float positionOffset = 22.5f; // offset to make TerrainChunk bottom left slot Position 0,0
@@ -149,14 +219,14 @@ public class TerrainGenerator : MonoBehaviour {
 		Vector3 placedPosition = Vector3Int.FloorToInt(mapPlaceable.transform.position);
 		placedPosition = placedPosition + new Vector3(0.5f, 0, 0.5f);
 
-		foreach (Vector3 usedCoordinate in mapPlaceable.UsedCoordinates)
+		foreach (NeededSpace usedCoordinate in mapPlaceable.UsedCoordinates)
 		{
-			Vector3 occupiedSpace = placedPosition + usedCoordinate;
+			Vector3 occupiedSpace = placedPosition + usedCoordinate.UsedCoordinate;
 			int[] indices = GetMeshIndices((int)(occupiedSpace.x + positionOffset), (int)(occupiedSpace.z + positionOffset));
 			// Change MeshArray -> Return null if Terrain is not suitable
 			foreach (int index in indices)
 			{
-				if (Mathf.Abs(meshVertices[index].y - TerrainPlaceableHeight) < m_terrainHeightTolerance)
+				if (Mathf.Abs(meshVertices[index].y - TerrainPlaceableHeight) < _terrainHeightTolerance)
 				{
 					meshVertices[index] = new Vector3(meshVertices[index].x, mapPlaceable.transform.position.y - objectBottomHeight + m_terrainAlignOffset, meshVertices[index].z);
 				}

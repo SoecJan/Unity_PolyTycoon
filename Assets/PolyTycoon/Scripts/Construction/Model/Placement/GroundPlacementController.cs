@@ -202,7 +202,7 @@ public class GroundPlacementController : MonoBehaviour
 			}
 		}
 
-		TerrainChunk terrainChunk = GetChunk(complexMapPlaceable.transform.position.x, complexMapPlaceable.transform.position.z);
+		TerrainChunk terrainChunk = TerrainGenerator.GetChunk(complexMapPlaceable.transform.position.x, complexMapPlaceable.transform.position.z);
 		complexMapPlaceable.transform.parent = terrainChunk.meshObject.transform;
 		foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
 		{
@@ -218,7 +218,7 @@ public class GroundPlacementController : MonoBehaviour
 	/// </summary>
 	/// <param name="placeableObject"></param>
 	/// <returns></returns>
-	public bool PlaceObject(SimpleMapPlaceable placeableObject)
+	private bool PlaceObject(SimpleMapPlaceable placeableObject)
 	{
 		// Get all needed references
 		float objectBottomHeight = placeableObject.GetHeight() / 2f;
@@ -247,16 +247,16 @@ public class GroundPlacementController : MonoBehaviour
 		return true;
 	}
 
-	public bool IsPlaceable(SimpleMapPlaceable placeableObject)
+	private bool IsPlaceable(SimpleMapPlaceable placeableObject)
 	{
-		return placeableObject && BuildingManager.IsPlaceable(placeableObject) && IsFlatTerrain(placeableObject);
+		return placeableObject && BuildingManager.IsPlaceable(placeableObject) && IsSuitableTerrain(placeableObject);
 	}
 
 	public bool IsFlatTerrain(ComplexMapPlaceable complexMapPlaceable)
 	{
 		foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
 		{
-			if (!IsFlatTerrain(simpleMapPlaceable))
+			if (!IsSuitableTerrain(simpleMapPlaceable))
 			{
 				return false;
 			}
@@ -271,31 +271,31 @@ public class GroundPlacementController : MonoBehaviour
 	/// <param name="objectTransform"></param>
 	/// <param name="offset"></param>
 	/// <returns></returns>
-	public bool IsFlatTerrain(SimpleMapPlaceable mapPlaceable)
+	private bool IsSuitableTerrain(SimpleMapPlaceable mapPlaceable)
 	{
-		TerrainChunk terrainChunk = GetChunk(mapPlaceable.transform.position.x, mapPlaceable.transform.position.z);
-		return TerrainGenerator.CalculateMeshTransformation(terrainChunk.meshFilter.sharedMesh.vertices, mapPlaceable) != null;
-	}
-
-	private Dictionary<BiomeGenerator.Biome, float> GetBiomeValue(SimpleMapPlaceable mapPlaceable)
-	{
-		TerrainChunk terrainChunk = GetChunk(mapPlaceable.transform.position.x, mapPlaceable.transform.position.z);
-		Vector2 pos = new Vector2(Mathf.FloorToInt(mapPlaceable.transform.position.x + 22.5f), Mathf.FloorToInt(mapPlaceable.transform.position.z + 22.5f));
-		Dictionary<BiomeGenerator.Biome, float> biomeValueDictionary = new Dictionary<BiomeGenerator.Biome, float>();
-		foreach (BiomeGenerator.Biome existingBiome in Enum.GetValues(typeof(BiomeGenerator.Biome)))
+		foreach (NeededSpace neededSpace in mapPlaceable.UsedCoordinates)
 		{
-			if (existingBiome.Equals(BiomeGenerator.Biome.None)) continue;
-			BiomeData biomeData = terrainChunk.GetBiomeData(existingBiome);
-			biomeValueDictionary.Add(existingBiome, biomeData.ArrayData[(int)pos.x, (int)pos.y]);
+			if (!TerrainGenerator.IsSuitedTerrain(neededSpace.TerrainType, neededSpace.UsedCoordinate + mapPlaceable.transform.position))
+			{
+				return false;
+			};
 		}
-		return biomeValueDictionary;
+		return true;
 	}
 
-	private TerrainChunk GetChunk(float x, float z)
-	{
-		Vector2 chunkVec = TerrainGenerator.GetTerrainChunkPosition(x, z);
-		return TerrainGenerator.GetTerrainChunk(chunkVec);
-	}
+//	private Dictionary<BiomeGenerator.Biome, float> GetBiomeValue(SimpleMapPlaceable mapPlaceable)
+//	{
+//		TerrainChunk terrainChunk = GetChunk(mapPlaceable.transform.position.x, mapPlaceable.transform.position.z);
+//		Vector2 pos = new Vector2(Mathf.FloorToInt(mapPlaceable.transform.position.x + 22.5f), Mathf.FloorToInt(mapPlaceable.transform.position.z + 22.5f));
+//		Dictionary<BiomeGenerator.Biome, float> biomeValueDictionary = new Dictionary<BiomeGenerator.Biome, float>();
+//		foreach (BiomeGenerator.Biome existingBiome in Enum.GetValues(typeof(BiomeGenerator.Biome)))
+//		{
+//			if (existingBiome.Equals(BiomeGenerator.Biome.None)) continue;
+//			BiomeData biomeData = terrainChunk.GetBiomeData(existingBiome);
+//			biomeValueDictionary.Add(existingBiome, biomeData.ArrayData[(int)pos.x, (int)pos.y]);
+//		}
+//		return biomeValueDictionary;
+//	}
 
 	#endregion
 }
