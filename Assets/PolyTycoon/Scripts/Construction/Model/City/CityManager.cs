@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Assets.PolyTycoon.Scripts.Construction.Model.City;
-using Assets.PolyTycoon.Scripts.Construction.Model.Placement;
 using UnityEngine;
 
 public class CityManager : MonoBehaviour
@@ -18,6 +16,7 @@ public class CityManager : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		_placedCities = new List<CityPlaceable>();
 		_groundPlacementController = FindObjectOfType<GroundPlacementController>();
 		_worldToScreenUiManager = FindObjectOfType<WorldToScreenUiManager>();
 		_citiesToPlace = new List<CityToPlace>();

@@ -41,7 +41,7 @@ public class TerrainChunk
 
 	/* Constructors */
 
-	public TerrainChunk(Vector2 coord, HeightMapSettings heightMapSettings, MeshSettings meshSettings, BiomeSettings biomeSettings, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Transform viewerTransform, Material material)
+	public TerrainChunk(Vector2 coord, HeightMapSettings heightMapSettings, MeshSettings meshSettings, BiomeSettings biomeSettings, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Transform viewerTransform, Material material, GameObject waterMeshObject)
 	{
 		this.coord = coord;
 		this.detailLevels = detailLevels;
@@ -58,6 +58,7 @@ public class TerrainChunk
 
 		// Instantiate the new object
 		meshObject = new GameObject("Terrain Chunk: " + coord.ToString());
+		GameObject.Instantiate(waterMeshObject, meshObject.transform);
 		meshObject.layer = LayerMask.NameToLayer("Terrain");
 		meshRenderer = meshObject.AddComponent<MeshRenderer>();
 		meshFilter = meshObject.AddComponent<MeshFilter>();

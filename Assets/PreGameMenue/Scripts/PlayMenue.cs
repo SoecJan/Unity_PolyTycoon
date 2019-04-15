@@ -45,7 +45,4 @@ public class PlayMenue : AbstractUi
 
 	public new void Reset()
 	{}
-
-	protected new void OnVisibilityChange(bool visible)
-	{}
 }

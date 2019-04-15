@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe2b3d0c1afee14c98684383b656e7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _constructionUiSprite: {fileID: 21300000, guid: 322fbe8331753f145bdf4a9c82526067,
+  _constructionUiSprite: {fileID: 21300000, guid: c33f23a2d1ddaba4bad0921e41b77a40,
     type: 3}
   _usedCoordinates:
   - {x: 0, y: 0, z: 0}

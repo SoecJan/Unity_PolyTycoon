@@ -57,7 +57,4 @@ public class SingleplayerMenu : AbstractUi
 
     public new void Reset()
     { }
-
-    protected new void OnVisibilityChange(bool visible)
-    { }
 }

@@ -1,8 +1,12 @@
 # Unity PolyTycoon
 This is a hobbyist/self study project. Using Unity to create a clone of a transport tycoon genre game.
 
+Trello: https://trello.com/b/bPIOa4Pt/polytycoon
+
 # Getting Started
-Clone this repository and open the root folder using the Unity Game Engine. Add JSON.Net from the unity asset store.
+Clone this repository and open the root folder using the Unity Game Engine. 
+- Add JSON.Net from the unity asset store.
+- Add PostProcessing Stack from the Package Manager.
 
 # Past
 
@@ -20,22 +24,27 @@ Clone this repository and open the root folder using the Unity Game Engine. Add 
 
 12.2018 - Break due to university
 
-03.2019 - Updated Ui Design
+03.2019 - Updated Ui Design, added proper curve animations for vehicles
 
 # Future Plans
 
-Terrain Generation
+## Terrain Generation
 - Water & Deep Water zones
-- Biomes as a factor for factory productivity
+- Water animation
 
-Building System
-- Demolition of buildings/roads
+## Transport System
+- Visuals: Loaded products visible
+- More vehicles: planes, trains, ships
+- Storage buildings
 
-Transport System
-- Visuals
-
-Traffic System
-- Nice vehicle path animation
+## Traffic System
 - Stopping on intersections
 - Slow down behind slower vehicles
 
+## Progression System
+- Unlock new buildings and vehicles
+- Bigger supply chains require better vehicles
+
+## Performance
+- Pathsfinding process moved from vehicles to buildings -> Easier update of the current situation
+- Multithreading for vehicle movement and loading logic -> Find a workaround for multithreading in Unity
