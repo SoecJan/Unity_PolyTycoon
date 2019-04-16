@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class TransportRouteManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class TransportRouteManager : MonoBehaviour
 
 	private NetworkPathFinder _networkPathFinder;
 	private TerrainPathFinder _terrainPathFinder;
+	private AirPathFinder _airPathFinder;
 	private UserInformationPopup _userPopup;
 	#endregion
 
@@ -32,6 +34,7 @@ public class TransportRouteManager : MonoBehaviour
 		_userPopup = FindObjectOfType<UserInformationPopup>();
 		_networkPathFinder = FindObjectOfType<NetworkPathFinder>();
 		_terrainPathFinder = FindObjectOfType<TerrainPathFinder>();
+		_airPathFinder = FindObjectOfType<AirPathFinder>();
 	}
 
 	private void Reset()
@@ -59,14 +62,23 @@ public class TransportRouteManager : MonoBehaviour
 			transportRoute.TransportRouteElements.Add(view.RouteElement);
 		}
 		PrintNodes(transportRoute);
-		if (transportRoute.Vehicle.MoveType == Vehicle.PathType.Road)
+		switch (transportRoute.Vehicle.MoveType)
 		{
-			_networkPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
-		}
-		else
-		{
-			Debug.Log("Terrain Path Finder");
-			_terrainPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+			case Vehicle.PathType.Road:
+				_networkPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+				break;
+			case Vehicle.PathType.Rail:
+				throw new NotImplementedException("Trains are not yet supported");
+				break;
+			case Vehicle.PathType.Water:
+				_terrainPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+				break;
+			case Vehicle.PathType.Air:
+				_airPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+				break;
+			default:
+				Debug.LogError("Should not reach here");
+				throw new NotImplementedException();
 		}
 	}
 
@@ -120,7 +132,7 @@ public class TransportRouteManager : MonoBehaviour
 		_transportRouteOverview.Add(transportRoute);
 		// Instantiate and configure Vehicle
 		GameObject instancedVehicle = _vehicleManager.AddVehicle(transportRoute.Vehicle,
-			transportRoute.TransportRouteElements[0].FromNode.transform.position);
+			transportRoute.TransportRouteElements[0].Path.WayPoints[0].TraversalVectors[0]);
 		TransportVehicle transportVehicle = instancedVehicle.GetComponent<TransportVehicle>();
 		transportRoute.Vehicle = transportVehicle;
 		transportVehicle.TransportRoute = transportRoute;

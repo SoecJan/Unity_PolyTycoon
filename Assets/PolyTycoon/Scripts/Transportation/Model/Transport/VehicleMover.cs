@@ -7,7 +7,7 @@ public class VehicleMover : MonoBehaviour
 	public bool _wait = true;
 	private bool _isWayPointReached = false;
 	private float progress = 0f;
-	private float _speed = 2f;
+	[SerializeField] private float _speed = 2f;
 	private List<WayPoint> _wayPointList;
 	private int _wayPointIndex;
 	//private WayPoint _previousWayPoint;
