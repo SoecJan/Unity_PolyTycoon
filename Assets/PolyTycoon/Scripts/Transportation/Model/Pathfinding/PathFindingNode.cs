@@ -1,6 +1,4 @@
 ﻿using System;
-using Assets.PolyTycoon.Scripts.Construction.Model.Factory;
-using Assets.PolyTycoon.Scripts.Construction.Model.Placement;
 using UnityEngine;
 
 /// <summary>
@@ -10,31 +8,22 @@ using UnityEngine;
 /// </summary>
 public abstract class PathFindingNode : SimpleMapPlaceable
 {
+
 	#region Attributes
-	private static int _totalNodeCount;
 	private const int NEIGHBOR_COUNT = 4; // The amount of streets that can be connected to this one. 4 = Grid, 8 = Diagonal
 
 	// Indices in the neighborStreets Array
-	public const int TOP_NODE = 0;
-	public const int RIGHT_NODE = 1;
-	public const int BOTTOM_NODE = 2;
-	public const int LEFT_NODE = 3;
+	public const int Up = 0;
+	public const int Right = 1;
+	public const int Down = 2;
+	public const int Left = 3;
 
-	private static BuildingManager buildingManager; // Used to search for connected streets to this object
 	[SerializeField] private PathFindingNode[] neighborNodes; // Array that holds the reference to the next reachable Node.
 	#endregion
 
 	#region Getter & Setter
 
-	public static BuildingManager BuildingManager {
-		get {
-			return buildingManager;
-		}
-
-		set {
-			buildingManager = value;
-		}
-	}
+	public static BuildingManager BuildingManager { get; set; }
 
 	public PathFindingNode[] NeighborNodes {
 		get {
@@ -46,15 +35,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 		}
 	}
 
-	public static int TotalNodeCount {
-		get {
-			return _totalNodeCount;
-		}
-
-		set {
-			_totalNodeCount = value;
-		}
-	}
+	public static int TotalNodeCount { get; set; }
 
 	public abstract bool IsTraversable();
 
@@ -101,6 +82,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 	void OnDrawGizmos()
 	{
+		
 		for (int i = 0; i < NeighborNodes.Length; i++)
 		{
 			if (NeighborNodes[i])
@@ -108,26 +90,14 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 				Gizmos.color = Color.yellow;
 				Gizmos.DrawSphere(transform.position + (Vector3.up*2), 0.3f);
 			}
-			Gizmos.color = Color.blue;
-			foreach (Vector3 usedCoordinate in UsedCoordinates)
+			foreach (NeededSpace coordinate in UsedCoordinates)
 			{
-				Gizmos.DrawSphere(transform.position + usedCoordinate, 0.3f);
-			}
+				Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.yellow;
+				Gizmos.DrawSphere(gameObject.transform.position + coordinate.UsedCoordinate, 0.5f);
+			}	
 			Gizmos.color = Color.red;
-			Gizmos.DrawSphere(transform.position + UsedCoordinates[0] + Vector3.up, 0.3f);
+			Gizmos.DrawSphere(transform.position + UsedCoordinates[0].UsedCoordinate + Vector3.up, 0.3f);
 		}
-
-		//Gizmos.color = Color.yellow;
-		//foreach (Vector3 coordinate in UsedCoordinates)
-		//	Gizmos.DrawSphere(gameObject.transform.position + coordinate, 0.5f);
-
-		//Gizmos.color = Color.green;
-		//if (IsTraversable())
-		//	Gizmos.DrawCube(transform.position + new Vector3(0, -(transform.lossyScale.y / 2f) + 0.2f, 0), new Vector3(1f, 0.4f, 1f));
-
-		//Gizmos.color = Color.blue;
-		//if (IsNode())
-		//	Gizmos.DrawCube(transform.position, new Vector3(1f, 0.4f, 1f));
 	}
 
 	/// <summary>
@@ -205,44 +175,196 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 		}
 		return pathFindingNodes;
 	}
-
-	/// <summary>
-	/// Checks the BuildingManager for surrounding tiles that are a street object and registers those as neighbors
-	/// </summary>
-	//void FindAdjacentNodes()
-	//{
-	//	if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
-	//	// Find all neighbor streets
-	//	SimpleMapPlaceable mapPlaceableTop = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.forward);
-	//	SimpleMapPlaceable mapPlaceableRight = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.right);
-	//	SimpleMapPlaceable mapPlaceableBottom = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.back);
-	//	SimpleMapPlaceable mapPlaceableLeft = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.left);
-
-	//	// Get a reference to the neighbor object and set this street on the neighbor object
-	//	// Top Street
-	//	if (mapPlaceableTop && mapPlaceableTop is PathFindingNode)
-	//	{
-	//		AdjacentNodes[TOP_NODE] = (PathFindingNode)mapPlaceableTop;
-	//		AdjacentNodes[TOP_NODE].AdjacentNodes[BOTTOM_NODE] = this;
-	//	}
-	//	// Right Street
-	//	if (mapPlaceableRight && mapPlaceableRight is PathFindingNode)
-	//	{
-	//		AdjacentNodes[RIGHT_NODE] = (PathFindingNode)mapPlaceableRight;
-	//		AdjacentNodes[RIGHT_NODE].AdjacentNodes[LEFT_NODE] = this;
-	//	}
-	//	// Bottom Street
-	//	if (mapPlaceableBottom && mapPlaceableBottom is PathFindingNode)
-	//	{
-	//		AdjacentNodes[BOTTOM_NODE] = (PathFindingNode)mapPlaceableBottom;
-	//		AdjacentNodes[BOTTOM_NODE].AdjacentNodes[TOP_NODE] = this;
-	//	}
-	//	// Left Street
-	//	if (mapPlaceableLeft && mapPlaceableLeft is PathFindingNode)
-	//	{
-	//		AdjacentNodes[LEFT_NODE] = (PathFindingNode)mapPlaceableLeft;
-	//		AdjacentNodes[LEFT_NODE].AdjacentNodes[RIGHT_NODE] = this;
-	//	}
-	//}
 	#endregion
+
+	#region Traversal
+	///<summary>Returns the TraversalVectors as a WayPoint Object.</summary>
+	public virtual WayPoint GetTraversalVectors(int fromDirection, int toDirection)
+	{
+		Vector3 offset = transform.position;
+		// Start Points
+		if (fromDirection == -1)
+		{
+			switch (toDirection)
+			{
+				case Up:
+					return new WayPoint(TraversalPoint.CenterBottomRight + offset, TraversalPoint.TopRight + offset);
+				case Right:
+					return new WayPoint(TraversalPoint.CenterBottomLeft + offset, TraversalPoint.RightBottom + offset);
+				case Down:
+					return new WayPoint(TraversalPoint.CenterTopLeft + offset, TraversalPoint.BottomLeft + offset);
+				case Left:
+					return new WayPoint(TraversalPoint.CenterTopRight + offset, TraversalPoint.LeftTop + offset);
+			}
+		}
+
+		// End Points
+
+		if (toDirection == -1)
+		{
+			switch (fromDirection)
+			{
+				case Up:
+					return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.CenterBottomLeft + offset);
+				case Right:
+					return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.CenterTopLeft + offset);
+				case Down:
+					return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.CenterTopRight + offset);
+				case Left:
+					return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.CenterBottomRight + offset);
+			}
+		}
+
+		// Straights
+
+		if (fromDirection == Up && toDirection == Down)
+		{
+			return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.BottomLeft + offset);
+		}
+		
+		if (fromDirection == Down && toDirection == Up)
+		{
+			return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.TopRight + offset);
+		}
+		
+		if (fromDirection == Left && toDirection == Right)
+		{
+			return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.RightBottom + offset);
+		}
+		
+		if (fromDirection == Right && toDirection == Left)
+		{
+			return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.LeftTop + offset);
+		}
+
+		// Inner Corners
+
+		float innerCornerRadius = 0.4f;
+
+		if (fromDirection == Up && toDirection == Left)
+		{
+			return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.CenterTopLeft + offset, TraversalPoint.LeftTop + offset, innerCornerRadius);
+		}
+
+		if (fromDirection == Down && toDirection == Right)
+		{
+			return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.CenterBottomRight + offset, TraversalPoint.RightBottom + offset, innerCornerRadius);
+		}
+
+		if (fromDirection == Left && toDirection == Down)
+		{
+			return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.CenterBottomLeft + offset, TraversalPoint.BottomLeft + offset, innerCornerRadius);
+		}
+
+		if (fromDirection == Right && toDirection == Up)
+		{
+			return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.CenterTopRight + offset, TraversalPoint.TopRight + offset, innerCornerRadius);
+		}
+
+		// Outer Corners
+
+		float outerCornerRadius = 0.8f;
+
+		if (fromDirection == Up && toDirection == Right)
+		{
+			return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.CenterBottomLeft + offset, TraversalPoint.RightBottom + offset, outerCornerRadius);
+		}
+
+		if (fromDirection == Down && toDirection == Left)
+		{
+			return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.CenterTopRight + offset, TraversalPoint.LeftTop + offset, outerCornerRadius);
+		}
+
+		if (fromDirection == Left && toDirection == Up)
+		{
+			return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.CenterBottomRight + offset, TraversalPoint.TopRight + offset, outerCornerRadius);
+		}
+
+		if (fromDirection == Right && toDirection == Down)
+		{
+			return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.CenterTopLeft + offset, TraversalPoint.BottomLeft + offset, outerCornerRadius);
+		}
+		Debug.LogError("Should not reach here! Input: " + fromDirection + "; " + toDirection);
+		return new WayPoint(Vector3.zero, Vector3.zero);;
+	}
+	#endregion
+}
+
+public struct TraversalPoint
+{
+	// Lane points
+	private static Vector3 topLeft = new Vector3(-0.25f, 0f, 0.5f);
+	private static Vector3 topRight = new Vector3(0.25f, 0f, 0.5f);
+	private static Vector3 rightTop = new Vector3(0.5f, 0f, 0.25f);
+	private static Vector3 rightBottom = new Vector3(0.5f, 0f, -0.25f);
+	private static Vector3 bottomRight = new Vector3(0.25f, 0f, -0.5f);
+	private static Vector3 bottomLeft = new Vector3(-0.25f, 0f, -0.5f);
+	private static Vector3 leftBottom = new Vector3(-0.5f, 0f, -0.25f);
+	private static Vector3 leftTop = new Vector3(-0.5f, 0f, 0.25f);
+
+	// Turn helper
+	private static Vector3 centerTopRight = new Vector3(0.25f, 0f, 0.25f);
+	private static Vector3 centerTopLeft = new Vector3(-0.25f, 0f, 0.25f);
+	private static Vector3 centerBottomRight = new Vector3(0.25f, 0f, -0.25f);
+	private static Vector3 centerBottomLeft = new Vector3(-0.25f, 0f, -0.25f);
+
+	public static Vector3 TopLeft {
+		get { return topLeft; }
+		set { topLeft = value; }
+	}
+
+	public static Vector3 TopRight {
+		get { return topRight; }
+		set { topRight = value; }
+	}
+
+	public static Vector3 RightTop {
+		get { return rightTop; }
+		set { rightTop = value; }
+	}
+
+	public static Vector3 RightBottom {
+		get { return rightBottom; }
+		set { rightBottom = value; }
+	}
+
+	public static Vector3 BottomRight {
+		get { return bottomRight; }
+		set { bottomRight = value; }
+	}
+
+	public static Vector3 BottomLeft {
+		get { return bottomLeft; }
+		set { bottomLeft = value; }
+	}
+
+	public static Vector3 LeftBottom {
+		get { return leftBottom; }
+		set { leftBottom = value; }
+	}
+
+	public static Vector3 LeftTop {
+		get { return leftTop; }
+		set { leftTop = value; }
+	}
+
+	public static Vector3 CenterTopRight {
+		get { return centerTopRight; }
+		set { centerTopRight = value; }
+	}
+
+	public static Vector3 CenterTopLeft {
+		get { return centerTopLeft; }
+		set { centerTopLeft = value; }
+	}
+
+	public static Vector3 CenterBottomRight {
+		get { return centerBottomRight; }
+		set { centerBottomRight = value; }
+	}
+
+	public static Vector3 CenterBottomLeft {
+		get { return centerBottomLeft; }
+		set { centerBottomLeft = value; }
+	}
 }

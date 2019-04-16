@@ -25,7 +25,4 @@ public class MultiplayerMenu : AbstractUi
 
 	public new void Reset()
 	{}
-
-	protected new void OnVisibilityChange(bool visible)
-	{}
 }

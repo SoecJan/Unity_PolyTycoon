@@ -1,8 +1,4 @@
 ﻿using System.Collections;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Product;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Transport;
-using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate;
-using Assets.PolyTycoon.Scripts.Utility;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
@@ -12,14 +8,17 @@ public class TransportVehicleUi : AbstractUi
 	private static TransportRouteCreateController _transportRouteCreateController;
 	private TransportVehicle _displayedTransportVehicle;
 	private Coroutine _coroutine;
-	[SerializeField] private LineRenderer _lineRenderer;
+	//[SerializeField] private LineRenderer _lineRenderer;
 	[SerializeField] private Image _vehicleImage;
 	[SerializeField] private Button _vehicleRouteButton;
 	[SerializeField] private Button _exitButton;
+	[SerializeField] private Text _initialCostText;
+	[SerializeField] private Text _dailyCostText;
+	[SerializeField] private Text _strengthText;
 	[SerializeField] private Text _topSpeedText;
 	[SerializeField] private Text _capacityText;
-	[SerializeField] private Text _currentSpeedText;
-	[SerializeField] private ScrollViewHandle _scrollView;
+	[SerializeField] private Text _loadSpeedText;
+	[SerializeField] private RectTransform _scrollView;
 	[SerializeField] private NeededProductView _scrollViewElementPrefab;
 
 	public TransportVehicle DisplayedTransportVehicle {
@@ -39,20 +38,19 @@ public class TransportVehicleUi : AbstractUi
 			{
 				foreach (ProductStorage productStorage in _displayedTransportVehicle.LoadedProducts.Values)
 				{
-					GameObject viewInstance = _scrollView.AddObject((RectTransform)_scrollViewElementPrefab.transform);
-					NeededProductView productView = viewInstance.GetComponent<NeededProductView>();
-					productView.ProductData = productStorage.StoredProductData;
-					productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+					NeededProductView neededProductView = GameObject.Instantiate(_scrollViewElementPrefab, _scrollView);
+					neededProductView.ProductData = productStorage.StoredProductData;
+					neededProductView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
 				}
 
 				_vehicleImage.sprite = _displayedTransportVehicle.Sprite;
+				_initialCostText.text = "-";
+				_dailyCostText.text = "-";
+				_strengthText.text = "-";
 				_topSpeedText.text = _displayedTransportVehicle.UnloadSpeed.ToString();
 				_capacityText.text = _displayedTransportVehicle.TotalCapacity.ToString();
-				_currentSpeedText.text = _displayedTransportVehicle.UnloadSpeed.ToString();
+				_loadSpeedText.text = _displayedTransportVehicle.UnloadSpeed.ToString();
 				if (_coroutine == null) _coroutine = StartCoroutine(UpdateUi());
-				_lineRenderer.positionCount = _displayedTransportVehicle.TransportRoute
-					.TransportRouteElements[_displayedTransportVehicle.RouteIndex].Path.WayPoints.Count;
-				_lineRenderer.SetPositions(_displayedTransportVehicle.TransportRoute.TransportRouteElements[_displayedTransportVehicle.RouteIndex].Path.WayPoints.ToArray());
 				SetVisible(true);
 			}
 		}
@@ -80,9 +78,9 @@ public class TransportVehicleUi : AbstractUi
 	{
 		while (_displayedTransportVehicle != null)
 		{
-			foreach (RectTransform rectTransform in _scrollView.ContentObjects)
+			for (int i = 0; i< _scrollView.childCount; i++)
 			{
-				NeededProductView productView = rectTransform.gameObject.GetComponent<NeededProductView>();
+				NeededProductView productView = _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
 				ProductStorage productStorage = _displayedTransportVehicle.LoadedProducts[productView.ProductData];
 				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
 			}
@@ -96,9 +94,15 @@ public class TransportVehicleUi : AbstractUi
 	{ 
 		_vehicleImage.sprite = null;
 		_displayedTransportVehicle = null;
-		_scrollView.ClearObjects();
-		_topSpeedText.text = "top";
-		_currentSpeedText.text = "cur";
-		_capacityText.text = "cap";
+		for (int i = 0; i< _scrollView.childCount; i++)
+		{
+			GameObject.Destroy(_scrollView.GetChild(i).gameObject);
+		}
+		_initialCostText.text = "-";
+		_dailyCostText.text = "-";
+		_strengthText.text = "-";
+		_topSpeedText.text = "-";
+		_capacityText.text = "-";
+		_loadSpeedText.text = "-";
 	}
 }

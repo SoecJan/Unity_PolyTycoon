@@ -1,24 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Assets.PolyTycoon.Scripts.Construction.Model.Placement;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DestructionController : MonoBehaviour
 {
-	private static bool _destructionActive;
 	private Camera _mainCamera;
 	private BuildingManager _buildingManager;
 	[SerializeField] private LayerMask _buildingMask;
 
-	public static bool DestructionActive {
-		get {
-			return _destructionActive;
-		}
-
-		set {
-			_destructionActive = value;
-		}
-	}
+	public static bool DestructionActive { get; set; }
 
 	// Use this for initialization
 	void Start ()
@@ -29,7 +17,7 @@ public class DestructionController : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
-		if (!_destructionActive || !Input.GetMouseButtonDown(0)) return;
+		if (!DestructionActive || !Input.GetMouseButtonDown(0)) return;
 
 		Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
 		RaycastHit hitInfo;
