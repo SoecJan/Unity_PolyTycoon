@@ -9,7 +9,6 @@ public class WorldToScreenUiManager : MonoBehaviour
 	[SerializeField] private Button _vibilityButton;
 	[SerializeField] private GameObject _visibleGameObject;
 
-
 	private Camera _mainCamera;
 	private List<WorldUiElement> _handledTransforms;
 

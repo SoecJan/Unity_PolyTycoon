@@ -12,6 +12,7 @@ public class TransportRouteManager : MonoBehaviour
 	private NetworkPathFinder _networkPathFinder;
 	private TerrainPathFinder _terrainPathFinder;
 	private AirPathFinder _airPathFinder;
+	private RailPathFinder _railPathFinder;
 	private UserInformationPopup _userPopup;
 	#endregion
 
@@ -35,6 +36,7 @@ public class TransportRouteManager : MonoBehaviour
 		_networkPathFinder = FindObjectOfType<NetworkPathFinder>();
 		_terrainPathFinder = FindObjectOfType<TerrainPathFinder>();
 		_airPathFinder = FindObjectOfType<AirPathFinder>();
+		_railPathFinder = FindObjectOfType<RailPathFinder>();
 	}
 
 	private void Reset()
@@ -68,7 +70,7 @@ public class TransportRouteManager : MonoBehaviour
 				_networkPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
 				break;
 			case Vehicle.PathType.Rail:
-				throw new NotImplementedException("Trains are not yet supported");
+				_railPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
 				break;
 			case Vehicle.PathType.Water:
 				_terrainPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);

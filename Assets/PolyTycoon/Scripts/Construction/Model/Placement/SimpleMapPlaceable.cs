@@ -139,13 +139,19 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	/// Rotates the UsedCoordinates to align to the current Transform rotation. 
 	/// Called before Placement by <see cref="GroundPlacementController"/>.
 	/// </summary>
-	public void RotateUsedCoordsToTransform()
+	private void RotateUsedCoordsToTransform(float rotationAmount)
 	{
 		for (int i = 0; i < _usedCoordinates.Count; i++)
 		{
-			Vector3 rotatedOffset = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * _usedCoordinates[i].UsedCoordinate;
+			Vector3 rotatedOffset = Quaternion.Euler(0, rotationAmount, 0) * _usedCoordinates[i].UsedCoordinate;
 			_usedCoordinates[i].UsedCoordinate = Vector3Int.RoundToInt(rotatedOffset);
 		}
+	}
+
+	public virtual void Rotate(Vector3 axis, float rotationAmount)
+	{
+		transform.Rotate(axis, rotationAmount);
+		RotateUsedCoordsToTransform(rotationAmount);
 	}
 	#endregion
 }

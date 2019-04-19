@@ -178,6 +178,7 @@ public class NetworkAStarPathFinding : IPathFindingAlgorithm
 
 	int DirectionVectorToInt(Vector3 normalizedDirection)
 	{
+		Debug.Log(normalizedDirection);
 		if (normalizedDirection.Equals(Vector3.forward))
 		{
 			return PathFindingNode.Up;

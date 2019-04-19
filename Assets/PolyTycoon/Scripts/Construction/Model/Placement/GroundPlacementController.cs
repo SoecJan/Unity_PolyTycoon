@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 
 /// <summary>
@@ -22,8 +23,8 @@ public class GroundPlacementController : MonoBehaviour
 
 	private Camera _mainCamera;
 	private UserInformationPopup _userInformationPopup;
-	private GameObject _currentPlaceableObject; // Object that is being placed
-	private Dictionary<Vector2, GameObject> _draggedGameObjects;
+	private SimpleMapPlaceable _currentPlaceableObject; // Object that is being placed
+	private Dictionary<Vector2, SimpleMapPlaceable> _draggedGameObjects;
 	private bool _isDragging = false;
 	#endregion
 
@@ -31,7 +32,8 @@ public class GroundPlacementController : MonoBehaviour
 
 	public SimpleMapPlaceable PlaceableObjectPrefab {
 		set {
-			_currentPlaceableObject = Instantiate(value.gameObject);
+			if (_currentPlaceableObject && value) Destroy(_currentPlaceableObject);
+			_currentPlaceableObject = Instantiate(value);
 		}
 	}
 
@@ -74,7 +76,7 @@ public class GroundPlacementController : MonoBehaviour
 	void Awake()
 	{
 		BuildingManager = new BuildingManager();
-		_draggedGameObjects = new Dictionary<Vector2, GameObject>();
+		_draggedGameObjects = new Dictionary<Vector2, SimpleMapPlaceable>();
 		_userInformationPopup = FindObjectOfType<UserInformationPopup>();
 		_mainCamera = Camera.main;
 	}
@@ -124,7 +126,7 @@ public class GroundPlacementController : MonoBehaviour
 				}
 			}
 		}
-		foreach (GameObject previewGameObject in _draggedGameObjects.Values)
+		foreach (SimpleMapPlaceable previewGameObject in _draggedGameObjects.Values)
 		{
 			previewGameObject.transform.position = new Vector3(previewGameObject.transform.position.x, hitInfo.point.y + animationHeightOffset, previewGameObject.transform.position.z);
 		}
@@ -136,14 +138,14 @@ public class GroundPlacementController : MonoBehaviour
 		// Rotate selected Object
 		if (Input.GetKeyDown(_rotateHotKey))
 		{
-			_currentPlaceableObject.transform.Rotate(Vector3.up, _rotateAmount);
+			_currentPlaceableObject.Rotate(Vector3.up, _rotateAmount);
 		}
 	}
 
 	void HandleInput()
 	{
 		// Place selected Object on left click
-		if (Input.GetMouseButtonDown(0))
+		if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
 		{
 			_isDragging = true;
 		}
@@ -163,7 +165,11 @@ public class GroundPlacementController : MonoBehaviour
 				_draggedGameObjects.Clear();
 			}
 
-			if (!PlaceObject(mapPlaceable))
+			if (mapPlaceable is ComplexMapPlaceable && !PlaceObject((ComplexMapPlaceable) mapPlaceable))
+			{
+				Destroy(_currentPlaceableObject.gameObject);
+			}
+			else if (!PlaceObject(mapPlaceable))
 			{
 				Destroy(_currentPlaceableObject.gameObject);
 			}
@@ -194,6 +200,7 @@ public class GroundPlacementController : MonoBehaviour
 
 	public bool PlaceObject(ComplexMapPlaceable complexMapPlaceable)
 	{
+		
 		foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
 		{
 			if (!IsPlaceable(simpleMapPlaceable))
@@ -225,7 +232,6 @@ public class GroundPlacementController : MonoBehaviour
 		float yOffset = TerrainGenerator ? TerrainGenerator.TerrainPlaceableHeight : 0f;
 
 		placeableObject.gameObject.transform.position = new Vector3(placeableObject.gameObject.transform.position.x, objectBottomHeight + yOffset, placeableObject.gameObject.transform.position.z);
-		placeableObject.RotateUsedCoordsToTransform();
 
 		if (IsPlaceable(placeableObject))
 		{

@@ -10,7 +10,6 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 	#region Attributes
 
 	private Dictionary<ProductData, ProductStorage> _neededProductStorages;
-	private string _cityName;
 	private Vector2 _centerPosition; // Center Position of this CityPlaceable
 	private int _size;
 
@@ -50,16 +49,6 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 		}
 	}
 
-	public string CityName {
-		get {
-			return _cityName;
-		}
-
-		set {
-			_cityName = value;
-		}
-	}
-
 	public CityMainBuilding MainBuilding {
 		get {
 			return _mainBuilding;
@@ -75,8 +64,6 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 
 	protected override void Initialize()
 	{
-		base.Initialize();
-		if ("".Equals(_cityName)) _cityName = "Default Name";
 		if (ChildMapPlaceables.Count == 0)
 		{
 			for (int i = 0; i < transform.childCount; i++)
@@ -91,7 +78,6 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 		transform.eulerAngles = new Vector3Int(0, Random.Range(0, 4) * 90, 0);
 		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
 		{
-			simpleMapPlaceable.RotateUsedCoordsToTransform();
 			if (!(simpleMapPlaceable is CityBuilding)) continue;
 			CityBuilding cityBuilding = ((CityBuilding)simpleMapPlaceable);
 			cityBuilding.CityPlaceable = this;

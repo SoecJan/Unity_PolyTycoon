@@ -5,10 +5,11 @@ using UnityEngine;
 /// <summary>
 /// This class handles MapPlaceables that contain more than one <see cref="SimpleMapPlaceable"/>.
 /// </summary>
-public abstract class ComplexMapPlaceable : MonoBehaviour
+public abstract class ComplexMapPlaceable : SimpleMapPlaceable
 {
 
 	#region Attributes
+	
 	[SerializeField]
 	private List<SimpleMapPlaceable> _childMapPlaceables;
 	#endregion
@@ -25,13 +26,25 @@ public abstract class ComplexMapPlaceable : MonoBehaviour
 	// Use this for initialization
 	void Awake()
 	{
-		if (_childMapPlaceables == null)
+		if (ChildMapPlaceables == null)
 			_childMapPlaceables = new List<SimpleMapPlaceable>();
 		Initialize();
 	}
 
-	protected virtual void Initialize()
-	{ }
+	public override void Rotate(Vector3 axis, float rotationAmount)
+	{
+		
+		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
+		{
+			simpleMapPlaceable.Rotate(axis, rotationAmount);
+		}
+		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
+		{
+			Vector3 rotatedOffset = Quaternion.Euler(0, rotationAmount, 0) * simpleMapPlaceable.transform.localPosition;
+			simpleMapPlaceable.transform.localPosition = Vector3Int.RoundToInt(rotatedOffset);
+			Debug.Log("New:" + rotatedOffset);
+		}
+	}
 
 	#endregion
 }
