@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class VehicleMover : MonoBehaviour
 {
-	public bool _wait = true;
+	[SerializeField] private Trailer _trailer;
+	[SerializeField] private Transform _trailerAnchor;
+	private bool _wait = true;
 	private bool _isWayPointReached = false;
 	private float progress = 0f;
 	[SerializeField] private float _speed = 2f;
@@ -15,7 +17,16 @@ public class VehicleMover : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		OnArrive();
+		if (OnArrive != null)
+		{
+			OnArrive();
+		}
+
+		if (_trailer)
+		{
+			Trailer trailer0 = Instantiate(_trailer, transform.position, Quaternion.identity);
+			trailer0.MoverAnchor = _trailerAnchor;
+		}
 	}
 
 	// Update is called once per frame

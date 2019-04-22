@@ -14,7 +14,7 @@ public class ConstantRotator : MonoBehaviour
 
 	void Update()
 	{
-		_rotatedTransform.eulerAngles += _rotationAxis;
+		_rotatedTransform.eulerAngles += _rotationAxis * Time.deltaTime;
 		_rotatedTransform.eulerAngles = new Vector3(_rotatedTransform.eulerAngles.x % 360, _rotatedTransform.eulerAngles.y % 360, _rotatedTransform.eulerAngles.z % 360);
 	}
 }
