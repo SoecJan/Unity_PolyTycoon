@@ -33,7 +33,7 @@ public class CityManager : MonoBehaviour
 	{
 		foreach (CityPlaceable cityPlaceable in _placedCities)
 		{
-			if (cityPlaceable.CityName.ToLower().Equals(cityName.ToLower()))
+			if (cityPlaceable.BuildingName.ToLower().Equals(cityName.ToLower()))
 			{
 				return cityPlaceable;
 			}
@@ -72,7 +72,7 @@ public class CityManager : MonoBehaviour
 				{
 					GameObject uiGameObject = _worldToScreenUiManager.Add(_cityWorldToScreenUi.gameObject, city.gameObject.transform, new Vector3(0,50f,0));
 					CityWorldToScreenUi worldToScreenUi = uiGameObject.GetComponent<CityWorldToScreenUi>();
-					worldToScreenUi.Text.text = "".Equals(city.CityName) || city.CityName == null ? "Default Name" : city.CityName;
+					worldToScreenUi.Text.text = "".Equals(city.BuildingName) || city.BuildingName == null ? "Default Name" : city.BuildingName;
 				}
 					
 

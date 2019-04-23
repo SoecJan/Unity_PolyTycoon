@@ -2,17 +2,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Trainstation : Warehouse
+public class Trainstation : AbstractStorageContainer
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private Transform _stationTransform;
+
+    public Transform StationTransform
     {
-        
+        get { return _stationTransform; }
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void Initialize()
     {
-        
+        base.Initialize();
+        IsClickable = true;
+    }
+
+    public override void OnPlacement()
+    {
+        base.OnPlacement();
+    }
+
+    public override bool IsTraversable()
+    {
+        return false;
+    }
+
+    public override bool IsNode()
+    {
+        return true;
     }
 }

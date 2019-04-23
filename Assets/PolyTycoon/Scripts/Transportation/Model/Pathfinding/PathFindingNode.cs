@@ -41,7 +41,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 	public abstract bool IsNode(); // Returns true if this object is supposed to be a node for path finding
 
-	public SimpleMapPlaceable AdjacentNodes(int i)
+	protected virtual SimpleMapPlaceable AdjacentNodes(int i)
 	{
 		//	SimpleMapPlaceable mapPlaceableTop = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.forward);
 		//	SimpleMapPlaceable mapPlaceableRight = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.right);
@@ -285,13 +285,19 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 			return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.CenterTopLeft + offset, TraversalPoint.BottomLeft + offset, outerCornerRadius);
 		}
 		Debug.LogError("Should not reach here! Input: " + fromDirection + "; " + toDirection);
-		return new WayPoint(Vector3.zero, Vector3.zero);;
+		return new WayPoint(Vector3.zero, Vector3.zero);
 	}
 	#endregion
 }
 
 public struct TraversalPoint
 {
+	// Center points
+	private static Vector3 middleLeft = new Vector3(-0.5f, 0f, 0f);
+	private static Vector3 middleRight = new Vector3(0.5f, 0f, 0f);
+	private static Vector3 middleTop = new Vector3(0f, 0f, 0.5f);
+	private static Vector3 middleBottom = new Vector3(0f, 0f, -0.5f);
+	
 	// Lane points
 	private static Vector3 topLeft = new Vector3(-0.25f, 0f, 0.5f);
 	private static Vector3 topRight = new Vector3(0.25f, 0f, 0.5f);
@@ -366,5 +372,25 @@ public struct TraversalPoint
 	public static Vector3 CenterBottomLeft {
 		get { return centerBottomLeft; }
 		set { centerBottomLeft = value; }
+	}
+
+	public static Vector3 MiddleLeft
+	{
+		get { return middleLeft; }
+	}
+
+	public static Vector3 MiddleRight
+	{
+		get { return middleRight; }
+	}
+
+	public static Vector3 MiddleTop
+	{
+		get { return middleTop; }
+	}
+
+	public static Vector3 MiddleBottom
+	{
+		get { return middleBottom; }
 	}
 }

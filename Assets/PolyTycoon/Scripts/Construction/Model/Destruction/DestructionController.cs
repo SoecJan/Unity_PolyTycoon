@@ -25,7 +25,7 @@ public class DestructionController : MonoBehaviour
 
 		SimpleMapPlaceable mapPlaceable = hitInfo.collider.gameObject.GetComponent<SimpleMapPlaceable>();
 		if (!mapPlaceable) return;
-
+		Debug.Log(mapPlaceable.name);
 		_buildingManager.RemoveMapPlaceable(mapPlaceable.transform.position);
 	}
 }
