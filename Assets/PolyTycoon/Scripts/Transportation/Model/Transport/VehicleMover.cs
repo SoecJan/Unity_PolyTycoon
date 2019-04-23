@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class VehicleMover : MonoBehaviour
 {
-	[SerializeField] private Trailer _trailer;
-	[SerializeField] private Transform _trailerAnchor;
 	private bool _wait = true;
 	private bool _isWayPointReached = false;
 	private float progress = 0f;
@@ -20,12 +18,6 @@ public class VehicleMover : MonoBehaviour
 		if (OnArrive != null)
 		{
 			OnArrive();
-		}
-
-		if (_trailer)
-		{
-			Trailer trailer0 = Instantiate(_trailer, transform.position, Quaternion.identity);
-			trailer0.MoverAnchor = _trailerAnchor;
 		}
 	}
 
@@ -61,7 +53,22 @@ public class VehicleMover : MonoBehaviour
 		WayPoint currentWayPoint = _wayPointList[_wayPointIndex];
 		
 		// Drive Straight
-		if (currentWayPoint.TraversalVectors.Length == 2)
+		if (_wayPointIndex == 0)
+		{
+			if (!_isWayPointReached)
+			{
+				_isWayPointReached = DriveStraightToDestination(currentWayPoint.TraversalVectors[0]);
+			}
+			else
+			{
+				if (DriveStraightToDestination(currentWayPoint.TraversalVectors[1]))
+				{
+					_wayPointIndex = (_wayPointIndex + 1);
+					_isWayPointReached = false;
+				}
+			}
+		} 
+		else if (currentWayPoint.TraversalVectors.Length == 2)
 		{
 			if (DriveStraightToDestination(currentWayPoint.TraversalVectors[1]))
 			{
@@ -113,24 +120,23 @@ public class VehicleMover : MonoBehaviour
 			return false;
 		}
 		transform.position = destinationVector3;
-		
 		return true;
 	}
 
-	public static float GetAngle(float radius, float distance)
+	private static float GetAngle(float radius, float distance)
 	{
 		return (distance * 180) / (Mathf.PI * radius);
 	}
 
-	public static Vector3 GetPoint(Vector3 p0, Vector3 p1, Vector3 p2, float t)
+	private static Vector3 GetPoint(Vector3 startVector3, Vector3 offsetVector3, Vector3 targetVector3, float progress)
 	{
-		return Vector3.Lerp(Vector3.Lerp(p0, p1, t), Vector3.Lerp(p1, p2, t), t);
+		return Vector3.Lerp(Vector3.Lerp(startVector3, offsetVector3, progress), Vector3.Lerp(offsetVector3, targetVector3, progress), progress);
 	}
 
-	public static Vector3 GetFirstDerivative(Vector3 p0, Vector3 p1, Vector3 p2, float t)
+	private static Vector3 GetFirstDerivative(Vector3 startVector3, Vector3 offsetVector3, Vector3 targetVector3, float progress)
 	{
 		return
-			2f * (1f - t) * (p1 - p0) +
-			2f * t * (p2 - p1);
+			2f * (1f - progress) * (offsetVector3 - startVector3) +
+			2f * progress * (targetVector3 - offsetVector3);
 	}
 }

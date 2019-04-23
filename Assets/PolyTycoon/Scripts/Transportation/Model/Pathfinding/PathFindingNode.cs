@@ -239,7 +239,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 		// Inner Corners
 
-		float innerCornerRadius = 0.4f;
+		float innerCornerRadius = 0.5f;
 
 		if (fromDirection == Up && toDirection == Left)
 		{
@@ -263,7 +263,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 		// Outer Corners
 
-		float outerCornerRadius = 0.8f;
+		float outerCornerRadius = 0.75f;
 
 		if (fromDirection == Up && toDirection == Right)
 		{

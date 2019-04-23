@@ -4,6 +4,7 @@ public class ComplexStorageContainer : ComplexMapPlaceable
 {
     protected override void Initialize()
     {
+//        this.IsClickable = true;
     }
 
     public override void OnPlacement()

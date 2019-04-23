@@ -170,7 +170,7 @@ public class Rail : PathFindingNode
 
 		// Inner Corners
 
-		float innerCornerRadius = 0.4f;
+		float innerCornerRadius = 0.5f;
 
 		if (fromDirection == Up && toDirection == Left)
 		{
