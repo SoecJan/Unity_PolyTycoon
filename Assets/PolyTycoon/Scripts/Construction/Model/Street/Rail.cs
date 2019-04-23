@@ -27,7 +27,8 @@ public class Rail : PathFindingNode
     protected override SimpleMapPlaceable AdjacentNodes(int i)
     {
 	    SimpleMapPlaceable simpleMapPlaceable = base.AdjacentNodes(i);
-	    return simpleMapPlaceable is Street ? null : simpleMapPlaceable;
+	    Trainstation trainstation = simpleMapPlaceable as Trainstation;
+	    return simpleMapPlaceable is Rail || (trainstation != null && trainstation.AccessRail == this) ? simpleMapPlaceable : null;
     }
 
     private Rail NeighborRail(int i)

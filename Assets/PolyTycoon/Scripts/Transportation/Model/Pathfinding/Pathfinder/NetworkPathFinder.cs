@@ -27,7 +27,22 @@ public class NetworkPathFinder : AbstractPathFinder
 	{
 		foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
 		{
-			Path path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+			
+			IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
+			Path path;
+			if (pathNode != null)
+			{
+				path = pathNode.PathTo(transportRouteElement.ToNode);
+				if (path == null)
+				{
+					path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+					pathNode.AddPath(transportRouteElement.ToNode, path);
+				}
+			}
+			else
+			{
+				path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+			}
 			transportRouteElement.Path = path;
 		}
 		callback(transportRoute);
@@ -95,6 +110,7 @@ public class NetworkAStarPathFinding : IPathFindingAlgorithm
 	#region Methods
 	public Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
 	{
+		Debug.Log("Finding a new Path");
 		Heap<NetworkNode> openSet = new Heap<NetworkNode>(PathFindingNode.TotalNodeCount);
 		HashSet<PathFindingNode> closedSet = new HashSet<PathFindingNode>();
 		openSet.Add(new NetworkNode(startNode));
@@ -157,28 +173,28 @@ public class NetworkAStarPathFinding : IPathFindingAlgorithm
 	{
 		NetworkNode nextNetworkNode = currentNetworkNode.Parent;
 
-		Vector3 fromVector3 = new Vector3();
+		Vector3Int fromVector3 = new Vector3Int();
 		if (lastNetworkNode != null)
 		{
-			fromVector3 = (lastNetworkNode.PathFindingNode.transform.position - currentNetworkNode.PathFindingNode.transform.position).normalized;
+			fromVector3 = Vector3Int.RoundToInt((lastNetworkNode.PathFindingNode.transform.position - currentNetworkNode.PathFindingNode.transform.position).normalized);
 		}
 
-		Vector3 toVector3 = new Vector3();
+		Vector3Int toVector3 = new Vector3Int();
 		if (nextNetworkNode != null)
 		{
-			toVector3 = (nextNetworkNode.PathFindingNode.transform.position - currentNetworkNode.PathFindingNode.transform.position).normalized;
+			toVector3 = Vector3Int.RoundToInt((nextNetworkNode.PathFindingNode.transform.position - currentNetworkNode.PathFindingNode.transform.position).normalized);
 		}
 
 		int fromDirection = DirectionVectorToInt(fromVector3);
 		int toDirection = DirectionVectorToInt(toVector3);
 
-		//Debug.Log(fromVector3.ToString() + ": " + fromDirection + ", " + toVector3.ToString() + ": " + toDirection)
+		Debug.Log(fromVector3.ToString() + ": " + fromDirection + ", " + toVector3.ToString() + ": " + toDirection);
 		return currentNetworkNode.PathFindingNode.GetTraversalVectors(toDirection, fromDirection);
 	}
 
 	int DirectionVectorToInt(Vector3 normalizedDirection)
 	{
-		Debug.Log(normalizedDirection);
+//		Debug.Log(normalizedDirection);
 		if (normalizedDirection.Equals(Vector3.forward))
 		{
 			return PathFindingNode.Up;

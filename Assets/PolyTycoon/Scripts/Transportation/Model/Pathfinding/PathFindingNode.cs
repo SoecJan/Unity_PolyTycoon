@@ -23,7 +23,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 	#region Getter & Setter
 
-	public static BuildingManager BuildingManager { get; set; }
+	protected static BuildingManager BuildingManager { get; set; }
 
 	public PathFindingNode[] NeighborNodes {
 		get {
@@ -36,6 +36,12 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	}
 
 	public static int TotalNodeCount { get; set; }
+
+	protected virtual Vector3 TraversalOffset
+	{
+		get;
+		set;
+	}
 
 	public abstract bool IsTraversable();
 
@@ -78,6 +84,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	protected override void Initialize()
 	{
 		if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
+		
 	}
 
 	void OnDrawGizmos()
@@ -117,11 +124,12 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	public override void OnPlacement()
 	{
 		if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
-
+		TraversalOffset = transform.position;
 		NeighborNodes = new PathFindingNode[NEIGHBOR_COUNT];
 		TotalNodeCount += 1;
 		IsPlaced = true;
 		FindNeighborNodes();
+		
 	}
 	#endregion
 
@@ -147,7 +155,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	/// </summary>
 	/// <param name="direction"></param>
 	/// <returns>The Node that was found in the specified direction</returns>
-	public PathFindingNode[] FindNextNodes()
+	protected PathFindingNode[] FindNextNodes()
 	{
 		PathFindingNode[] pathFindingNodes = new PathFindingNode[NEIGHBOR_COUNT];
 		for (int i = 0; i < NEIGHBOR_COUNT; i++)
@@ -181,20 +189,20 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	///<summary>Returns the TraversalVectors as a WayPoint Object.</summary>
 	public virtual WayPoint GetTraversalVectors(int fromDirection, int toDirection)
 	{
-		Vector3 offset = transform.position;
+		
 		// Start Points
 		if (fromDirection == -1)
 		{
 			switch (toDirection)
 			{
 				case Up:
-					return new WayPoint(TraversalPoint.CenterBottomRight + offset, TraversalPoint.TopRight + offset);
+					return new WayPoint(TraversalPoint.CenterBottomRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset);
 				case Right:
-					return new WayPoint(TraversalPoint.CenterBottomLeft + offset, TraversalPoint.RightBottom + offset);
+					return new WayPoint(TraversalPoint.CenterBottomLeft + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset);
 				case Down:
-					return new WayPoint(TraversalPoint.CenterTopLeft + offset, TraversalPoint.BottomLeft + offset);
+					return new WayPoint(TraversalPoint.CenterTopLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset);
 				case Left:
-					return new WayPoint(TraversalPoint.CenterTopRight + offset, TraversalPoint.LeftTop + offset);
+					return new WayPoint(TraversalPoint.CenterTopRight + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset);
 			}
 		}
 
@@ -205,13 +213,13 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 			switch (fromDirection)
 			{
 				case Up:
-					return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.CenterBottomLeft + offset);
+					return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.CenterBottomLeft + TraversalOffset);
 				case Right:
-					return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.CenterTopLeft + offset);
+					return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.CenterTopLeft + TraversalOffset);
 				case Down:
-					return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.CenterTopRight + offset);
+					return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.CenterTopRight + TraversalOffset);
 				case Left:
-					return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.CenterBottomRight + offset);
+					return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.CenterBottomRight + TraversalOffset);
 			}
 		}
 
@@ -219,22 +227,22 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 		if (fromDirection == Up && toDirection == Down)
 		{
-			return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.BottomLeft + offset);
+			return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset);
 		}
 		
 		if (fromDirection == Down && toDirection == Up)
 		{
-			return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.TopRight + offset);
+			return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset);
 		}
 		
 		if (fromDirection == Left && toDirection == Right)
 		{
-			return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.RightBottom + offset);
+			return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset);
 		}
 		
 		if (fromDirection == Right && toDirection == Left)
 		{
-			return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.LeftTop + offset);
+			return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset);
 		}
 
 		// Inner Corners
@@ -243,22 +251,22 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 		if (fromDirection == Up && toDirection == Left)
 		{
-			return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.CenterTopLeft + offset, TraversalPoint.LeftTop + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.CenterTopLeft + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset, innerCornerRadius);
 		}
 
 		if (fromDirection == Down && toDirection == Right)
 		{
-			return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.CenterBottomRight + offset, TraversalPoint.RightBottom + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.CenterBottomRight + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset, innerCornerRadius);
 		}
 
 		if (fromDirection == Left && toDirection == Down)
 		{
-			return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.CenterBottomLeft + offset, TraversalPoint.BottomLeft + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.CenterBottomLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset, innerCornerRadius);
 		}
 
 		if (fromDirection == Right && toDirection == Up)
 		{
-			return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.CenterTopRight + offset, TraversalPoint.TopRight + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.CenterTopRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset, innerCornerRadius);
 		}
 
 		// Outer Corners
@@ -267,22 +275,22 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 		if (fromDirection == Up && toDirection == Right)
 		{
-			return new WayPoint(TraversalPoint.TopLeft + offset, TraversalPoint.CenterBottomLeft + offset, TraversalPoint.RightBottom + offset, outerCornerRadius);
+			return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.CenterBottomLeft + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset, outerCornerRadius);
 		}
 
 		if (fromDirection == Down && toDirection == Left)
 		{
-			return new WayPoint(TraversalPoint.BottomRight + offset, TraversalPoint.CenterTopRight + offset, TraversalPoint.LeftTop + offset, outerCornerRadius);
+			return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.CenterTopRight + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset, outerCornerRadius);
 		}
 
 		if (fromDirection == Left && toDirection == Up)
 		{
-			return new WayPoint(TraversalPoint.LeftBottom + offset, TraversalPoint.CenterBottomRight + offset, TraversalPoint.TopRight + offset, outerCornerRadius);
+			return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.CenterBottomRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset, outerCornerRadius);
 		}
 
 		if (fromDirection == Right && toDirection == Down)
 		{
-			return new WayPoint(TraversalPoint.RightTop + offset, TraversalPoint.CenterTopLeft + offset, TraversalPoint.BottomLeft + offset, outerCornerRadius);
+			return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.CenterTopLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset, outerCornerRadius);
 		}
 		Debug.LogError("Should not reach here! Input: " + fromDirection + "; " + toDirection);
 		return new WayPoint(Vector3.zero, Vector3.zero);

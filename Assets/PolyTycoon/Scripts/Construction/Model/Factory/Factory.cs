@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityScript.Scripting.Pipeline;
 
-public class Factory : PathFindingNode, IConsumer, IProducer
+public class Factory : PathFindingNode, IConsumer, IProducer, IPathNode
 {
 	#region Attributes
 
@@ -14,7 +14,8 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 	private float _elapsedTime; // Time elapsed since the begin of the production process
 	private int _tempMaxAmount = 20;
 	private Coroutine _produceCoroutine;
-	private Dictionary<BiomeGenerator.Biome, float> _biomeValueDictionary;
+//	private Dictionary<BiomeGenerator.Biome, float> _biomeValueDictionary;
+	private Dictionary<PathFindingNode, Path> _paths;
 	#endregion
 
 	#region Getter & Setter
@@ -71,7 +72,7 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 
 	public override bool IsNode()
 	{
-		return true; // TODO: Add check for the access street
+		return true;
 	}
 
 	public override bool IsTraversable()
@@ -87,7 +88,7 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 		base.Initialize();
 		IsClickable = true;
 		_neededProducts = new Dictionary<ProductData, ProductStorage>();
-		
+		_paths = new Dictionary<PathFindingNode, Path>();
 		// Initialize production if a product has been set in advance.
 		if (_producedProduct.StoredProductData == null) return;
 		
@@ -180,4 +181,26 @@ public class Factory : PathFindingNode, IConsumer, IProducer
 		return productionReady;
 	}
 	#endregion
+
+	public Path PathTo(PathFindingNode targetNode)
+	{
+		return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
+	}
+
+	public void AddPath(PathFindingNode targetNode, Path path)
+	{
+		if (_paths.ContainsKey(targetNode))
+		{
+			_paths[targetNode] = path;
+		}
+		else
+		{
+			_paths.Add(targetNode, path);
+		}
+	}
+
+	public void RemovePath(PathFindingNode targetNode)
+	{
+		_paths.Remove(targetNode);
+	}
 }

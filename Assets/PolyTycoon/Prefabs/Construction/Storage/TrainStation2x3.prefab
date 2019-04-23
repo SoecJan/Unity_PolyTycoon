@@ -57,6 +57,7 @@ MonoBehaviour:
   _buildingName: Trainstation
   neighborNodes: []
   _stationTransform: {fileID: 1867300552224140107}
+  _accessRail: {fileID: 4984856488839444476}
 --- !u!65 &3695100006059099328
 BoxCollider:
   m_ObjectHideFlags: 0

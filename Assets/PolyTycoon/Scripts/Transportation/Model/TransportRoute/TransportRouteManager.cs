@@ -80,7 +80,7 @@ public class TransportRouteManager : MonoBehaviour
 				break;
 			default:
 				Debug.LogError("Should not reach here");
-				throw new NotImplementedException();
+				break;
 		}
 	}
 

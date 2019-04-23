@@ -26,10 +26,24 @@ public class AirPathFinder : AbstractPathFinder
     {
         foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
         {
-            Path path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+			
+            IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
+            Path path;
+            if (pathNode != null)
+            {
+                path = pathNode.PathTo(transportRouteElement.ToNode);
+                if (path == null)
+                {
+                    path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+                    pathNode.AddPath(transportRouteElement.ToNode, path);
+                }
+            }
+            else
+            {
+                path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+            }
             transportRouteElement.Path = path;
         }
-
         callback(transportRoute);
         yield return null;
     }
