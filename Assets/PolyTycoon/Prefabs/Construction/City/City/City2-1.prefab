@@ -509,7 +509,6 @@ MonoBehaviour:
   _constructionUiSprite: {fileID: 0}
   _usedCoordinates: []
   _buildingName: 
-  _isDeleteable: 0
   _childMapPlaceables:
   - {fileID: 9161302712849855683}
   - {fileID: 114644906442422128}

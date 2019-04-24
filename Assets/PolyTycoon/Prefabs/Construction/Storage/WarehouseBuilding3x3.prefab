@@ -159,7 +159,6 @@ MonoBehaviour:
     _terrainType: 3
   _buildingName: Warehouse
   neighborNodes: []
-  _maxCapacity: 256
 --- !u!1001 &3993253642198324503
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -167,10 +166,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4236454481889950440}
     m_Modifications:
-    - target: {fileID: 100000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
-      propertyPath: m_Name
-      value: Warehouse
-      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -215,7 +210,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 100000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
+      propertyPath: m_Name
+      value: Warehouse
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 9500000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ad9130ef2d1350c43b96bee6c22805a1, type: 3}
 --- !u!4 &3993253642198192023 stripped
 Transform:

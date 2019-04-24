@@ -409,30 +409,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 978718181954877264}
     m_Modifications:
-    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Name
-      value: StraightRail
-      objectReference: {fileID: 0}
-    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 100002, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 100004, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
     - target: {fileID: 400006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.5
@@ -484,6 +460,30 @@ PrefabInstance:
     - target: {fileID: 400006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Name
+      value: StraightRail
+      objectReference: {fileID: 0}
+    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 100004, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9500000, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}

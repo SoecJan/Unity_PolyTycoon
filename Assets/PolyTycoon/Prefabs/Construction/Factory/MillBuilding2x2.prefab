@@ -163,10 +163,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4027694224181164}
     m_Modifications:
-    - target: {fileID: 100000, guid: 95ef8255bfe558d469f38b427e456a2e, type: 3}
-      propertyPath: m_Name
-      value: Mill
-      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 95ef8255bfe558d469f38b427e456a2e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.25
@@ -223,7 +219,12 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.8
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 100000, guid: 95ef8255bfe558d469f38b427e456a2e, type: 3}
+      propertyPath: m_Name
+      value: Mill
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 9500000, guid: 95ef8255bfe558d469f38b427e456a2e, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 95ef8255bfe558d469f38b427e456a2e, type: 3}
 --- !u!4 &8003070723186919045 stripped
 Transform:

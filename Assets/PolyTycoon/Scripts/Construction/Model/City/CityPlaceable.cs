@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 ///  Holds a reference to all buildings contained in this cityPlaceable. 
 /// </summary>
-public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
+public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNode
 {
 	#region Attributes
 
@@ -16,6 +16,7 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 	[SerializeField] private CityMainBuilding _mainBuilding;
 	[SerializeField] private ProductData _producedProduct;
 	private ProductStorage _productStorage;
+	private Dictionary<PathFindingNode, Path> _paths;
 	#endregion
 
 	#region Getter & Setter
@@ -73,6 +74,7 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 				if (simpleMapPlaceable is CityMainBuilding && !_mainBuilding) _mainBuilding = (CityMainBuilding)simpleMapPlaceable;
 			}
 		}
+		_paths = new Dictionary<PathFindingNode, Path>();
 		_neededProductStorages = new Dictionary<ProductData, ProductStorage>();
 		_productStorage = new ProductStorage(_producedProduct, 3);
 		transform.eulerAngles = new Vector3Int(0, Random.Range(0, 4) * 90, 0);
@@ -132,4 +134,26 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer
 		return result;
 	}
 	#endregion
+
+	public Path PathTo(PathFindingNode targetNode)
+	{
+		return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
+	}
+
+	public void AddPath(PathFindingNode targetNode, Path path)
+	{
+		if (_paths.ContainsKey(targetNode))
+		{
+			_paths[targetNode] = path;
+		}
+		else
+		{
+			_paths.Add(targetNode, path);
+		}
+	}
+
+	public void RemovePath(PathFindingNode targetNode)
+	{
+		_paths.Remove(targetNode);
+	}
 }
