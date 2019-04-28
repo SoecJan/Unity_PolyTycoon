@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 
-public abstract class AbstractStorageContainer : PathFindingNode, IStore, IPathNode
+public abstract class AbstractStorageContainer : PathFindingTarget, IStore, IPathNode
 {
     private Dictionary<ProductData, ProductStorage> _storedProducts;
     private Dictionary<PathFindingNode, Path> _paths;
     
     protected override void Initialize()
     {
+        base.Initialize();
         _storedProducts = new Dictionary<ProductData, ProductStorage>();
         _paths = new Dictionary<PathFindingNode, Path>();
-        
     }
 
     public Dictionary<ProductData, ProductStorage> StoredProducts()

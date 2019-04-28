@@ -12,282 +12,310 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class GroundPlacementController : MonoBehaviour
 {
-	#region Attributes
-	[SerializeField] private SimpleMapPlaceable[] _buildings; // Objects that can be placed
-	[SerializeField] private TerrainGenerator _terrainGenerator; // Needed to check the ground belpw a building before placement
-	[SerializeField] private LayerMask _buildingsMask; // Needed to determine the objects to place _buildings on
-	[SerializeField] private Vector3 _offsetVec3 = new Vector3(0.5f, 0, 0.5f); // Needed to align _buildings correctly
-	[SerializeField] private KeyCode _rotateHotKey = KeyCode.R; // Needed to rotate a selected Building
-	[SerializeField] private float _animationSpeedMultiplier = 2f; // Needed to animate a selected Building
-	[SerializeField] private float _rotateAmount = 90f; // The Amount to rotate a building on _rotateHotKey press
+    #region Attributes
+    [SerializeField] private SimpleMapPlaceable[] _buildings; // Objects that can be placed
 
-	private Camera _mainCamera;
-	private UserInformationPopup _userInformationPopup;
-	private SimpleMapPlaceable _currentPlaceableObject; // Object that is being placed
-	private Dictionary<Vector2, SimpleMapPlaceable> _draggedGameObjects;
-	private bool _isDragging = false;
-	#endregion
+    [SerializeField]
+    private TerrainGenerator _terrainGenerator; // Needed to check the ground belpw a building before placement
 
-	#region Getter & Setter
+    [SerializeField] private LayerMask _buildingsMask; // Needed to determine the objects to place _buildings on
+    [SerializeField] private Vector3 _offsetVec3 = new Vector3(0.5f, 0, 0.5f); // Needed to align _buildings correctly
+    [SerializeField] private KeyCode _rotateHotKey = KeyCode.R; // Needed to rotate a selected Building
+    [SerializeField] private float _animationSpeedMultiplier = 2f; // Needed to animate a selected Building
+    [SerializeField] private float _rotateAmount = 90f; // The Amount to rotate a building on _rotateHotKey press
 
-	public SimpleMapPlaceable PlaceableObjectPrefab {
-		set {
-			if (_currentPlaceableObject && value) Destroy(_currentPlaceableObject);
-			_currentPlaceableObject = Instantiate(value);
-		}
-	}
+    private Camera _mainCamera;
+    private UserInformationPopup _userInformationPopup;
+    private SimpleMapPlaceable _currentPlaceableObject; // Object that is being placed
+    private Dictionary<Vector2, SimpleMapPlaceable> _draggedGameObjects;
+    private bool _isDragging = false;
 
-	public BuildingManager BuildingManager { get; private set; }
+    #endregion
 
-	public TerrainGenerator TerrainGenerator {
-		get {
-			return _terrainGenerator;
-		}
+    #region Getter & Setter
 
-		set {
-			_terrainGenerator = value;
-		}
-	}
+    public SimpleMapPlaceable PlaceableObjectPrefab
+    {
+        set
+        {
+            if (_currentPlaceableObject && value) Destroy(_currentPlaceableObject);
+            _currentPlaceableObject = Instantiate(value);
+        }
+    }
 
-	public SimpleMapPlaceable GetBuilding(string buildingName)
-	{
-		foreach (SimpleMapPlaceable mapPlaceable in Buildings)
-		{
-			if (mapPlaceable.BuildingName.Equals(buildingName))
-				return mapPlaceable;
-		}
-		return null;
-	}
+    public BuildingManager BuildingManager { get; private set; }
 
-	public SimpleMapPlaceable[] Buildings {
-		get {
-			return _buildings;
-		}
+    public TerrainGenerator TerrainGenerator
+    {
+        get { return _terrainGenerator; }
 
-		set {
-			_buildings = value;
-		}
-	}
+        set { _terrainGenerator = value; }
+    }
 
-	#endregion
+    public SimpleMapPlaceable GetBuilding(string buildingName)
+    {
+        foreach (SimpleMapPlaceable mapPlaceable in Buildings)
+        {
+            if (mapPlaceable.BuildingName.Equals(buildingName))
+                return mapPlaceable;
+        }
 
-	#region Default Methods
+        return null;
+    }
 
-	void Awake()
-	{
-		BuildingManager = new BuildingManager();
-		_draggedGameObjects = new Dictionary<Vector2, SimpleMapPlaceable>();
-		_userInformationPopup = FindObjectOfType<UserInformationPopup>();
-		_mainCamera = Camera.main;
-	}
+    public SimpleMapPlaceable[] Buildings
+    {
+        get { return _buildings; }
 
-	//void OnGUI()
-	//{
-	//	for (int i = 0; i < Buildings.Length; i++)
-	//	{
-	//		if (!GUI.Button(new Rect(Screen.width / 20, Screen.height / 15 + Screen.height / 12 * i, 100, 30), Buildings[i].name)) continue;
-	//		if (_currentPlaceableObject) Destroy(_currentPlaceableObject);
-	//		PlaceableObjectPrefab = Buildings[i];
-	//	}
-	//}
+        set { _buildings = value; }
+    }
 
-	void Update()
-	{
-		if (_currentPlaceableObject == null) return;
+    #endregion
 
-		MoveObject();
-		RotateObject();
-		HandleInput();
-	}
+    #region Default Methods
 
-	#endregion
+    void Awake()
+    {
+        BuildingManager = new BuildingManager();
+        _draggedGameObjects = new Dictionary<Vector2, SimpleMapPlaceable>();
+        _userInformationPopup = FindObjectOfType<UserInformationPopup>();
+        _mainCamera = Camera.main;
+    }
 
-	#region Before Placement
+    //void OnGUI()
+    //{
+    //	for (int i = 0; i < Buildings.Length; i++)
+    //	{
+    //		if (!GUI.Button(new Rect(Screen.width / 20, Screen.height / 15 + Screen.height / 12 * i, 100, 30), Buildings[i].name)) continue;
+    //		if (_currentPlaceableObject) Destroy(_currentPlaceableObject);
+    //		PlaceableObjectPrefab = Buildings[i];
+    //	}
+    //}
 
-	void MoveObject()
-	{
-		Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
-		// Get current MousePosition
-		RaycastHit hitInfo;
-		if (!Physics.Raycast(ray, out hitInfo, Mathf.Infinity, _buildingsMask)) return;
-		hitInfo.point -= new Vector3(_offsetVec3.x, 0f, _offsetVec3.z); // Align the current cursor position to the offset, but keep object height
-		float animationHeightOffset = ((1 + Mathf.Sin(Time.time * _animationSpeedMultiplier)) / 2) + 0.5f;
-		Vector3 position = new Vector3(Mathf.Round(hitInfo.point.x), hitInfo.point.y + animationHeightOffset, Mathf.Round(hitInfo.point.z)) + _offsetVec3;
-		if (Math.Abs(position.x - _currentPlaceableObject.transform.position.x) > 0.1f ||
-			Math.Abs(position.z - _currentPlaceableObject.transform.position.z) > 0.1f)
-		{
-			SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
-			if (mapPlaceable && mapPlaceable.IsDraggable && _isDragging)
-			{
-				Vector2 key = new Vector2(_currentPlaceableObject.transform.position.x, _currentPlaceableObject.transform.position.z);
-				if (!_draggedGameObjects.ContainsKey(key))
-				{
-					_draggedGameObjects.Add(key, Instantiate(_currentPlaceableObject, _currentPlaceableObject.transform.position, _currentPlaceableObject.transform.rotation));
-				}
-			}
-		}
-		foreach (SimpleMapPlaceable previewGameObject in _draggedGameObjects.Values)
-		{
-			previewGameObject.transform.position = new Vector3(previewGameObject.transform.position.x, hitInfo.point.y + animationHeightOffset, previewGameObject.transform.position.z);
-		}
-		_currentPlaceableObject.transform.position = position;
-	}
+    void Update()
+    {
+        if (_currentPlaceableObject == null) return;
 
-	void RotateObject()
-	{
-		// Rotate selected Object
-		if (Input.GetKeyDown(_rotateHotKey))
-		{
-			_currentPlaceableObject.Rotate(Vector3.up, _rotateAmount);
-		}
-	}
+        MoveObject();
+        RotateObject();
+        HandleInput();
+    }
 
-	void HandleInput()
-	{
-		// Place selected Object on left click
-		if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
-		{
-			_isDragging = true;
-		}
-		else if (_isDragging && Input.GetMouseButtonUp(0))
-		{
-			SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
-			if (mapPlaceable.IsDraggable)
-			{
-				for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
-				{
-					SimpleMapPlaceable previewObject = _draggedGameObjects.Values.ElementAt(i).GetComponent<SimpleMapPlaceable>();
-					if (!PlaceObject(previewObject))
-					{
-						Destroy(previewObject.gameObject);
-					}
-				}
-				_draggedGameObjects.Clear();
-			}
+    #endregion
 
-			if (mapPlaceable is ComplexMapPlaceable && !PlaceObject((ComplexMapPlaceable) mapPlaceable))
-			{
-				Destroy(_currentPlaceableObject.gameObject);
-			}
-			else if (!PlaceObject(mapPlaceable))
-			{
-				Destroy(_currentPlaceableObject.gameObject);
-			}
-			_currentPlaceableObject = null;
-			_isDragging = false;
-		}
-		// Remove selected Object on right click
-		if (Input.GetMouseButtonDown(1))
-		{
-			SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
-			if (mapPlaceable && mapPlaceable.IsDraggable)
-			{
-				for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
-				{
-					Destroy(_draggedGameObjects.Values.ElementAt(i));
-				}
-				_draggedGameObjects.Clear();
-			}
-			Destroy(_currentPlaceableObject);
-			_currentPlaceableObject = null;
-			_isDragging = false;
-		}
-	}
+    #region Before Placement
 
-	#endregion
+    void MoveObject()
+    {
+        Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
+        // Get current MousePosition
+        RaycastHit hitInfo;
+        if (!Physics.Raycast(ray, out hitInfo, Mathf.Infinity, _buildingsMask)) return;
+        hitInfo.point -=
+            new Vector3(_offsetVec3.x, 0f,
+                _offsetVec3.z); // Align the current cursor position to the offset, but keep object height
+        float animationHeightOffset = ((1 + Mathf.Sin(Time.time * _animationSpeedMultiplier)) / 2) + 0.5f;
+        Vector3 position = new Vector3(Mathf.Round(hitInfo.point.x), hitInfo.point.y + animationHeightOffset,
+                               Mathf.Round(hitInfo.point.z)) + _offsetVec3;
+        if (Math.Abs(position.x - _currentPlaceableObject.transform.position.x) > 0.1f ||
+            Math.Abs(position.z - _currentPlaceableObject.transform.position.z) > 0.1f)
+        {
+            SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
+            if (mapPlaceable && mapPlaceable.IsDraggable && _isDragging)
+            {
+                Vector2 key = new Vector2(_currentPlaceableObject.transform.position.x,
+                    _currentPlaceableObject.transform.position.z);
+                if (!_draggedGameObjects.ContainsKey(key))
+                {
+                    _draggedGameObjects.Add(key,
+                        Instantiate(_currentPlaceableObject, _currentPlaceableObject.transform.position,
+                            _currentPlaceableObject.transform.rotation));
+                }
+            }
+        }
 
-	#region On Object Placement
+        foreach (SimpleMapPlaceable previewGameObject in _draggedGameObjects.Values)
+        {
+            previewGameObject.transform.position = new Vector3(previewGameObject.transform.position.x,
+                hitInfo.point.y + animationHeightOffset, previewGameObject.transform.position.z);
+        }
 
-	public bool PlaceObject(ComplexMapPlaceable complexMapPlaceable)
-	{
-		
-		foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
-		{
-			if (!IsPlaceable(simpleMapPlaceable))
-			{
-				return false;
-			}
-		}
+        _currentPlaceableObject.transform.position = position;
+    }
 
-		TerrainChunk terrainChunk = TerrainGenerator.GetChunk(complexMapPlaceable.transform.position.x, complexMapPlaceable.transform.position.z);
-		complexMapPlaceable.transform.parent = terrainChunk.meshObject.transform;
-		foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
-		{
-			float yOffset = TerrainGenerator ? TerrainGenerator.TerrainPlaceableHeight : 0f;
-			simpleMapPlaceable.transform.position = new Vector3(simpleMapPlaceable.transform.position.x, simpleMapPlaceable.transform.position.y + yOffset, simpleMapPlaceable.transform.position.z);
-			BuildingManager.AddMapPlaceable(simpleMapPlaceable);
-		}
-		return true;
-	}
+    void RotateObject()
+    {
+        // Rotate selected Object
+        if (Input.GetKeyDown(_rotateHotKey))
+        {
+            _currentPlaceableObject.Rotate(Vector3.up, _rotateAmount);
+        }
+    }
 
-	/// <summary>
-	/// Places a MapPlaceable in the world. Updates the MapTerrain, places the object as a child of the TerrainChunk. Registers the Object on BuildingManager.
-	/// </summary>
-	/// <param name="placeableObject"></param>
-	/// <returns></returns>
-	private bool PlaceObject(SimpleMapPlaceable placeableObject)
-	{
-		// Get all needed references
-		float objectBottomHeight = placeableObject.GetHeight() / 2f;
-		float yOffset = TerrainGenerator ? TerrainGenerator.TerrainPlaceableHeight : 0f;
+    void HandleInput()
+    {
+        // Place selected Object on left click
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        {
+            _isDragging = true;
+        }
+        else if (_isDragging && Input.GetMouseButtonUp(0))
+        {
+            SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
+            if (mapPlaceable.IsDraggable)
+            {
+                for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
+                {
+                    SimpleMapPlaceable previewObject =
+                        _draggedGameObjects.Values.ElementAt(i).GetComponent<SimpleMapPlaceable>();
+                    if (!PlaceObject(previewObject))
+                    {
+                        Destroy(previewObject.gameObject);
+                    }
+                }
 
-		placeableObject.gameObject.transform.position = new Vector3(placeableObject.gameObject.transform.position.x, objectBottomHeight + yOffset, placeableObject.gameObject.transform.position.z);
+                _draggedGameObjects.Clear();
+            }
 
-		if (IsPlaceable(placeableObject))
-		{
-			BuildingManager.AddMapPlaceable(placeableObject);
-			Vector2 chunkVec = TerrainGenerator.GetTerrainChunkPosition(placeableObject.transform.position.x, placeableObject.transform.position.z);
-			TerrainChunk terrainChunk = TerrainGenerator.GetTerrainChunk(chunkVec);
-			placeableObject.transform.parent = terrainChunk.meshObject.transform;
-			//if (placeableObject is Factory.Factory)
-			//{
-			//	((Factory.Factory) placeableObject).BiomeValueDictionary = GetBiomeValue(placeableObject);
-			//}
-		}
-		else
-		{
-			if (_userInformationPopup)
-				_userInformationPopup.InformationText = "Couldn't place Object at " + placeableObject.gameObject.transform.position;
-			return false;
-		}
-		return true;
-	}
+            if (mapPlaceable is ComplexMapPlaceable && !PlaceObject((ComplexMapPlaceable) mapPlaceable))
+            {
+                Destroy(_currentPlaceableObject.gameObject);
+            }
+            else if (!PlaceObject(mapPlaceable))
+            {
+                Destroy(_currentPlaceableObject.gameObject);
+            }
 
-	private bool IsPlaceable(SimpleMapPlaceable placeableObject)
-	{
-		return placeableObject && BuildingManager.IsPlaceable(placeableObject) && IsSuitableTerrain(placeableObject);
-	}
+            _currentPlaceableObject = null;
+            _isDragging = false;
+        }
 
-	public bool IsFlatTerrain(ComplexMapPlaceable complexMapPlaceable)
-	{
-		foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
-		{
-			if (!IsSuitableTerrain(simpleMapPlaceable))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
+        // Remove selected Object on right click
+        if (Input.GetMouseButtonDown(1))
+        {
+            SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
+            if (mapPlaceable && mapPlaceable.IsDraggable)
+            {
+                for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
+                {
+                    Destroy(_draggedGameObjects.Values.ElementAt(i));
+                }
 
-	/// <summary>
-	/// Check if a given MapPlaceable can be placed.
-	/// </summary>
-	/// <param name="terrainChunk"></param>
-	/// <param name="objectTransform"></param>
-	/// <param name="offset"></param>
-	/// <returns></returns>
-	private bool IsSuitableTerrain(SimpleMapPlaceable mapPlaceable)
-	{
-		foreach (NeededSpace neededSpace in mapPlaceable.UsedCoordinates)
-		{
-			if (!TerrainGenerator.IsSuitedTerrain(neededSpace.TerrainType, neededSpace.UsedCoordinate + mapPlaceable.transform.position))
-			{
-				return false;
-			};
-		}
-		return true;
-	}
+                _draggedGameObjects.Clear();
+            }
+
+            Destroy(_currentPlaceableObject);
+            _currentPlaceableObject = null;
+            _isDragging = false;
+        }
+    }
+
+    #endregion
+
+    #region On Object Placement
+
+    public bool PlaceObject(ComplexMapPlaceable complexMapPlaceable)
+    {
+        foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
+        {
+            if (!IsPlaceable(simpleMapPlaceable))
+            {
+                return false;
+            }
+        }
+
+        TerrainChunk terrainChunk = TerrainGenerator.GetChunk(complexMapPlaceable.transform.position.x,
+            complexMapPlaceable.transform.position.z);
+        complexMapPlaceable.transform.parent = terrainChunk.meshObject.transform;
+        foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
+        {
+//            float yOffset = TerrainGenerator ? TerrainGenerator.TerrainPlaceableHeight : 0f;
+//            simpleMapPlaceable.transform.position = new Vector3(simpleMapPlaceable.transform.position.x,
+//                simpleMapPlaceable.transform.position.y + yOffset, simpleMapPlaceable.transform.position.z);
+//            BuildingManager.AddMapPlaceable(simpleMapPlaceable);
+            PlaceObject(simpleMapPlaceable);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Places a MapPlaceable in the world. Updates the MapTerrain, places the object as a child of the TerrainChunk. Registers the Object on BuildingManager.
+    /// </summary>
+    /// <param name="placeableObject"></param>
+    /// <returns></returns>
+    private bool PlaceObject(SimpleMapPlaceable placeableObject)
+    {
+        // Get all needed references
+        float objectBottomHeight = placeableObject.GetHeight() / 2f;
+        float yOffset = TerrainGenerator ? TerrainGenerator.TerrainPlaceableHeight : 0f;
+
+        placeableObject.gameObject.transform.position = new Vector3(placeableObject.gameObject.transform.position.x,
+            objectBottomHeight + yOffset, placeableObject.gameObject.transform.position.z);
+
+        if (IsPlaceable(placeableObject))
+        {
+            BuildingManager.AddMapPlaceable(placeableObject);
+            Vector2 chunkVec = TerrainGenerator.GetTerrainChunkPosition(placeableObject.transform.position.x,
+                placeableObject.transform.position.z);
+            TerrainChunk terrainChunk = TerrainGenerator.GetTerrainChunk(chunkVec);
+            placeableObject.transform.parent = terrainChunk.meshObject.transform;
+            //if (placeableObject is Factory.Factory)
+            //{
+            //	((Factory.Factory) placeableObject).BiomeValueDictionary = GetBiomeValue(placeableObject);
+            //}
+        }
+        else
+        {
+            if (_userInformationPopup)
+                _userInformationPopup.InformationText =
+                    "Couldn't place Object at " + placeableObject.gameObject.transform.position;
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool IsPlaceable(SimpleMapPlaceable placeableObject)
+    {
+        return placeableObject && BuildingManager.IsPlaceable(placeableObject) && IsSuitableTerrain(placeableObject);
+    }
+
+    public bool IsFlatTerrain(ComplexMapPlaceable complexMapPlaceable)
+    {
+        foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
+        {
+            if (!IsSuitableTerrain(simpleMapPlaceable))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Check if a given MapPlaceable can be placed.
+    /// </summary>
+    /// <param name="terrainChunk"></param>
+    /// <param name="objectTransform"></param>
+    /// <param name="offset"></param>
+    /// <returns></returns>
+    private bool IsSuitableTerrain(SimpleMapPlaceable mapPlaceable)
+    {
+        foreach (NeededSpace neededSpace in mapPlaceable.UsedCoordinates)
+        {
+            if (!TerrainGenerator.IsSuitedTerrain(neededSpace.TerrainType,
+                neededSpace.UsedCoordinate + mapPlaceable.transform.position))
+            {
+                return false;
+            }
+
+            ;
+        }
+
+        return true;
+    }
 
 //	private Dictionary<BiomeGenerator.Biome, float> GetBiomeValue(SimpleMapPlaceable mapPlaceable)
 //	{
@@ -303,5 +331,5 @@ public class GroundPlacementController : MonoBehaviour
 //		return biomeValueDictionary;
 //	}
 
-	#endregion
+    #endregion
 }

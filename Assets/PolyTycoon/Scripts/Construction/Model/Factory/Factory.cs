@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Factory : PathFindingNode, IConsumer, IProducer, IPathNode
+public class Factory : PathFindingTarget, IConsumer, IProducer, IPathNode
 {
 	#region Attributes
 
@@ -68,16 +68,6 @@ public class Factory : PathFindingNode, IConsumer, IProducer, IPathNode
 	{
 		return _neededProducts;
 	}
-
-	public override bool IsNode()
-	{
-		return true;
-	}
-
-	public override bool IsTraversable()
-	{
-		return false;
-	}
 	#endregion
 
 	#region Default Methods
@@ -85,7 +75,6 @@ public class Factory : PathFindingNode, IConsumer, IProducer, IPathNode
 	protected override void Initialize()
 	{
 		base.Initialize();
-		IsClickable = true;
 		_neededProducts = new Dictionary<ProductData, ProductStorage>();
 		_paths = new Dictionary<PathFindingNode, Path>();
 		// Initialize production if a product has been set in advance.

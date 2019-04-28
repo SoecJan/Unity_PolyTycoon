@@ -33,17 +33,13 @@ public abstract class ComplexMapPlaceable : SimpleMapPlaceable
 
 	public override void Rotate(Vector3 axis, float rotationAmount)
 	{
-		
-		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
-		{
-			simpleMapPlaceable.Rotate(axis, rotationAmount);
-		}
-		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
-		{
-			Vector3 rotatedOffset = Quaternion.Euler(0, rotationAmount, 0) * simpleMapPlaceable.transform.localPosition;
-			simpleMapPlaceable.transform.localPosition = Vector3Int.RoundToInt(rotatedOffset);
-			Debug.Log("New:" + rotatedOffset);
-		}
+		base.Rotate(axis, rotationAmount);
+//		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
+//		{
+//			Vector3 rotatedOffset = Quaternion.Euler(0, rotationAmount, 0) * simpleMapPlaceable.transform.localPosition;
+//			simpleMapPlaceable.transform.localPosition = Vector3Int.RoundToInt(rotatedOffset);
+////			Debug.Log("New:" + rotatedOffset);
+//		}
 	}
 
 	#endregion

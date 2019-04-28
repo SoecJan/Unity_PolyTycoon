@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Numerics;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
 
 /// <summary>
 /// All objects that are supposed to be reached by a vehicle need to have this component.
@@ -47,31 +49,27 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
 	public abstract bool IsNode(); // Returns true if this object is supposed to be a node for path finding
 
-	protected virtual SimpleMapPlaceable AdjacentNodes(int i)
+	protected virtual PathFindingNode AdjacentNodes(int i)
 	{
-		//	SimpleMapPlaceable mapPlaceableTop = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.forward);
-		//	SimpleMapPlaceable mapPlaceableRight = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.right);
-		//	SimpleMapPlaceable mapPlaceableBottom = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.back);
-		//	SimpleMapPlaceable mapPlaceableLeft = BuildingManager.GetMapPlaceable(gameObject.transform.position + Vector3.left);
-		SimpleMapPlaceable neighborPlaceable = null;
+		Vector3 position = gameObject.transform.position;
 		switch (i)
 		{
 			case 0:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.forward);
+				position += Vector3.forward;
 				break;
 			case 1:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.right);
+				position += Vector3.right;
 				break;
 			case 2:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.back);
+				position += Vector3.back;
 				break;
 			case 3:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.left);
+				position += Vector3.left;
 				break;
 		}
 
-		if (neighborPlaceable && neighborPlaceable is PathFindingNode) return (PathFindingNode)neighborPlaceable;
-		return null;
+		SimpleMapPlaceable simpleMapPlaceable = BuildingManager.GetNode(position);
+		return simpleMapPlaceable ? (simpleMapPlaceable as PathFindingNode) : null;
 	}
 
 	public float DistanceTo(Transform targetTransform)
@@ -84,27 +82,21 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	protected override void Initialize()
 	{
 		if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
-		
 	}
 
 	void OnDrawGizmos()
 	{
-		
-		for (int i = 0; i < NeighborNodes.Length; i++)
+		Vector3 position = Vector3.zero;
+		foreach (NeededSpace coordinate in UsedCoordinates)
 		{
-			if (NeighborNodes[i])
-			{
-				Gizmos.color = Color.yellow;
-				Gizmos.DrawSphere(transform.position + (Vector3.up*2), 0.3f);
-			}
-			foreach (NeededSpace coordinate in UsedCoordinates)
-			{
-				Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.yellow;
-				Gizmos.DrawSphere(gameObject.transform.position + coordinate.UsedCoordinate, 0.5f);
-			}	
-			Gizmos.color = Color.red;
-			Gizmos.DrawSphere(transform.position + UsedCoordinates[0].UsedCoordinate + Vector3.up, 0.3f);
+			position = gameObject.transform.position + coordinate.UsedCoordinate;
+			Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.green;
+			Gizmos.DrawSphere(position, 0.1f);
 		}
+
+		position = gameObject.transform.position + UsedCoordinates[0].UsedCoordinate + (Vector3.up / 2);
+		Gizmos.color = IsNode() ? Color.yellow : Color.red;
+		Gizmos.DrawSphere(position, 0.1f);
 	}
 
 	/// <summary>
@@ -155,19 +147,19 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	/// </summary>
 	/// <param name="direction"></param>
 	/// <returns>The Node that was found in the specified direction</returns>
-	protected PathFindingNode[] FindNextNodes()
+	private PathFindingNode[] FindNextNodes()
 	{
 		PathFindingNode[] pathFindingNodes = new PathFindingNode[NEIGHBOR_COUNT];
 		for (int i = 0; i < NEIGHBOR_COUNT; i++)
 		{
-			PathFindingNode nextNode = AdjacentNodes(i) is PathFindingNode ? (PathFindingNode)AdjacentNodes(i) : null;
+			PathFindingNode nextNode = AdjacentNodes(i) as PathFindingNode;
 			while (nextNode && !nextNode.IsNode())
 			{
 				Array.Clear(nextNode.NeighborNodes, 0, NEIGHBOR_COUNT);  // Clear Neighbors of non nodes
-				nextNode = nextNode.AdjacentNodes(i) is PathFindingNode ? (PathFindingNode)nextNode.AdjacentNodes(i) : null;
+				nextNode = nextNode.AdjacentNodes(i) as PathFindingNode;
 			}
 
-			if (nextNode != this) // Bigger Nodes would otherwise add themselves
+			if (nextNode != this) // Nodes would otherwise add themselves
 			{
 				pathFindingNodes[i] = nextNode;
 			}
@@ -185,220 +177,5 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	}
 	#endregion
 
-	#region Traversal
-	///<summary>Returns the TraversalVectors as a WayPoint Object.</summary>
-	public virtual WayPoint GetTraversalVectors(int fromDirection, int toDirection)
-	{
-		
-		// Start Points
-		if (fromDirection == -1)
-		{
-			switch (toDirection)
-			{
-				case Up:
-					return new WayPoint(TraversalPoint.CenterBottomRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset);
-				case Right:
-					return new WayPoint(TraversalPoint.CenterBottomLeft + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset);
-				case Down:
-					return new WayPoint(TraversalPoint.CenterTopLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset);
-				case Left:
-					return new WayPoint(TraversalPoint.CenterTopRight + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset);
-			}
-		}
-
-		// End Points
-
-		if (toDirection == -1)
-		{
-			switch (fromDirection)
-			{
-				case Up:
-					return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.CenterBottomLeft + TraversalOffset);
-				case Right:
-					return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.CenterTopLeft + TraversalOffset);
-				case Down:
-					return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.CenterTopRight + TraversalOffset);
-				case Left:
-					return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.CenterBottomRight + TraversalOffset);
-			}
-		}
-
-		// Straights
-
-		if (fromDirection == Up && toDirection == Down)
-		{
-			return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset);
-		}
-		
-		if (fromDirection == Down && toDirection == Up)
-		{
-			return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset);
-		}
-		
-		if (fromDirection == Left && toDirection == Right)
-		{
-			return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset);
-		}
-		
-		if (fromDirection == Right && toDirection == Left)
-		{
-			return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset);
-		}
-
-		// Inner Corners
-
-		float innerCornerRadius = 0.5f;
-
-		if (fromDirection == Up && toDirection == Left)
-		{
-			return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.CenterTopLeft + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset, innerCornerRadius);
-		}
-
-		if (fromDirection == Down && toDirection == Right)
-		{
-			return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.CenterBottomRight + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset, innerCornerRadius);
-		}
-
-		if (fromDirection == Left && toDirection == Down)
-		{
-			return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.CenterBottomLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset, innerCornerRadius);
-		}
-
-		if (fromDirection == Right && toDirection == Up)
-		{
-			return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.CenterTopRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset, innerCornerRadius);
-		}
-
-		// Outer Corners
-
-		float outerCornerRadius = 0.75f;
-
-		if (fromDirection == Up && toDirection == Right)
-		{
-			return new WayPoint(TraversalPoint.TopLeft + TraversalOffset, TraversalPoint.CenterBottomLeft + TraversalOffset, TraversalPoint.RightBottom + TraversalOffset, outerCornerRadius);
-		}
-
-		if (fromDirection == Down && toDirection == Left)
-		{
-			return new WayPoint(TraversalPoint.BottomRight + TraversalOffset, TraversalPoint.CenterTopRight + TraversalOffset, TraversalPoint.LeftTop + TraversalOffset, outerCornerRadius);
-		}
-
-		if (fromDirection == Left && toDirection == Up)
-		{
-			return new WayPoint(TraversalPoint.LeftBottom + TraversalOffset, TraversalPoint.CenterBottomRight + TraversalOffset, TraversalPoint.TopRight + TraversalOffset, outerCornerRadius);
-		}
-
-		if (fromDirection == Right && toDirection == Down)
-		{
-			return new WayPoint(TraversalPoint.RightTop + TraversalOffset, TraversalPoint.CenterTopLeft + TraversalOffset, TraversalPoint.BottomLeft + TraversalOffset, outerCornerRadius);
-		}
-		Debug.LogError("Should not reach here! Input: " + fromDirection + "; " + toDirection);
-		return new WayPoint(Vector3.zero, Vector3.zero);
-	}
-	#endregion
-}
-
-public struct TraversalPoint
-{
-	// Center points
-	private static Vector3 middleLeft = new Vector3(-0.5f, 0f, 0f);
-	private static Vector3 middleRight = new Vector3(0.5f, 0f, 0f);
-	private static Vector3 middleTop = new Vector3(0f, 0f, 0.5f);
-	private static Vector3 middleBottom = new Vector3(0f, 0f, -0.5f);
-	
-	// Lane points
-	private static Vector3 topLeft = new Vector3(-0.25f, 0f, 0.5f);
-	private static Vector3 topRight = new Vector3(0.25f, 0f, 0.5f);
-	private static Vector3 rightTop = new Vector3(0.5f, 0f, 0.25f);
-	private static Vector3 rightBottom = new Vector3(0.5f, 0f, -0.25f);
-	private static Vector3 bottomRight = new Vector3(0.25f, 0f, -0.5f);
-	private static Vector3 bottomLeft = new Vector3(-0.25f, 0f, -0.5f);
-	private static Vector3 leftBottom = new Vector3(-0.5f, 0f, -0.25f);
-	private static Vector3 leftTop = new Vector3(-0.5f, 0f, 0.25f);
-
-	// Turn helper
-	private static Vector3 centerTopRight = new Vector3(0.25f, 0f, 0.25f);
-	private static Vector3 centerTopLeft = new Vector3(-0.25f, 0f, 0.25f);
-	private static Vector3 centerBottomRight = new Vector3(0.25f, 0f, -0.25f);
-	private static Vector3 centerBottomLeft = new Vector3(-0.25f, 0f, -0.25f);
-
-	public static Vector3 TopLeft {
-		get { return topLeft; }
-		set { topLeft = value; }
-	}
-
-	public static Vector3 TopRight {
-		get { return topRight; }
-		set { topRight = value; }
-	}
-
-	public static Vector3 RightTop {
-		get { return rightTop; }
-		set { rightTop = value; }
-	}
-
-	public static Vector3 RightBottom {
-		get { return rightBottom; }
-		set { rightBottom = value; }
-	}
-
-	public static Vector3 BottomRight {
-		get { return bottomRight; }
-		set { bottomRight = value; }
-	}
-
-	public static Vector3 BottomLeft {
-		get { return bottomLeft; }
-		set { bottomLeft = value; }
-	}
-
-	public static Vector3 LeftBottom {
-		get { return leftBottom; }
-		set { leftBottom = value; }
-	}
-
-	public static Vector3 LeftTop {
-		get { return leftTop; }
-		set { leftTop = value; }
-	}
-
-	public static Vector3 CenterTopRight {
-		get { return centerTopRight; }
-		set { centerTopRight = value; }
-	}
-
-	public static Vector3 CenterTopLeft {
-		get { return centerTopLeft; }
-		set { centerTopLeft = value; }
-	}
-
-	public static Vector3 CenterBottomRight {
-		get { return centerBottomRight; }
-		set { centerBottomRight = value; }
-	}
-
-	public static Vector3 CenterBottomLeft {
-		get { return centerBottomLeft; }
-		set { centerBottomLeft = value; }
-	}
-
-	public static Vector3 MiddleLeft
-	{
-		get { return middleLeft; }
-	}
-
-	public static Vector3 MiddleRight
-	{
-		get { return middleRight; }
-	}
-
-	public static Vector3 MiddleTop
-	{
-		get { return middleTop; }
-	}
-
-	public static Vector3 MiddleBottom
-	{
-		get { return middleBottom; }
-	}
+	public abstract WayPoint GetTraversalVectors(int fromDirection, int toDirection);
 }

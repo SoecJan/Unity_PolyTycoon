@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class CityView : AbstractUi
 {
 	#region Attributes
-	private CityBuilding _cityBuilding;
+	private ICityBuilding _cityBuilding;
 	[Header("Navigation")]
 	[SerializeField] private Button _exitButton;
 	[Header("UI")]
@@ -18,7 +18,7 @@ public class CityView : AbstractUi
 	#endregion
 
 	#region Getter & Setter
-	public CityBuilding CityBuilding {
+	public ICityBuilding CityBuilding {
 		get {
 			return _cityBuilding;
 		}
@@ -27,20 +27,20 @@ public class CityView : AbstractUi
 			if (_cityBuilding == value) return;
 			_cityBuilding = value;
 			Reset();
-			if (!_cityBuilding)
+			if (_cityBuilding == null)
 			{
 				SetVisible(false);
 				return;
 			}
 			Debug.Log("New City selected");
-			foreach (ProductStorage neededProductStorage in ((IConsumer)CityBuilding.CityPlaceable).NeededProducts().Values)
+			foreach (ProductStorage neededProductStorage in ((IConsumer)CityBuilding.CityPlaceable()).NeededProducts().Values)
 			{
 				NeededProductView neededProductView = GameObject.Instantiate(_productUiPrefab, _neededProductScrollView);
 				neededProductView.ProductData = neededProductStorage.StoredProductData;
 				neededProductView.NeededAmountText.text = neededProductStorage.Amount + "/" + neededProductStorage.MaxAmount;
 			}
 
-			ProductStorage producedProductStorage = ((IProducer) CityBuilding.CityPlaceable).ProducedProductStorage();
+			ProductStorage producedProductStorage = ((IProducer) CityBuilding.CityPlaceable()).ProducedProductStorage();
 			NeededProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
 			producedProductView.ProductData = producedProductStorage.StoredProductData;
 			producedProductView.NeededAmountText.text = producedProductStorage.Amount + "/" + producedProductStorage.MaxAmount;
@@ -65,18 +65,18 @@ public class CityView : AbstractUi
 	{
 		while (_cityBuilding != null)
 		{
-			_cityGeneralText.text = "Name: " + CityBuilding.CityPlaceable.BuildingName + 
-			                        "\nPeople: " + CityBuilding.CityPlaceable.CurrentInhabitantCount();
+			_cityGeneralText.text = "Name: " + CityBuilding.CityPlaceable().BuildingName + 
+			                        "\nPeople: " + CityBuilding.CityPlaceable().CurrentInhabitantCount();
 			for (int i = 0; i < _neededProductScrollView.childCount; i++)
 			{
 				NeededProductView productView = _neededProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
-				ProductStorage productStorage = ((IConsumer)_cityBuilding.CityPlaceable).NeededProducts()[productView.ProductData];
+				ProductStorage productStorage = ((IConsumer)_cityBuilding.CityPlaceable()).NeededProducts()[productView.ProductData];
 				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
 			}
 			for (int i = 0; i < _producedProductScrollView.childCount; i++)
 			{
 				NeededProductView productView = _producedProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
-				ProductStorage productStorage = ((IProducer)_cityBuilding.CityPlaceable).ProducedProductStorage();
+				ProductStorage productStorage = ((IProducer)_cityBuilding.CityPlaceable()).ProducedProductStorage();
 				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
 			}
 			yield return new WaitForSeconds(1);

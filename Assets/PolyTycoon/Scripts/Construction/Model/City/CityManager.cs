@@ -24,9 +24,9 @@ public class CityManager : MonoBehaviour
 		AddRandomCity();
 	}
 
-	public void AddRandomCity()
+	private void AddRandomCity()
 	{
-		AddCity(_possibleCityPlaceables[1]);
+		AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], Vector2Int.zero);
 	}
 
 	public CityPlaceable GetCity(string cityName)
@@ -41,12 +41,7 @@ public class CityManager : MonoBehaviour
 		return null;
 	}
 
-	public void AddCity(CityPlaceable cityPlaceable)
-	{
-		AddCity(cityPlaceable, Vector2Int.zero);
-	}
-
-	public void AddCity(CityPlaceable cityPlaceable, Vector2Int offset)
+	private void AddCity(CityPlaceable cityPlaceable, Vector2Int offset)
 	{
 		_citiesToPlace.Add(new CityToPlace(cityPlaceable, offset));
 	}

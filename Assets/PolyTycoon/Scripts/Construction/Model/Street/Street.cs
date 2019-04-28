@@ -1,110 +1,125 @@
 ﻿using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-public class Street : PathFindingNode
+public class Street : PathFindingConnector
 {
-	[SerializeField] private Transform _cornerTransform;
-	[SerializeField] private Transform _straightTransform;
-	[SerializeField] private Transform _tIntersectionTranform;
-	[SerializeField] private Transform _intersectionTransform;
-
 	#region Methods
-	protected override void Initialize()
-	{
-		base.Initialize();
-		IsDraggable = true;
-	}
 	
-	private void UpdateOrientation()
+	protected override PathFindingConnector Neighbor(int i)
 	{
-		bool verticalNode = NeightborAlign(0) || NeightborAlign(2);
-        
-		if (verticalNode)
-		{
-			_straightTransform.gameObject.SetActive(true);
-			_cornerTransform.gameObject.SetActive(false);
-			_tIntersectionTranform.gameObject.SetActive(false);
-			_intersectionTransform.gameObject.SetActive(false);
-			transform.eulerAngles = new Vector3(0f, 90f, 0f);
-		}
-
-		for (int i = 0; i < 4; i++)
-		{
-			bool cornerNode = NeightborAlign(i) && NeightborAlign((i+1) % 4);
-			if (!cornerNode) continue;
-			_straightTransform.gameObject.SetActive(false);
-			_cornerTransform.gameObject.SetActive(true);
-			_tIntersectionTranform.gameObject.SetActive(false);
-			_intersectionTransform.gameObject.SetActive(false);
-			transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
-			break;
-		}
-        
-		for (int i = 0; i < 4; i++)
-		{
-			bool cornerNode = NeightborAlign((i+2) % 4) && NeightborAlign(i) && NeightborAlign((i+1) % 4);
-			if (!cornerNode) continue;
-			_straightTransform.gameObject.SetActive(false);
-			_cornerTransform.gameObject.SetActive(false);
-			_tIntersectionTranform.gameObject.SetActive(true);
-			_intersectionTransform.gameObject.SetActive(false);
-			transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
-			break;
-		}
-
-		if (NeightborAlign(0) && NeightborAlign(1) && NeightborAlign(2) && NeightborAlign(3))
-		{
-			_straightTransform.gameObject.SetActive(false);
-			_cornerTransform.gameObject.SetActive(false);
-			_tIntersectionTranform.gameObject.SetActive(false);
-			_intersectionTransform.gameObject.SetActive(true);
-		}
+		return AdjacentNodes(i) as Street;
 	}
-
-	private bool NeightborAlign(int i)
+	#endregion
+	
+	#region Traversal
+	///<summary>Returns the TraversalVectors as a WayPoint Object.</summary>
+	public override WayPoint GetTraversalVectors(int fromDirection, int toDirection)
 	{
-		SimpleMapPlaceable neighborPlaceable = null;
-		switch (i)
+		
+		// Start Points
+		if (fromDirection == -1)
 		{
-			case 0:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.forward);
-				break;
-			case 1:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.right);
-				break;
-			case 2:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.back);
-				break;
-			case 3:
-				neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.left);
-				break;
+			switch (toDirection)
+			{
+				case Up:
+					return new WayPoint(TraversalPoints.CenterBottomRight + TraversalOffset, TraversalPoints.TopRight + TraversalOffset);
+				case Right:
+					return new WayPoint(TraversalPoints.CenterBottomLeft + TraversalOffset, TraversalPoints.RightBottom + TraversalOffset);
+				case Down:
+					return new WayPoint(TraversalPoints.CenterTopLeft + TraversalOffset, TraversalPoints.BottomLeft + TraversalOffset);
+				case Left:
+					return new WayPoint(TraversalPoints.CenterTopRight + TraversalOffset, TraversalPoints.LeftTop + TraversalOffset);
+			}
 		}
 
-		return (neighborPlaceable && !(neighborPlaceable as Rail));
-	}
+		// End Points
 
-	public override void OnPlacement()
-	{
-		base.OnPlacement();
-		transform.name = "Street" + transform.position.ToString();
-		for (int i = 0; i < 4; i++)
+		if (toDirection == -1)
 		{
-			Street street = AdjacentNodes(i) as Street;
-			if (street) street.UpdateOrientation();
+			switch (fromDirection)
+			{
+				case Up:
+					return new WayPoint(TraversalPoints.TopLeft + TraversalOffset, TraversalPoints.CenterBottomLeft + TraversalOffset);
+				case Right:
+					return new WayPoint(TraversalPoints.RightTop + TraversalOffset, TraversalPoints.CenterTopLeft + TraversalOffset);
+				case Down:
+					return new WayPoint(TraversalPoints.BottomRight + TraversalOffset, TraversalPoints.CenterTopRight + TraversalOffset);
+				case Left:
+					return new WayPoint(TraversalPoints.LeftBottom + TraversalOffset, TraversalPoints.CenterBottomRight + TraversalOffset);
+			}
 		}
-		UpdateOrientation();
-	}
 
-	public override bool IsNode()
-	{
-		bool verticalStreet = AdjacentNodes(0) && AdjacentNodes(2) && !AdjacentNodes(3) && !AdjacentNodes(1);
-		bool horizontalStreet = !AdjacentNodes(0) && !AdjacentNodes(2) && AdjacentNodes(3) && AdjacentNodes(1);
-		return !(verticalStreet || horizontalStreet); // Only corner streets are nodes
-	}
+		// Straights
 
-	public override bool IsTraversable()
-	{
-		return true;
+		if (fromDirection == Up && toDirection == Down)
+		{
+			return new WayPoint(TraversalPoints.TopLeft + TraversalOffset, TraversalPoints.BottomLeft + TraversalOffset);
+		}
+		
+		if (fromDirection == Down && toDirection == Up)
+		{
+			return new WayPoint(TraversalPoints.BottomRight + TraversalOffset, TraversalPoints.TopRight + TraversalOffset);
+		}
+		
+		if (fromDirection == Left && toDirection == Right)
+		{
+			return new WayPoint(TraversalPoints.LeftBottom + TraversalOffset, TraversalPoints.RightBottom + TraversalOffset);
+		}
+		
+		if (fromDirection == Right && toDirection == Left)
+		{
+			return new WayPoint(TraversalPoints.RightTop + TraversalOffset, TraversalPoints.LeftTop + TraversalOffset);
+		}
+
+		// Inner Corners
+
+		float innerCornerRadius = 0.5f;
+
+		if (fromDirection == Up && toDirection == Left)
+		{
+			return new WayPoint(TraversalPoints.TopLeft + TraversalOffset, TraversalPoints.CenterTopLeft + TraversalOffset, TraversalPoints.LeftTop + TraversalOffset, innerCornerRadius);
+		}
+
+		if (fromDirection == Down && toDirection == Right)
+		{
+			return new WayPoint(TraversalPoints.BottomRight + TraversalOffset, TraversalPoints.CenterBottomRight + TraversalOffset, TraversalPoints.RightBottom + TraversalOffset, innerCornerRadius);
+		}
+
+		if (fromDirection == Left && toDirection == Down)
+		{
+			return new WayPoint(TraversalPoints.LeftBottom + TraversalOffset, TraversalPoints.CenterBottomLeft + TraversalOffset, TraversalPoints.BottomLeft + TraversalOffset, innerCornerRadius);
+		}
+
+		if (fromDirection == Right && toDirection == Up)
+		{
+			return new WayPoint(TraversalPoints.RightTop + TraversalOffset, TraversalPoints.CenterTopRight + TraversalOffset, TraversalPoints.TopRight + TraversalOffset, innerCornerRadius);
+		}
+
+		// Outer Corners
+
+		float outerCornerRadius = 0.75f;
+
+		if (fromDirection == Up && toDirection == Right)
+		{
+			return new WayPoint(TraversalPoints.TopLeft + TraversalOffset, TraversalPoints.CenterBottomLeft + TraversalOffset, TraversalPoints.RightBottom + TraversalOffset, outerCornerRadius);
+		}
+
+		if (fromDirection == Down && toDirection == Left)
+		{
+			return new WayPoint(TraversalPoints.BottomRight + TraversalOffset, TraversalPoints.CenterTopRight + TraversalOffset, TraversalPoints.LeftTop + TraversalOffset, outerCornerRadius);
+		}
+
+		if (fromDirection == Left && toDirection == Up)
+		{
+			return new WayPoint(TraversalPoints.LeftBottom + TraversalOffset, TraversalPoints.CenterBottomRight + TraversalOffset, TraversalPoints.TopRight + TraversalOffset, outerCornerRadius);
+		}
+
+		if (fromDirection == Right && toDirection == Down)
+		{
+			return new WayPoint(TraversalPoints.RightTop + TraversalOffset, TraversalPoints.CenterTopLeft + TraversalOffset, TraversalPoints.BottomLeft + TraversalOffset, outerCornerRadius);
+		}
+		Debug.LogError("Should not reach here! Input: " + fromDirection + "; " + toDirection);
+		return new WayPoint(Vector3.zero, Vector3.zero);
 	}
 	#endregion
 }

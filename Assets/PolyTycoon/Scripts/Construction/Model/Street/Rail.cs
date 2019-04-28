@@ -1,114 +1,17 @@
 using UnityEngine;
 
-public class Rail : PathFindingNode
+public class Rail : PathFindingConnector
 {
-	[SerializeField] private Transform _cornerTransform;
-	[SerializeField] private Transform _straightTransform;
-	[SerializeField] private Transform _tIntersectionTranform;
-	[SerializeField] private Transform _intersectionTransform;
-    protected override void Initialize()
+    protected override PathFindingNode AdjacentNodes(int i)
     {
-        base.Initialize();
-        IsDraggable = true;
+	    PathFindingNode pathFindingNode = base.AdjacentNodes(i);
+	    Trainstation trainstation = pathFindingNode as Trainstation;
+	    return pathFindingNode is Rail || (trainstation != null && trainstation.AccessRail == this) ? pathFindingNode : null;
     }
 
-    public override void OnPlacement()
+    protected override PathFindingConnector Neighbor(int direction)
     {
-        base.OnPlacement();
-        transform.name = "Rail: " + transform.position.ToString();
-        for (int i = 0; i < 4; i++)
-        {
-            Rail rail = AdjacentNodes(i) as Rail;
-            if (rail) rail.UpdateOrientation();
-        }
-        UpdateOrientation();
-    }
-    
-    protected override SimpleMapPlaceable AdjacentNodes(int i)
-    {
-	    SimpleMapPlaceable simpleMapPlaceable = base.AdjacentNodes(i);
-	    Trainstation trainstation = simpleMapPlaceable as Trainstation;
-	    return simpleMapPlaceable is Rail || (trainstation != null && trainstation.AccessRail == this) ? simpleMapPlaceable : null;
-    }
-
-    private Rail NeighborRail(int i)
-    {
-	    Rail neighborPlaceable = null;
-	    switch (i)
-	    {
-		    case 0:
-			    neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.forward) as Rail;
-			    break;
-		    case 1:
-			    neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.right) as Rail;
-			    break;
-		    case 2:
-			    neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.back) as Rail;
-			    break;
-		    case 3:
-			    neighborPlaceable = BuildingManager.GetNode(gameObject.transform.position + Vector3.left) as Rail;
-			    break;
-	    }
-
-	    return neighborPlaceable;
-    }
-
-    private void UpdateOrientation()
-    {
-        bool verticalNode = NeighborRail(0) || NeighborRail(2);
-        
-        if (verticalNode)
-        {
-	        _straightTransform.gameObject.SetActive(true);
-	        _cornerTransform.gameObject.SetActive(false);
-	        _tIntersectionTranform.gameObject.SetActive(false);
-	        _intersectionTransform.gameObject.SetActive(false);
-            transform.eulerAngles = new Vector3(0f, 90f, 0f);
-        }
-
-        for (int i = 0; i < 4; i++)
-        {
-	        bool cornerNode = NeighborRail(i) && NeighborRail((i+1) % 4);
-	        if (!cornerNode) continue;
-	        _straightTransform.gameObject.SetActive(false);
-	        _cornerTransform.gameObject.SetActive(true);
-	        _tIntersectionTranform.gameObject.SetActive(false);
-	        _intersectionTransform.gameObject.SetActive(false);
-	        transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
-	        break;
-        }
-        
-        for (int i = 0; i < 4; i++)
-        {
-	        bool cornerNode = NeighborRail((i+2) % 4) && NeighborRail(i) && NeighborRail((i+1) % 4);
-	        if (!cornerNode) continue;
-	        _straightTransform.gameObject.SetActive(false);
-	        _cornerTransform.gameObject.SetActive(false);
-	        _tIntersectionTranform.gameObject.SetActive(true);
-	        _intersectionTransform.gameObject.SetActive(false);
-	        transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
-	        break;
-        }
-
-        if (NeighborRail(0) && NeighborRail(1) && NeighborRail(2) && NeighborRail(3))
-        {
-	        _straightTransform.gameObject.SetActive(false);
-	        _cornerTransform.gameObject.SetActive(false);
-	        _tIntersectionTranform.gameObject.SetActive(false);
-	        _intersectionTransform.gameObject.SetActive(true);
-        }
-    }
-
-    public override bool IsNode()
-    {
-        bool verticalStreet = AdjacentNodes(0) && AdjacentNodes(2) && !AdjacentNodes(3) && !AdjacentNodes(1);
-        bool horizontalStreet = !AdjacentNodes(0) && !AdjacentNodes(2) && AdjacentNodes(3) && AdjacentNodes(1);
-        return !(verticalStreet || horizontalStreet); // Only corner rails are nodes
-    }
-
-    public override bool IsTraversable()
-    {
-        return true;
+	    return AdjacentNodes(direction) as Rail;
     }
 
     public override WayPoint GetTraversalVectors(int fromDirection, int toDirection)
@@ -120,13 +23,13 @@ public class Rail : PathFindingNode
 			switch (toDirection)
 			{
 				case Up:
-					return new WayPoint(offset, offset + TraversalPoint.MiddleTop);
+					return new WayPoint(offset, offset + TraversalPoints.MiddleTop);
 				case Right:
-					return new WayPoint(offset, offset + TraversalPoint.MiddleRight);
+					return new WayPoint(offset, offset + TraversalPoints.MiddleRight);
 				case Down:
-					return new WayPoint(offset, offset + TraversalPoint.MiddleBottom);
+					return new WayPoint(offset, offset + TraversalPoints.MiddleBottom);
 				case Left:
-					return new WayPoint(offset, offset + TraversalPoint.MiddleLeft);
+					return new WayPoint(offset, offset + TraversalPoints.MiddleLeft);
 			}
 		}
 
@@ -137,13 +40,13 @@ public class Rail : PathFindingNode
 			switch (fromDirection)
 			{
 				case Up:
-					return new WayPoint(offset + TraversalPoint.MiddleTop, offset);
+					return new WayPoint(offset + TraversalPoints.MiddleTop, offset);
 				case Right:
-					return new WayPoint(offset + TraversalPoint.MiddleRight, offset);
+					return new WayPoint(offset + TraversalPoints.MiddleRight, offset);
 				case Down:
-					return new WayPoint(offset + TraversalPoint.MiddleBottom, offset);
+					return new WayPoint(offset + TraversalPoints.MiddleBottom, offset);
 				case Left:
-					return new WayPoint(offset + TraversalPoint.MiddleLeft, offset);
+					return new WayPoint(offset + TraversalPoints.MiddleLeft, offset);
 			}
 		}
 
@@ -151,22 +54,22 @@ public class Rail : PathFindingNode
 
 		if (fromDirection == Up && toDirection == Down)
 		{
-			return new WayPoint(TraversalPoint.MiddleTop + offset, TraversalPoint.MiddleBottom + offset);
+			return new WayPoint(TraversalPoints.MiddleTop + offset, TraversalPoints.MiddleBottom + offset);
 		}
 		
 		if (fromDirection == Down && toDirection == Up)
 		{
-			return new WayPoint(TraversalPoint.MiddleBottom + offset, TraversalPoint.MiddleTop + offset);
+			return new WayPoint(TraversalPoints.MiddleBottom + offset, TraversalPoints.MiddleTop + offset);
 		}
 		
 		if (fromDirection == Left && toDirection == Right)
 		{
-			return new WayPoint(TraversalPoint.MiddleLeft + offset, TraversalPoint.MiddleRight + offset);
+			return new WayPoint(TraversalPoints.MiddleLeft + offset, TraversalPoints.MiddleRight + offset);
 		}
 		
 		if (fromDirection == Right && toDirection == Left)
 		{
-			return new WayPoint(TraversalPoint.MiddleRight + offset, TraversalPoint.MiddleLeft + offset);
+			return new WayPoint(TraversalPoints.MiddleRight + offset, TraversalPoints.MiddleLeft + offset);
 		}
 
 		// Inner Corners
@@ -175,42 +78,42 @@ public class Rail : PathFindingNode
 
 		if (fromDirection == Up && toDirection == Left)
 		{
-			return new WayPoint(TraversalPoint.MiddleTop + offset, offset, TraversalPoint.MiddleLeft + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleTop + offset, offset, TraversalPoints.MiddleLeft + offset, innerCornerRadius);
 		}
 		
 		if (fromDirection == Up && toDirection == Right)
 		{
-			return new WayPoint(TraversalPoint.MiddleTop + offset, offset, TraversalPoint.MiddleRight + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleTop + offset, offset, TraversalPoints.MiddleRight + offset, innerCornerRadius);
 		}
 
 		if (fromDirection == Down && toDirection == Right)
 		{
-			return new WayPoint(TraversalPoint.MiddleBottom + offset, offset, TraversalPoint.MiddleRight + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleBottom + offset, offset, TraversalPoints.MiddleRight + offset, innerCornerRadius);
 		}
 		
 		if (fromDirection == Down && toDirection == Left)
 		{
-			return new WayPoint(TraversalPoint.MiddleBottom + offset, offset, TraversalPoint.MiddleLeft + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleBottom + offset, offset, TraversalPoints.MiddleLeft + offset, innerCornerRadius);
 		}
 
 		if (fromDirection == Left && toDirection == Down)
 		{
-			return new WayPoint(TraversalPoint.MiddleLeft + offset, offset, TraversalPoint.MiddleBottom + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleLeft + offset, offset, TraversalPoints.MiddleBottom + offset, innerCornerRadius);
 		}
 		
 		if (fromDirection == Left && toDirection == Up)
 		{
-			return new WayPoint(TraversalPoint.MiddleLeft + offset, offset, TraversalPoint.MiddleTop + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleLeft + offset, offset, TraversalPoints.MiddleTop + offset, innerCornerRadius);
 		}
 
 		if (fromDirection == Right && toDirection == Up)
 		{
-			return new WayPoint(TraversalPoint.MiddleRight + offset, offset, TraversalPoint.MiddleTop + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleRight + offset, offset, TraversalPoints.MiddleTop + offset, innerCornerRadius);
 		}
 		
 		if (fromDirection == Right && toDirection == Down)
 		{
-			return new WayPoint(TraversalPoint.MiddleRight + offset, offset, TraversalPoint.MiddleBottom + offset, innerCornerRadius);
+			return new WayPoint(TraversalPoints.MiddleRight + offset, offset, TraversalPoints.MiddleBottom + offset, innerCornerRadius);
 		}
 		
 		return new WayPoint(offset, offset);

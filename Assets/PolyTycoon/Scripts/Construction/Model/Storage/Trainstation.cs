@@ -17,7 +17,6 @@ public class Trainstation : AbstractStorageContainer, IPathNode
     protected override void Initialize()
     {
         base.Initialize();
-        IsClickable = true;
         _paths = new Dictionary<PathFindingNode, Path>();
         _traversalDirectionOffsetVector3 = Vector3.forward;
         
@@ -28,22 +27,11 @@ public class Trainstation : AbstractStorageContainer, IPathNode
         get { return _traversalOffset + _traversalDirectionOffsetVector3; }
         set { _traversalOffset = new Vector3(value.x, 0.74f, value.z); }
     }
-    
+
     public override void Rotate(Vector3 axis, float rotationAmount)
     {
         base.Rotate(axis, rotationAmount);
-        _traversalDirectionOffsetVector3 =  Quaternion.Euler(0, rotationAmount, 0) * _traversalDirectionOffsetVector3;
-    }
-    
-
-    public override bool IsTraversable()
-    {
-        return false;
-    }
-
-    public override bool IsNode()
-    {
-        return true;
+        _traversalDirectionOffsetVector3 = Quaternion.Euler(0, rotationAmount, 0) * _traversalDirectionOffsetVector3;
     }
 
     public Path PathTo(PathFindingNode targetNode)

@@ -57,7 +57,7 @@ MonoBehaviour:
   neighborNodes: []
   _cornerTransform: {fileID: 8588168178561066620}
   _straightTransform: {fileID: 3424632142254658205}
-  _tIntersectionTranform: {fileID: 5192283750997175987}
+  _tIntersectionTransform: {fileID: 5192283750997175987}
   _intersectionTransform: {fileID: 5365904049907550627}
 --- !u!65 &65708557871578074
 BoxCollider:
@@ -79,6 +79,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4414377070017520}
     m_Modifications:
+    - target: {fileID: 100000, guid: 951b2672de2e9c849acd4bac70f6592b, type: 3}
+      propertyPath: m_Name
+      value: RoadStraight
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 951b2672de2e9c849acd4bac70f6592b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -123,10 +127,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: 951b2672de2e9c849acd4bac70f6592b, type: 3}
-      propertyPath: m_Name
-      value: RoadStraight
-      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9500000, guid: 951b2672de2e9c849acd4bac70f6592b, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 951b2672de2e9c849acd4bac70f6592b, type: 3}
@@ -143,6 +143,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4414377070017520}
     m_Modifications:
+    - target: {fileID: 100000, guid: f79a3832e06ef27499f73622f696b2db, type: 3}
+      propertyPath: m_Name
+      value: RoadTIntersection
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: f79a3832e06ef27499f73622f696b2db, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: f79a3832e06ef27499f73622f696b2db, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -185,14 +193,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: f79a3832e06ef27499f73622f696b2db, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: f79a3832e06ef27499f73622f696b2db, type: 3}
-      propertyPath: m_Name
-      value: RoadTIntersection
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: f79a3832e06ef27499f73622f696b2db, type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -279,6 +279,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4414377070017520}
     m_Modifications:
+    - target: {fileID: 100000, guid: a0cc06fc24dfa8d4181a979823f9bbc7, type: 3}
+      propertyPath: m_Name
+      value: RoadCornerblend
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: a0cc06fc24dfa8d4181a979823f9bbc7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: a0cc06fc24dfa8d4181a979823f9bbc7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -321,14 +329,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: a0cc06fc24dfa8d4181a979823f9bbc7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: a0cc06fc24dfa8d4181a979823f9bbc7, type: 3}
-      propertyPath: m_Name
-      value: RoadCornerblend
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: a0cc06fc24dfa8d4181a979823f9bbc7, type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:

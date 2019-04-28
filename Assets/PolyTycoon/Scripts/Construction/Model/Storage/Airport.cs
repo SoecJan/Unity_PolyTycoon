@@ -9,22 +9,6 @@ public class Airport : Warehouse
 
     private WayPoint[] _landingWayPoints;
     private WayPoint[] _takeoffWayPoints;
-    
-    protected override void Initialize()
-    {
-        base.Initialize();
-        IsClickable = true;
-    }
-
-    public override bool IsTraversable()
-    {
-        return false;
-    }
-
-    public override bool IsNode()
-    {
-        return true;
-    }
 
     public override void OnPlacement()
     {

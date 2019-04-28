@@ -139,7 +139,7 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	/// Rotates the UsedCoordinates to align to the current Transform rotation. 
 	/// Called before Placement by <see cref="GroundPlacementController"/>.
 	/// </summary>
-	private void RotateUsedCoordsToTransform(float rotationAmount)
+	protected void RotateUsedCoords(float rotationAmount)
 	{
 		for (int i = 0; i < _usedCoordinates.Count; i++)
 		{
@@ -151,7 +151,7 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	public virtual void Rotate(Vector3 axis, float rotationAmount)
 	{
 		transform.Rotate(axis, rotationAmount);
-		RotateUsedCoordsToTransform(rotationAmount);
+		RotateUsedCoords(rotationAmount);
 	}
 	#endregion
 }

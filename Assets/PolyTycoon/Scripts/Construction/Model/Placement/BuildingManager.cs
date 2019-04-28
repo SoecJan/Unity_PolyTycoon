@@ -36,6 +36,11 @@ public class BuildingManager
 
     #region Getter & Setter
 
+    private Vector3 TransformPosition(Vector3 position)
+    {
+        return Vector3Int.RoundToInt(position - (Vector3.one / 2f)); // Prevents rounding errors
+    }
+    
     /// <summary>
     /// Returns a MapPlaceable at a given position.
     /// </summary>
@@ -43,10 +48,9 @@ public class BuildingManager
     /// <returns>The MapPlaceable at the given position. May be null. </returns>
     public SimpleMapPlaceable GetMapPlaceable(Vector3 position)
     {
-        Vector3 positionVector = Vector3Int.FloorToInt(position) + new Vector3(0.5f, 0f, 0.5f);
+        Vector3 positionVector = TransformPosition(position);
         try
         {
-            positionVector.y = 0f;
             return placedBuildingDictionary[positionVector];
         }
         catch (KeyNotFoundException)
@@ -55,19 +59,21 @@ public class BuildingManager
         }
     }
 
-    public SimpleMapPlaceable GetNode(Vector3 position)
+    public PathFindingNode GetNode(Vector3 position)
     {
-        Vector3 positionVector = Vector3Int.FloorToInt(position) + new Vector3(0.5f, 0f, 0.5f);
+        Vector3 positionVector = TransformPosition(position);
         try
         {
-            positionVector.y = 0f;
-            SimpleMapPlaceable simpleMapPlaceable = placedBuildingDictionary[positionVector];
-            Vector3 comparedVector3 = simpleMapPlaceable.transform.position +
-                                      simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate;
-            comparedVector3.y = 0f;
-            if (Vector3Int.FloorToInt(positionVector).Equals(Vector3Int.FloorToInt(comparedVector3)))
-                return simpleMapPlaceable;
+            PathFindingNode simpleMapPlaceable = placedBuildingDictionary[positionVector] as PathFindingNode;
+            if (simpleMapPlaceable)
+            {
+                Vector3 comparedVector3 = TransformPosition(simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate);
+                if (positionVector.Equals(comparedVector3)) return simpleMapPlaceable;
+            }
             return null;
+//            if (!(simpleMapPlaceable is Street))
+//            Debug.Log("Found: " + simpleMapPlaceable.BuildingName + " at: " + position + " returned it? " + positionVector.Equals(comparedVector3) + " because: " + positionVector.ToString() + " != " + comparedVector3);
+//            return positionVector.Equals(comparedVector3) ? simpleMapPlaceable : null;
         }
         catch (KeyNotFoundException)
         {
@@ -97,10 +103,8 @@ public class BuildingManager
     {
         foreach (NeededSpace usedCoordinate in placedObject.UsedCoordinates)
         {
-            Vector3 placedPosition = Vector3Int.FloorToInt(placedObject.transform.position);
-            placedPosition = placedPosition + new Vector3(0.5f, 0, 0.5f);
+            Vector3 placedPosition = TransformPosition(placedObject.transform.position);
             Vector3 occupiedSpace = placedPosition + usedCoordinate.UsedCoordinate;
-            occupiedSpace.y = 0f;
             if (placedBuildingDictionary.ContainsKey(occupiedSpace))
             {
                 return false;
@@ -147,24 +151,22 @@ public class BuildingManager
     public bool AddMapPlaceable(SimpleMapPlaceable placedObject)
     {
         if (!placedObject) return false;
-
+        Vector3 placedPosition = TransformPosition(placedObject.transform.position);
         for (int i = 0; i < placedObject.UsedCoordinates.Count; i++)
         {
-            Vector3 placedPosition = Vector3Int.FloorToInt(placedObject.transform.position);
-            placedPosition = placedPosition + new Vector3(0.5f, 0, 0.5f);
             Vector3 occupiedSpace = placedPosition + placedObject.UsedCoordinates[i].UsedCoordinate;
-            occupiedSpace.y = 0f;
 
             if (!placedBuildingDictionary.ContainsKey(occupiedSpace))
             {
                 placedBuildingDictionary.Add(occupiedSpace, placedObject);
+                Debug.Log("BuildingManager Added: " + placedObject.name + " at " + occupiedSpace);
             }
             else
             {
                 // Remove all previously added entries
                 for (int removeIndex = i; removeIndex > 0; removeIndex--)
                 {
-                    Vector3 removedSpace = placedObject.transform.position +
+                    Vector3 removedSpace = TransformPosition(placedObject.transform.position) +
                                            placedObject.UsedCoordinates[removeIndex].UsedCoordinate;
                     placedBuildingDictionary.Remove(removedSpace);
                 }
@@ -173,6 +175,7 @@ public class BuildingManager
             }
         }
 
+//        placedObject.transform.position = placedPosition + (Vector3.one / 2f);
         placedObject.OnPlacement();
         placedObject.OnClickAction -= OnPlaceableClick;
         placedObject.OnClickAction += OnPlaceableClick;
@@ -186,8 +189,8 @@ public class BuildingManager
     /// <returns>The removed MapPlaceable. May be null</returns>
     public SimpleMapPlaceable RemoveMapPlaceable(Vector3 position)
     {
-        position.y = 0f;
-        SimpleMapPlaceable mapPlaceable = placedBuildingDictionary[position];
+        Vector3 placedPosition = TransformPosition(position);
+        SimpleMapPlaceable mapPlaceable = placedBuildingDictionary[placedPosition];
         ComplexMapPlaceable complexMapPlaceable =
             mapPlaceable.transform.parent.gameObject.GetComponent<ComplexMapPlaceable>();
         
@@ -211,8 +214,7 @@ public class BuildingManager
     {
         foreach (NeededSpace usedCoordinate in mapPlaceable.UsedCoordinates)
         {
-            Vector3 position = mapPlaceable.transform.position;
-            position.y = 0f;
+            Vector3 position = TransformPosition(mapPlaceable.transform.position);
             Vector3 occupiedSpace = position + usedCoordinate.UsedCoordinate;
             Debug.Log("Remove " + mapPlaceable.name + " at: " + occupiedSpace);
             if (!placedBuildingDictionary.Remove(occupiedSpace))
@@ -233,7 +235,7 @@ public class BuildingManager
         {
             if (mapPlaceable is CityBuilding)
             {
-                mapPlaceable = (SimpleMapPlaceable) ((CityBuilding) mapPlaceable).CityPlaceable.MainBuilding;
+                mapPlaceable = (SimpleMapPlaceable) ((CityBuilding) mapPlaceable).CityPlaceable().MainBuilding;
             }
 
             _routeCreateController.RouteElementController.OnTransportStationClick((PathFindingNode) mapPlaceable);
@@ -244,9 +246,9 @@ public class BuildingManager
         {
             _factoryView.Factory = (Factory) mapPlaceable;
         }
-        else if (mapPlaceable is CityBuilding)
+        else if (mapPlaceable is ICityBuilding)
         {
-            _cityView.CityBuilding = (CityBuilding) mapPlaceable;
+            _cityView.CityBuilding = (ICityBuilding) mapPlaceable;
         }
         else if (mapPlaceable is AbstractStorageContainer)
         {

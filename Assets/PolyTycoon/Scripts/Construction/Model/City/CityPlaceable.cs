@@ -76,13 +76,12 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNod
 		}
 		_paths = new Dictionary<PathFindingNode, Path>();
 		_neededProductStorages = new Dictionary<ProductData, ProductStorage>();
-		_productStorage = new ProductStorage(_producedProduct, 3);
-		transform.eulerAngles = new Vector3Int(0, Random.Range(0, 4) * 90, 0);
+		_productStorage = new ProductStorage(_producedProduct, Random.Range(0, 4) + 3);
+		Rotate(Vector3.up, Random.Range(0, 4) * 90);
 		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
 		{
 			if (!(simpleMapPlaceable is CityBuilding)) continue;
 			CityBuilding cityBuilding = ((CityBuilding)simpleMapPlaceable);
-			cityBuilding.CityPlaceable = this;
 			foreach (NeededProduct neededProduct in cityBuilding.ConsumedProducts)
 			{
 				if (_neededProductStorages.ContainsKey(neededProduct.Product))
