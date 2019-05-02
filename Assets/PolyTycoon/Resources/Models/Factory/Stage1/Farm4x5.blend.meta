@@ -1,43 +1,12 @@
 fileFormatVersion: 2
-guid: 951b2672de2e9c849acd4bac70f6592b
+guid: 57d13f074a5ab6a499ee9525b8e3052e
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
   - first:
-      1: 100000
-    second: //RootNode
-  - first:
-      4: 400000
-    second: //RootNode
-  - first:
-      21: 2100000
-    second: unnamed
-  - first:
-      23: 2300000
-    second: //RootNode
-  - first:
-      33: 3300000
-    second: //RootNode
-  - first:
-      43: 4300000
-    second: Plane
-  - first:
-      74: 7400000
+      74: 1989289236423521904
     second: Default Take
-  - first:
-      95: 9500000
-    second: //RootNode
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: None__Palette_jpg
-    second: {fileID: 2100000, guid: 7d98d4ddcb2bb4245a5a5b1d10dc6224, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: unnamed
-    second: {fileID: 2100000, guid: d5f47376ab6295a488c38e4a2c376c6d, type: 2}
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
@@ -68,7 +37,7 @@ ModelImporter:
     - serializedVersion: 16
       name: Default Take
       takeName: Default Take
-      internalID: 7400000
+      internalID: 1989289236423521904
       firstFrame: 0
       lastFrame: 249
       wrapMode: 0
@@ -94,7 +63,7 @@ ModelImporter:
       maskType: 3
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages: []
     globalScale: 1

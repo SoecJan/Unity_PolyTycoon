@@ -19,7 +19,6 @@ public class Trainstation : AbstractStorageContainer, IPathNode
         base.Initialize();
         _paths = new Dictionary<PathFindingNode, Path>();
         _traversalDirectionOffsetVector3 = Vector3.forward;
-        
     }
 
     protected override Vector3 TraversalOffset
@@ -30,7 +29,8 @@ public class Trainstation : AbstractStorageContainer, IPathNode
 
     public override void Rotate(Vector3 axis, float rotationAmount)
     {
-        base.Rotate(axis, rotationAmount);
+//        base.Rotate(axis, rotationAmount);
+        RotateUsedCoords(rotationAmount);
         _traversalDirectionOffsetVector3 = Quaternion.Euler(0, rotationAmount, 0) * _traversalDirectionOffsetVector3;
     }
 

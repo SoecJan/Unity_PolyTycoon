@@ -492,9 +492,12 @@ public class RouteSettingController
 
     public void OnShow()
     {
+        if (!RouteCreateController
+            .VehicleChooser
+            .SelectedVehicle) return;
         _routeSettingProductSelector.OnProductSelectAction = ProductSelected;
         for (int i = 0;
-            i < _routeCreateController
+            i < RouteCreateController
                 .VehicleChooser
                 .SelectedVehicle
                 .TotalCapacity;

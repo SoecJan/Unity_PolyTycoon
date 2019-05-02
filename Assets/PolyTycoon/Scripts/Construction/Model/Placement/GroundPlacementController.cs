@@ -198,13 +198,13 @@ public class GroundPlacementController : MonoBehaviour
             {
                 for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
                 {
-                    Destroy(_draggedGameObjects.Values.ElementAt(i));
+                    Destroy(_draggedGameObjects.Values.ElementAt(i).gameObject);
                 }
 
                 _draggedGameObjects.Clear();
             }
 
-            Destroy(_currentPlaceableObject);
+            Destroy(_currentPlaceableObject.gameObject);
             _currentPlaceableObject = null;
             _isDragging = false;
         }
@@ -278,7 +278,11 @@ public class GroundPlacementController : MonoBehaviour
 
     private bool IsPlaceable(SimpleMapPlaceable placeableObject)
     {
-        return placeableObject && BuildingManager.IsPlaceable(placeableObject) && IsSuitableTerrain(placeableObject);
+        bool placeableNotNull = placeableObject;
+        bool freeSpace = BuildingManager.IsPlaceable(placeableObject);
+        bool terrainFlat = IsSuitableTerrain(placeableObject);
+//        Debug.Log(placeableNotNull + "; " + freeSpace + "; " + terrainFlat);
+        return placeableNotNull && freeSpace && terrainFlat;
     }
 
     public bool IsFlatTerrain(ComplexMapPlaceable complexMapPlaceable)

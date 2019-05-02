@@ -24,8 +24,20 @@ public class DestructionController : MonoBehaviour
 		if (!Physics.Raycast(ray, out hitInfo, Mathf.Infinity, _buildingMask)) return;
 
 		SimpleMapPlaceable mapPlaceable = hitInfo.collider.gameObject.GetComponent<SimpleMapPlaceable>();
+		ComplexMapPlaceable complexMapPlaceable = mapPlaceable as ComplexMapPlaceable;
 		if (!mapPlaceable) return;
-		Debug.Log(mapPlaceable.name);
-		_buildingManager.RemoveMapPlaceable(mapPlaceable.transform.position);
+		if (complexMapPlaceable)
+		{
+			foreach (SimpleMapPlaceable childMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
+			{
+				_buildingManager.RemoveMapPlaceable(childMapPlaceable);
+			}
+			Destroy(complexMapPlaceable.gameObject);
+		}
+		else
+		{
+			_buildingManager.RemoveMapPlaceable(mapPlaceable.transform.position);
+		}
+		
 	}
 }

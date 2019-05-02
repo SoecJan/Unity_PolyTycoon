@@ -191,26 +191,26 @@ public class BuildingManager
     {
         Vector3 placedPosition = TransformPosition(position);
         SimpleMapPlaceable mapPlaceable = placedBuildingDictionary[placedPosition];
-        ComplexMapPlaceable complexMapPlaceable =
-            mapPlaceable.transform.parent.gameObject.GetComponent<ComplexMapPlaceable>();
+        ComplexMapPlaceable complexMapPlaceable = mapPlaceable as ComplexMapPlaceable;
+        if (!complexMapPlaceable) complexMapPlaceable = mapPlaceable.GetComponentInParent<ComplexMapPlaceable>();
         
         if (complexMapPlaceable)
         {
             foreach (SimpleMapPlaceable childMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
             {
-                RemoveSimpleMapPlaceable(childMapPlaceable);
+                RemoveMapPlaceable(childMapPlaceable);
             }
             Object.Destroy(complexMapPlaceable.gameObject);
         }
         else if (mapPlaceable)
         {
-            RemoveSimpleMapPlaceable(mapPlaceable);
+            RemoveMapPlaceable(mapPlaceable);
             return mapPlaceable;
         }
         return null;
     }
 
-    private void RemoveSimpleMapPlaceable(SimpleMapPlaceable mapPlaceable)
+    public void RemoveMapPlaceable(SimpleMapPlaceable mapPlaceable)
     {
         foreach (NeededSpace usedCoordinate in mapPlaceable.UsedCoordinates)
         {

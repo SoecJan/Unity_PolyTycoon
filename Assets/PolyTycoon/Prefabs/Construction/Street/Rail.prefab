@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 978718181954877264}
   - component: {fileID: 5859504610338958311}
+  - component: {fileID: 5387006250341779170}
   m_Layer: 10
   m_Name: Rail
   m_TagString: Untagged
@@ -56,8 +57,21 @@ MonoBehaviour:
   neighborNodes: []
   _cornerTransform: {fileID: 1281901494005809679}
   _straightTransform: {fileID: 9178117016226262768}
-  _tIntersectionTranform: {fileID: 7469803933815197081}
+  _tIntersectionTransform: {fileID: 7469803933815197081}
   _intersectionTransform: {fileID: 740410999334560430}
+--- !u!65 &5387006250341779170
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5044179919451255699}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.15, z: 1}
+  m_Center: {x: 0, y: -0.4, z: 0}
 --- !u!1001 &740410999334959134
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -409,6 +423,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 978718181954877264}
     m_Modifications:
+    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Name
+      value: StraightRail
+      objectReference: {fileID: 0}
+    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 100004, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 400006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.5
@@ -460,30 +498,6 @@ PrefabInstance:
     - target: {fileID: 400006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Name
-      value: StraightRail
-      objectReference: {fileID: 0}
-    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 100006, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 100002, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 100004, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}
-      propertyPath: m_Layer
-      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9500000, guid: 5d1451b5c5a3c304482200b32add433f, type: 3}

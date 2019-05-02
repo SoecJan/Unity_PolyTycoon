@@ -68,8 +68,15 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 				break;
 		}
 
-		SimpleMapPlaceable simpleMapPlaceable = BuildingManager.GetNode(position);
-		return simpleMapPlaceable ? (simpleMapPlaceable as PathFindingNode) : null;
+		if (BuildingManager != null)
+		{
+			SimpleMapPlaceable simpleMapPlaceable = BuildingManager.GetNode(position);
+			return simpleMapPlaceable ? (simpleMapPlaceable as PathFindingNode) : null;
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	public float DistanceTo(Transform targetTransform)
@@ -90,7 +97,30 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 		foreach (NeededSpace coordinate in UsedCoordinates)
 		{
 			position = gameObject.transform.position + coordinate.UsedCoordinate;
-			Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.green;
+			Color coordinateGizmoColor;
+			switch (coordinate.TerrainType)
+			{
+				case TerrainGenerator.TerrainType.Ocean:
+					coordinateGizmoColor = Color.blue;
+					break;
+				case TerrainGenerator.TerrainType.Coast:
+					coordinateGizmoColor = Color.magenta;
+					break;
+				case TerrainGenerator.TerrainType.Flatland:
+					coordinateGizmoColor = Color.green;
+					break;
+				case TerrainGenerator.TerrainType.Hill:
+					coordinateGizmoColor = Color.gray;
+					break;
+				case TerrainGenerator.TerrainType.Mountain:
+					coordinateGizmoColor = Color.yellow;
+					break;
+				default:
+					coordinateGizmoColor = Color.black;
+					break;
+			}
+
+			Gizmos.color = coordinateGizmoColor;
 			Gizmos.DrawSphere(position, 0.1f);
 		}
 

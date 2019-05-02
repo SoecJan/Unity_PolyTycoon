@@ -34,7 +34,6 @@ MonoBehaviour:
     _terrainType: 3
   _buildingName: MainBuidling
   neighborNodes: []
-  connectorPosition: {x: 2, y: 0, z: 0}
   _cityPlaceable: {fileID: 2612486185536692784}
 --- !u!1 &2728140242757728608
 GameObject:
@@ -1038,6 +1037,10 @@ PrefabInstance:
     - target: {fileID: 1638137022184206, guid: 6949fe6893c461c4099f562d12fda150, type: 3}
       propertyPath: m_Name
       value: Road
+      objectReference: {fileID: 0}
+    - target: {fileID: 1638137022184206, guid: 6949fe6893c461c4099f562d12fda150, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4414377070017520, guid: 6949fe6893c461c4099f562d12fda150, type: 3}
       propertyPath: m_LocalPosition.x

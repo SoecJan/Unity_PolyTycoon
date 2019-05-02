@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 public class TerrainPathFinder : AbstractPathFinder
 {
@@ -75,6 +77,12 @@ class TerrainNode : Node, IHeapItem<TerrainNode>
 
     public int CompareTo(TerrainNode other)
     {
+        int compare = HCost < other.HCost ? 1 : 0;
+//        if (compare == 0)
+//        {
+//            compare = FCost.CompareTo(other.FCost);
+//        }
+
         return base.CompareTo(other);
     }
 }
@@ -115,22 +123,22 @@ class TerrainAStarPathFinding : IPathFindingAlgorithm
     public Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
     {
         Heap<TerrainNode> openSet = new Heap<TerrainNode>(1000);
-        HashSet<Vector2> closedSet = new HashSet<Vector2>();
+        HashSet<Vector2Int> closedSet = new HashSet<Vector2Int>();
 
         var startPositionVec3 = GetWaterPosition(startNode);
         TerrainNode startTerrainNode = new TerrainNode(new Vector2(startPositionVec3.x, startPositionVec3.z));
         openSet.Add(startTerrainNode);
         var endPositionVec3 = GetWaterPosition(endNode);
-        Vector2Int endPosition = Vector2Int.FloorToInt(new Vector2(endPositionVec3.x, endPositionVec3.z));
+        Vector2Int endPosition = Vector2Int.RoundToInt(new Vector2(endPositionVec3.x, endPositionVec3.z));
 
         Debug.Log("Start: " + startPositionVec3 + "; End: " + endPosition);
         
         while (openSet.Count > 0)
         {
             TerrainNode currentNode = openSet.RemoveFirst();
-            closedSet.Add(currentNode.PositionVector2);
+            
 
-            Vector2Int currentPositionVec2 = Vector2Int.FloorToInt(currentNode.PositionVector2);
+            Vector2Int currentPositionVec2 = Vector2Int.RoundToInt(currentNode.PositionVector2);
             
             if (currentPositionVec2.Equals(endPosition))
             {
@@ -138,55 +146,64 @@ class TerrainAStarPathFinding : IPathFindingAlgorithm
             }
 
             // Check every Tile around the current tile
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 4; i++)
             {
-                Vector2 tilePosition;
+                Vector2Int tilePosition;
 
                 switch (i)
                 {
                     case 0:
-                        tilePosition = currentPositionVec2 + Vector2.up;
+                        tilePosition = currentPositionVec2 + Vector2Int.up;
                         break;
                     case 1:
-                        tilePosition = currentPositionVec2 + Vector2.down;
+                        tilePosition = currentPositionVec2 + Vector2Int.down;
                         break;
                     case 2:
-                        tilePosition = currentPositionVec2 + Vector2.left;
+                        tilePosition = currentPositionVec2 + Vector2Int.left;
                         break;
                     case 3:
-                        tilePosition = currentPositionVec2 + Vector2.right;
+                        tilePosition = currentPositionVec2 + Vector2Int.right;
                         break;
-                    case 4:
-                        tilePosition = currentPositionVec2 + Vector2.up + Vector2.left;
-                        break;
-                    case 5:
-                        tilePosition = currentPositionVec2 + Vector2.up + Vector2.right;
-                        break;
-                    case 6:
-                        tilePosition = currentPositionVec2 + Vector2.down + Vector2.left;
-                        break;
-                    case 7:
-                        tilePosition = currentPositionVec2 + Vector2.down + Vector2.right;
-                        break;
+//                    case 4:
+//                        tilePosition = currentPositionVec2 + Vector2.up + Vector2.left;
+//                        break;
+//                    case 5:
+//                        tilePosition = currentPositionVec2 + Vector2.up + Vector2.right;
+//                        break;
+//                    case 6:
+//                        tilePosition = currentPositionVec2 + Vector2.down + Vector2.left;
+//                        break;
+//                    case 7:
+//                        tilePosition = currentPositionVec2 + Vector2.down + Vector2.right;
+//                        break;
                     default:
-                        tilePosition = Vector2.zero;
+                        tilePosition = Vector2Int.zero;
                         Debug.LogError("Should not reach here");
                         break;
                 }
+                
+                if (closedSet.Contains(tilePosition)) continue;
+                
+                closedSet.Add(Vector2Int.RoundToInt(currentNode.PositionVector2));
 
                 bool isTerrainSuited = _terrainGenerator.IsSuitedTerrain(TerrainType, currentPositionVec2.x,  currentPositionVec2.y);
                 bool isEndNode = tilePosition == endPosition;
-                bool alreadyLookedAt = closedSet.Contains(tilePosition);
                 
                 
-                if ((!isTerrainSuited && !isEndNode) || alreadyLookedAt) continue;
-                
+                if (!isTerrainSuited && !isEndNode) continue;
+              
                 int updatedGCost = currentNode.GCost + GetDistance(currentNode.PositionVector2, tilePosition);
                 int updatedHCost = GetDistance(tilePosition, endPosition);
+                
                 TerrainNode neighborNode = new TerrainNode(currentNode, tilePosition, updatedHCost, updatedGCost);
+                
+                
+                
                 if (!openSet.Contains(neighborNode))
                 {
                     openSet.Add(neighborNode);
+                    GameObject visuals = new GameObject( tilePosition.ToString() + " GCost: " + updatedGCost + " HCost: " + updatedHCost + " FCost: " + neighborNode.FCost);
+                    visuals.transform.position = new Vector3(tilePosition.x, 1f, tilePosition.y);
                 }
                 else
                 {
