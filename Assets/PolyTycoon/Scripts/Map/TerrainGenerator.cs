@@ -169,11 +169,11 @@ public class TerrainGenerator : MonoBehaviour
 		float max = meshVertices[indices[0]].y;
 		for (int i = 1; i < indices.Length; i++)
 		{
-			if (meshVertices[indices[i]].y > max)
+			if (meshVertices[indices[i]].y > max && indices[i] < meshVertices.Length && indices[i] > 0)
 			{
 				max = meshVertices[indices[i]].y;
 			}
-			else if (meshVertices[indices[i]].y < min)
+			else if (meshVertices[indices[i]].y < min && indices[i] < meshVertices.Length && indices[i] > 0)
 			{
 				min = meshVertices[indices[i]].y;
 			}

@@ -8,26 +8,26 @@ public abstract class AbstractPathFinder : MonoBehaviour
     public abstract void FindPath(TransportRoute transportRoute, System.Action<TransportRoute> callback);
 }
 
-public class Node : IHeapItem<Node>
+public abstract class Node : IHeapItem<Node>
 {
     private Node _parent;
     private int _hCost;
     private int _gCost;
 
-    public Node(int hCost, int gCost)
+    protected Node(int hCost, int gCost)
     {
         _hCost = hCost;
         _gCost = gCost;
     }
-    
-    public Node(Node parent, int hCost, int gCost) : this(hCost, gCost)
+
+    protected Node(Node parent, int hCost, int gCost) : this(hCost, gCost)
     {
         _parent = parent;
     }
     
     public int HeapIndex { get; set; }
     
-    public int FCost {
+    public virtual int FCost {
         get { return HCost + GCost; }
     }
 
@@ -71,8 +71,6 @@ public class Node : IHeapItem<Node>
 
         return -compare;
     }
-
-    
 }
 
 public class Path

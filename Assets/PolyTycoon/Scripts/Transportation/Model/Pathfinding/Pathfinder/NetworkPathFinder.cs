@@ -90,6 +90,13 @@ class NetworkNode : Node, IHeapItem<NetworkNode>
 			_parent = value;
 		}
 	}
+
+	public override bool Equals(object obj)
+	{
+		NetworkNode other = obj as NetworkNode;
+		return other != null && PathFindingNode.Equals(other.PathFindingNode);
+	}
+
 	#endregion
 
 	public int CompareTo(NetworkNode other)
@@ -137,6 +144,7 @@ public class NetworkAStarPathFinding : IPathFindingAlgorithm
 				}
 				else
 				{
+					Debug.Log("Network Update");
 					openSet.UpdateItem(neighborNetworkNode);
 				}
 			}
