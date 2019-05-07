@@ -113,7 +113,7 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNod
 	/// In game height of this object.
 	/// </summary>
 	/// <returns></returns>
-	public float GetHeight()
+	public override float GetHeight()
 	{
 		return GetComponentInChildren<Transform>().lossyScale.y;
 	}

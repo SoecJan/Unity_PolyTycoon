@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -21,6 +22,8 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	[SerializeField] private string _buildingName; // Name of this building
 
 	private bool _isPlaced = false; // Whether it is placed on the map or not
+	[SerializeField] private Vector3 _threadsafePosition;
+
 	#endregion
 
 	#region Default Methods
@@ -47,8 +50,8 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Detects if a factory was clicked on by the player.
-	/// Prevents any detection if the factory was just placed by <see cref="GroundPlacementController"/>.
+	/// Detects if a placeable was clicked on by the player.
+	/// Prevents any detection if the palceable was just placed by <see cref="GroundPlacementController"/>.
 	/// </summary>
 	void OnMouseOver()
 	{
@@ -60,6 +63,14 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	#endregion
 
 	#region Getter & Setter
+
+	public Vector3 ThreadsafePosition
+	{
+		get => _threadsafePosition.Equals(default(Vector3)) ? throw new NotImplementedException() : _threadsafePosition;
+
+		set => _threadsafePosition = value;
+	}
+
 	public List<NeededSpace> UsedCoordinates {
 		get {
 			return _usedCoordinates;
@@ -133,6 +144,7 @@ public abstract class SimpleMapPlaceable : MonoBehaviour
 	public virtual void OnPlacement()
 	{
 		IsPlaced = true;
+		ThreadsafePosition = transform.position;
 	}
 
 	/// <summary>
@@ -162,6 +174,12 @@ public class NeededSpace
 	[SerializeField] private Vector3Int _usedCoordinate;
 	[SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland;
 
+	public NeededSpace(NeededSpace neededSpace, Vector3Int offset)
+	{
+		_usedCoordinate = new Vector3Int(neededSpace.UsedCoordinate.x + offset.x, neededSpace.UsedCoordinate.y + offset.y, neededSpace.UsedCoordinate.z + offset.z);
+		_terrainType = neededSpace.TerrainType;
+	}
+	
 	public Vector3Int UsedCoordinate
 	{
 		get { return _usedCoordinate; }

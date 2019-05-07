@@ -5,7 +5,37 @@ using UnityEngine;
 public abstract class AbstractPathFinder : MonoBehaviour
 {
     protected IPathFindingAlgorithm _pathFindingAlgorithm;
-    public abstract void FindPath(TransportRoute transportRoute, System.Action<TransportRoute> callback);
+
+    public virtual TransportRoute FindPath(TransportRoute transportRoute)
+    {
+        return CalculatePath(transportRoute);
+    }
+    
+    private TransportRoute CalculatePath(TransportRoute transportRoute)
+    {
+        foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
+        {
+            IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
+            Path path;
+            if (pathNode != null)
+            {
+                path = pathNode.PathTo(transportRouteElement.ToNode);
+                if (path == null)
+                {
+                    path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+                    pathNode.AddPath(transportRouteElement.ToNode, path);
+                }
+            }
+            else
+            {
+                path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
+            }
+
+            transportRouteElement.Path = path;
+        }
+
+        return transportRoute;
+    }
 }
 
 public abstract class Node : IHeapItem<Node>
@@ -69,7 +99,7 @@ public abstract class Node : IHeapItem<Node>
             compare = HCost.CompareTo(other.HCost);
         }
 
-        return -compare;
+        return compare;
     }
 }
 

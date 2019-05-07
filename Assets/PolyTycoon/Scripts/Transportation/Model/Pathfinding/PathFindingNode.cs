@@ -21,6 +21,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 	public const int Left = 3;
 
 	[SerializeField] private PathFindingNode[] neighborNodes; // Array that holds the reference to the next reachable Node.
+
 	#endregion
 
 	#region Getter & Setter
@@ -45,13 +46,15 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 		set;
 	}
 
+	
+
 	public abstract bool IsTraversable();
 
 	public abstract bool IsNode(); // Returns true if this object is supposed to be a node for path finding
 
 	protected virtual PathFindingNode AdjacentNodes(int i)
 	{
-		Vector3 position = gameObject.transform.position;
+		Vector3 position = gameObject.transform.position + UsedCoordinates[0].UsedCoordinate;
 		switch (i)
 		{
 			case 0:
@@ -77,11 +80,6 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 		{
 			return null;
 		}
-	}
-
-	public float DistanceTo(Transform targetTransform)
-	{
-		return (transform.position - targetTransform.position).sqrMagnitude;
 	}
 	#endregion
 
@@ -151,7 +149,6 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 		TotalNodeCount += 1;
 		IsPlaced = true;
 		FindNeighborNodes();
-		
 	}
 	#endregion
 

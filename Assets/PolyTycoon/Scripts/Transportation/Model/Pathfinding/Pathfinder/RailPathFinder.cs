@@ -9,44 +9,6 @@ public class RailPathFinder : AbstractPathFinder
 	{
 		_pathFindingAlgorithm = new RailAStarPathFinding();
 	}
-
-	public override void FindPath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
-	{
-		StartCoroutine(CalculatePath(transportRoute, callback));
-	}
-
-	/// <summary>
-	/// Searches for a path between given points. IF the <see cref="Path.Nodes"/> List is empty or null there is no path between given points.
-	/// </summary>
-	/// <param name="startNode"></param>
-	/// <param name="endNode"></param>
-	/// <param name="callback"></param>
-	/// <returns></returns>
-	IEnumerator CalculatePath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
-	{
-		foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
-		{
-			
-			IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
-			Path path;
-			if (pathNode != null)
-			{
-				path = pathNode.PathTo(transportRouteElement.ToNode);
-				if (path == null)
-				{
-					path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-					pathNode.AddPath(transportRouteElement.ToNode, path);
-				}
-			}
-			else
-			{
-				path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-			}
-			transportRouteElement.Path = path;
-		}
-		callback(transportRoute);
-		yield return null;
-	}
 }
 
 public class RailAStarPathFinding : IPathFindingAlgorithm
@@ -54,7 +16,7 @@ public class RailAStarPathFinding : IPathFindingAlgorithm
 	#region Getter & Setter
 	int GetDistance(PathFindingNode nodeA, PathFindingNode nodeB)
 	{
-		return (int)Math.Abs((nodeA.transform.position - nodeB.transform.position).magnitude);
+		return (int)Math.Abs((nodeA.ThreadsafePosition - nodeB.ThreadsafePosition).magnitude);
 	}
 	#endregion
 

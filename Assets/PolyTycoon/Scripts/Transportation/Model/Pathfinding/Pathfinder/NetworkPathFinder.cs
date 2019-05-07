@@ -10,44 +10,6 @@ public class NetworkPathFinder : AbstractPathFinder
 	{
 		_pathFindingAlgorithm = new NetworkAStarPathFinding();
 	}
-
-	public override void FindPath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
-	{
-		StartCoroutine(CalculatePath(transportRoute, callback));
-	}
-
-	/// <summary>
-	/// Searches for a path between given points. IF the <see cref="Path.Nodes"/> List is empty or null there is no path between given points.
-	/// </summary>
-	/// <param name="startNode"></param>
-	/// <param name="endNode"></param>
-	/// <param name="callback"></param>
-	/// <returns></returns>
-	IEnumerator CalculatePath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
-	{
-		foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
-		{
-			
-			IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
-			Path path;
-			if (pathNode != null)
-			{
-				path = pathNode.PathTo(transportRouteElement.ToNode);
-				if (path == null)
-				{
-					path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-					pathNode.AddPath(transportRouteElement.ToNode, path);
-				}
-			}
-			else
-			{
-				path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-			}
-			transportRouteElement.Path = path;
-		}
-		callback(transportRoute);
-		yield return null;
-	}
 	#endregion
 }
 
@@ -81,7 +43,7 @@ class NetworkNode : Node, IHeapItem<NetworkNode>
 		}
 	}
 
-	internal NetworkNode Parent {
+	internal new NetworkNode Parent {
 		get {
 			return _parent;
 		}
@@ -110,43 +72,60 @@ public class NetworkAStarPathFinding : IPathFindingAlgorithm
 	#region Getter & Setter
 	int GetDistance(PathFindingNode nodeA, PathFindingNode nodeB)
 	{
-		return (int)Math.Abs((nodeA.transform.position - nodeB.transform.position).magnitude);
+		return (int)Math.Abs((nodeA.ThreadsafePosition - nodeB.ThreadsafePosition).magnitude);
 	}
 	#endregion
 
 	#region Methods
 	public Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
 	{
-		Debug.Log("Finding a new Path");
-		Heap<NetworkNode> openSet = new Heap<NetworkNode>(PathFindingNode.TotalNodeCount);
+		List<NetworkNode> openSet = new List<NetworkNode>(PathFindingNode.TotalNodeCount);
 		HashSet<PathFindingNode> closedSet = new HashSet<PathFindingNode>();
 		openSet.Add(new NetworkNode(startNode));
 
 		while (openSet.Count > 0)
 		{
-			NetworkNode currentNetworkNode = openSet.RemoveFirst();
+			NetworkNode currentNetworkNode = openSet[0];
+			openSet.RemoveAt(0);
 			closedSet.Add(currentNetworkNode.PathFindingNode);
-
-			if (currentNetworkNode.PathFindingNode == endNode)
-			{
-				return RetracePath(startNode, currentNetworkNode);
-			}
 
 			foreach (PathFindingNode neighbor in currentNetworkNode.PathFindingNode.NeighborNodes)
 			{
-				if (!neighbor || (!neighbor.IsTraversable() && neighbor != endNode) || closedSet.Contains(neighbor)) continue;
-
-				int newMovementCostToNeighbor = currentNetworkNode.GCost + GetDistance(currentNetworkNode.PathFindingNode, neighbor);
-				NetworkNode neighborNetworkNode = new NetworkNode(neighbor, GetDistance(neighbor, endNode), newMovementCostToNeighbor) { Parent = currentNetworkNode };
-				if (!openSet.Contains(neighborNetworkNode))
+				if (!neighbor) continue;
+				if (neighbor.Equals(endNode))
 				{
-					openSet.Add(neighborNetworkNode);
+					int endNetworkNodeGCost = currentNetworkNode.GCost + GetDistance(currentNetworkNode.PathFindingNode, neighbor);
+					int endNetworkNodeHCost = GetDistance(neighbor, endNode);
+					NetworkNode endNetworkNode = new NetworkNode(neighbor, endNetworkNodeHCost, endNetworkNodeGCost) { Parent = currentNetworkNode };
+					return RetracePath(startNode, endNetworkNode);
+				}
+				
+				bool isWalkable = neighbor.IsTraversable();
+				bool isInClosedSet = closedSet.Contains(neighbor);
+				if (!isWalkable || isInClosedSet) continue;
+
+				int updatedGCost = currentNetworkNode.GCost + GetDistance(currentNetworkNode.PathFindingNode, neighbor);
+				int updatedHCost = GetDistance(neighbor, endNode);
+
+				NetworkNode neighborNode = openSet.Find(x => x.PathFindingNode.Equals(neighbor));
+
+				if (neighborNode != null)
+				{
+					if (updatedGCost < neighborNode.GCost)
+					{
+						neighborNode.GCost = updatedGCost;
+						neighborNode.HCost = updatedHCost;
+						neighborNode.Parent = currentNetworkNode;
+					}
 				}
 				else
 				{
-					Debug.Log("Network Update");
-					openSet.UpdateItem(neighborNetworkNode);
+//					GameObject obj = new GameObject(neighbor.transform.position.ToString());
+//					obj.transform.position = neighbor.transform.position + Vector3.up;
+					neighborNode = new NetworkNode(neighbor, updatedHCost, updatedGCost) { Parent = currentNetworkNode };
+					openSet.Add(neighborNode);
 				}
+				openSet.Sort();
 			}
 		}
 		return null;
@@ -158,7 +137,6 @@ public class NetworkAStarPathFinding : IPathFindingAlgorithm
 
 		NetworkNode lastNetworkNode = null;
 		NetworkNode currentNetworkNode = toNetworkNode;
-
 
 		while (currentNetworkNode.PathFindingNode != fromNode)
 		{
@@ -184,13 +162,13 @@ public class NetworkAStarPathFinding : IPathFindingAlgorithm
 		Vector3Int fromVector3 = new Vector3Int();
 		if (lastNetworkNode != null)
 		{
-			fromVector3 = Vector3Int.RoundToInt((lastNetworkNode.PathFindingNode.transform.position - currentNetworkNode.PathFindingNode.transform.position).normalized);
+			fromVector3 = Vector3Int.RoundToInt((lastNetworkNode.PathFindingNode.ThreadsafePosition - currentNetworkNode.PathFindingNode.ThreadsafePosition).normalized);
 		}
 
 		Vector3Int toVector3 = new Vector3Int();
 		if (nextNetworkNode != null)
 		{
-			toVector3 = Vector3Int.RoundToInt((nextNetworkNode.PathFindingNode.transform.position - currentNetworkNode.PathFindingNode.transform.position).normalized);
+			toVector3 = Vector3Int.RoundToInt((nextNetworkNode.PathFindingNode.ThreadsafePosition - currentNetworkNode.PathFindingNode.ThreadsafePosition).normalized);
 		}
 
 		int fromDirection = DirectionVectorToInt(fromVector3);

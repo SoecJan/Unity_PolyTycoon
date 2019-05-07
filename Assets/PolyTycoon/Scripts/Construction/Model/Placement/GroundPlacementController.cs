@@ -216,9 +216,9 @@ public class GroundPlacementController : MonoBehaviour
 
     public bool PlaceObject(ComplexMapPlaceable complexMapPlaceable)
     {
-        foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
+        foreach (SimpleMapPlaceable childPlaceable in complexMapPlaceable.ChildMapPlaceables)
         {
-            if (!IsPlaceable(simpleMapPlaceable))
+            if (childPlaceable && !IsPlaceable(childPlaceable.transform.position, childPlaceable.UsedCoordinates))
             {
                 return false;
             }
@@ -229,10 +229,6 @@ public class GroundPlacementController : MonoBehaviour
         complexMapPlaceable.transform.parent = terrainChunk.meshObject.transform;
         foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
         {
-//            float yOffset = TerrainGenerator ? TerrainGenerator.TerrainPlaceableHeight : 0f;
-//            simpleMapPlaceable.transform.position = new Vector3(simpleMapPlaceable.transform.position.x,
-//                simpleMapPlaceable.transform.position.y + yOffset, simpleMapPlaceable.transform.position.z);
-//            BuildingManager.AddMapPlaceable(simpleMapPlaceable);
             PlaceObject(simpleMapPlaceable);
         }
 
@@ -253,17 +249,13 @@ public class GroundPlacementController : MonoBehaviour
         placeableObject.gameObject.transform.position = new Vector3(placeableObject.gameObject.transform.position.x,
             objectBottomHeight + yOffset, placeableObject.gameObject.transform.position.z);
 
-        if (IsPlaceable(placeableObject))
+        if (placeableObject && IsPlaceable(placeableObject.transform.position, placeableObject.UsedCoordinates))
         {
             BuildingManager.AddMapPlaceable(placeableObject);
             Vector2 chunkVec = TerrainGenerator.GetTerrainChunkPosition(placeableObject.transform.position.x,
                 placeableObject.transform.position.z);
             TerrainChunk terrainChunk = TerrainGenerator.GetTerrainChunk(chunkVec);
             placeableObject.transform.parent = terrainChunk.meshObject.transform;
-            //if (placeableObject is Factory.Factory)
-            //{
-            //	((Factory.Factory) placeableObject).BiomeValueDictionary = GetBiomeValue(placeableObject);
-            //}
         }
         else
         {
@@ -276,48 +268,24 @@ public class GroundPlacementController : MonoBehaviour
         return true;
     }
 
-    private bool IsPlaceable(SimpleMapPlaceable placeableObject)
+    public bool IsPlaceable(Vector3 position, List<NeededSpace> neededSpaces)
     {
-        bool placeableNotNull = placeableObject;
-        bool freeSpace = BuildingManager.IsPlaceable(placeableObject);
-        bool terrainFlat = IsSuitableTerrain(placeableObject);
+        bool freeSpace = BuildingManager.IsPlaceable(position, neededSpaces);
+        bool terrainFlat = IsSuitableTerrain(position, neededSpaces);
 //        Debug.Log(placeableNotNull + "; " + freeSpace + "; " + terrainFlat);
-        return placeableNotNull && freeSpace && terrainFlat;
+        return freeSpace && terrainFlat;
     }
 
-    public bool IsFlatTerrain(ComplexMapPlaceable complexMapPlaceable)
+    private bool IsSuitableTerrain(Vector3 positionOffset, IEnumerable<NeededSpace> neededSpaces)
     {
-        foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
-        {
-            if (!IsSuitableTerrain(simpleMapPlaceable))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// Check if a given MapPlaceable can be placed.
-    /// </summary>
-    /// <param name="terrainChunk"></param>
-    /// <param name="objectTransform"></param>
-    /// <param name="offset"></param>
-    /// <returns></returns>
-    private bool IsSuitableTerrain(SimpleMapPlaceable mapPlaceable)
-    {
-        foreach (NeededSpace neededSpace in mapPlaceable.UsedCoordinates)
+        foreach (NeededSpace neededSpace in neededSpaces)
         {
             if (!TerrainGenerator.IsSuitedTerrain(neededSpace.TerrainType,
-                neededSpace.UsedCoordinate + mapPlaceable.transform.position))
+                neededSpace.UsedCoordinate + positionOffset))
             {
                 return false;
             }
-
-            ;
         }
-
         return true;
     }
 

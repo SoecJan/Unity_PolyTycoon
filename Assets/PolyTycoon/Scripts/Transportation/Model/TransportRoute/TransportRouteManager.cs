@@ -64,26 +64,39 @@ public class TransportRouteManager : MonoBehaviour
 			transportRoute.TransportRouteElements.Add(view.RouteElement);
 		}
 		PrintNodes(transportRoute);
+		AbstractPathFinder abstractPathFinder = null;
 		switch (transportRoute.Vehicle.MoveType)
 		{
 			case Vehicle.PathType.Road:
-				_networkPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+//				_networkPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+				abstractPathFinder = _networkPathFinder;
 				break;
 			case Vehicle.PathType.Rail:
-				_railPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+//				_railPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+				abstractPathFinder = _railPathFinder;
 				break;
 			case Vehicle.PathType.Water:
-				_terrainPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+				abstractPathFinder = _terrainPathFinder;
+//				ThreadedDataRequester.RequestData(() => _terrainPathFinder.FindPath(transportRoute), FoundPath);
+//				OnTransportRoutePathFound(_terrainPathFinder.FindPath(transportRoute)); // Non Threaded
 				break;
 			case Vehicle.PathType.Air:
-				_airPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+//				_airPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
+				abstractPathFinder = _airPathFinder;
 				break;
 			default:
 				Debug.LogError("Should not reach here");
-				break;
+				throw new NotImplementedException();
 		}
+		ThreadedDataRequester.RequestData(() => abstractPathFinder.FindPath(transportRoute), FoundPath);
 	}
 
+	private void FoundPath(object result)
+	{
+		TransportRoute transportRoute = (TransportRoute) result;
+		OnTransportRoutePathFound(transportRoute);
+	}
+	
 	private void PrintNodes(TransportRoute transportRoute)
 	{
 		foreach (TransportRouteElement element in transportRoute.TransportRouteElements)
@@ -95,7 +108,8 @@ public class TransportRouteManager : MonoBehaviour
 	public void OnTransportRouteChange(TransportRoute transportRoute)
 	{
 		PrintNodes(transportRoute);
-		_networkPathFinder.FindPath(transportRoute, OnTransportRouteChangePathFound);
+//		_networkPathFinder.FindPath(transportRoute);
+		Debug.LogError("TransportRouteChanges need to be reimplemented"); // TODO
 	}
 
 	private void OnTransportRouteChangePathFound(TransportRoute transportRoute)

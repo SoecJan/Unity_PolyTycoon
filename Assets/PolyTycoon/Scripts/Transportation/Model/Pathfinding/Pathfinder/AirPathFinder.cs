@@ -10,53 +10,10 @@ public class AirPathFinder : AbstractPathFinder
     {
         _pathFindingAlgorithm = new AirAStarPathFinding();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public override void FindPath(TransportRoute transportRoute, Action<TransportRoute> callback)
-    {
-        StartCoroutine(CalculatePath(transportRoute, callback));
-    }
-    
-    private IEnumerator CalculatePath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
-    {
-        foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
-        {
-			
-            IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
-            Path path;
-            if (pathNode != null)
-            {
-                path = pathNode.PathTo(transportRouteElement.ToNode);
-                if (path == null)
-                {
-                    path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-                    pathNode.AddPath(transportRouteElement.ToNode, path);
-                }
-            }
-            else
-            {
-                path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-            }
-            transportRouteElement.Path = path;
-        }
-        callback(transportRoute);
-        yield return null;
-    }
 }
 
 class AirAStarPathFinding : IPathFindingAlgorithm
 {
-
-    public AirAStarPathFinding()
-    {
-
-    }
-
     int GetDistance(Vector2 nodeA, Vector2 nodeB)
     {
         return (int) Math.Abs((nodeA - nodeB).magnitude);

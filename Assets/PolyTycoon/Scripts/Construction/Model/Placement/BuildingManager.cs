@@ -17,7 +17,7 @@ public class BuildingManager
     private static StorageContainerView _storageContainerView;
 
     private Dictionary<Vector3, SimpleMapPlaceable>
-        placedBuildingDictionary; // A dict of all placed Object in the map. Used to avoid collisions.
+        _placedBuildingDictionary; // A dict of all placed Object in the map. Used to avoid collisions.
 
     #endregion
 
@@ -25,7 +25,7 @@ public class BuildingManager
 
     public BuildingManager()
     {
-        placedBuildingDictionary = new Dictionary<Vector3, SimpleMapPlaceable>();
+        _placedBuildingDictionary = new Dictionary<Vector3, SimpleMapPlaceable>();
         _routeCreateController = Object.FindObjectOfType<TransportRouteCreateController>();
         _factoryView = Object.FindObjectOfType<FactoryView>();
         _cityView = Object.FindObjectOfType<CityView>();
@@ -51,7 +51,7 @@ public class BuildingManager
         Vector3 positionVector = TransformPosition(position);
         try
         {
-            return placedBuildingDictionary[positionVector];
+            return _placedBuildingDictionary[positionVector];
         }
         catch (KeyNotFoundException)
         {
@@ -64,7 +64,7 @@ public class BuildingManager
         Vector3 positionVector = TransformPosition(position);
         try
         {
-            PathFindingNode simpleMapPlaceable = placedBuildingDictionary[positionVector] as PathFindingNode;
+            PathFindingNode simpleMapPlaceable = _placedBuildingDictionary[positionVector] as PathFindingNode;
             if (simpleMapPlaceable)
             {
                 Vector3 comparedVector3 = TransformPosition(simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate);
@@ -85,7 +85,7 @@ public class BuildingManager
     {
         foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
         {
-            if (!IsPlaceable(simpleMapPlaceable))
+            if (!IsPlaceable(simpleMapPlaceable.transform.position, simpleMapPlaceable.UsedCoordinates))
             {
                 return false;
             }
@@ -99,18 +99,17 @@ public class BuildingManager
     /// </summary>
     /// <param name="placedObject"></param>
     /// <returns></returns>
-    public bool IsPlaceable(SimpleMapPlaceable placedObject)
+    public bool IsPlaceable(Vector3 position, List<NeededSpace> neededSpaces)
     {
-        foreach (NeededSpace usedCoordinate in placedObject.UsedCoordinates)
+        Vector3 placedPosition = TransformPosition(position);
+        foreach (NeededSpace usedCoordinate in neededSpaces)
         {
-            Vector3 placedPosition = TransformPosition(placedObject.transform.position);
             Vector3 occupiedSpace = placedPosition + usedCoordinate.UsedCoordinate;
-            if (placedBuildingDictionary.ContainsKey(occupiedSpace))
+            if (_placedBuildingDictionary.ContainsKey(occupiedSpace))
             {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -133,7 +132,7 @@ public class BuildingManager
             if (AddMapPlaceable(placedObject.ChildMapPlaceables[i])) continue;
             for (int removeIndex = i; removeIndex >= 0; removeIndex--)
             {
-                RemoveMapPlaceable(placedObject.ChildMapPlaceables[removeIndex].transform.position);
+                RemoveMapPlaceable(placedObject.ChildMapPlaceables[removeIndex].ThreadsafePosition);
             }
 
             return false;
@@ -156,19 +155,19 @@ public class BuildingManager
         {
             Vector3 occupiedSpace = placedPosition + placedObject.UsedCoordinates[i].UsedCoordinate;
 
-            if (!placedBuildingDictionary.ContainsKey(occupiedSpace))
+            if (!_placedBuildingDictionary.ContainsKey(occupiedSpace))
             {
-                placedBuildingDictionary.Add(occupiedSpace, placedObject);
-                Debug.Log("BuildingManager Added: " + placedObject.name + " at " + occupiedSpace);
+                _placedBuildingDictionary.Add(occupiedSpace, placedObject);
+//                Debug.Log("BuildingManager Added: " + placedObject.name + " at " + occupiedSpace);
             }
             else
             {
                 // Remove all previously added entries
                 for (int removeIndex = i; removeIndex > 0; removeIndex--)
                 {
-                    Vector3 removedSpace = TransformPosition(placedObject.transform.position) +
+                    Vector3 removedSpace = TransformPosition(placedObject.ThreadsafePosition) +
                                            placedObject.UsedCoordinates[removeIndex].UsedCoordinate;
-                    placedBuildingDictionary.Remove(removedSpace);
+                    _placedBuildingDictionary.Remove(removedSpace);
                 }
 
                 return false;
@@ -190,7 +189,7 @@ public class BuildingManager
     public SimpleMapPlaceable RemoveMapPlaceable(Vector3 position)
     {
         Vector3 placedPosition = TransformPosition(position);
-        SimpleMapPlaceable mapPlaceable = placedBuildingDictionary[placedPosition];
+        SimpleMapPlaceable mapPlaceable = _placedBuildingDictionary[placedPosition];
         ComplexMapPlaceable complexMapPlaceable = mapPlaceable as ComplexMapPlaceable;
         if (!complexMapPlaceable) complexMapPlaceable = mapPlaceable.GetComponentInParent<ComplexMapPlaceable>();
         
@@ -214,10 +213,10 @@ public class BuildingManager
     {
         foreach (NeededSpace usedCoordinate in mapPlaceable.UsedCoordinates)
         {
-            Vector3 position = TransformPosition(mapPlaceable.transform.position);
+            Vector3 position = TransformPosition(mapPlaceable.ThreadsafePosition);
             Vector3 occupiedSpace = position + usedCoordinate.UsedCoordinate;
             Debug.Log("Remove " + mapPlaceable.name + " at: " + occupiedSpace);
-            if (!placedBuildingDictionary.Remove(occupiedSpace))
+            if (!_placedBuildingDictionary.Remove(occupiedSpace))
             {
                 Debug.LogError("Position was already empty. " + occupiedSpace.ToString());
             }

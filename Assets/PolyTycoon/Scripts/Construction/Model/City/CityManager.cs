@@ -1,150 +1,178 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CityManager : MonoBehaviour
 {
+    [SerializeField] private CityWorldToScreenUi _cityWorldToScreenUi;
+    [SerializeField] private List<CityPlaceable> _possibleCityPlaceables;
+    private List<CityPlaceable> _placedCities;
+    private GroundPlacementController _groundPlacementController;
+    private WorldToScreenUiManager _worldToScreenUiManager;
 
-	[SerializeField] private CityWorldToScreenUi _cityWorldToScreenUi;
-	[SerializeField] private List<CityPlaceable> _possibleCityPlaceables;
-	private List<CityPlaceable> _placedCities;
-	private List<CityToPlace> _citiesToPlace;
-	private GroundPlacementController _groundPlacementController;
-	private WorldToScreenUiManager _worldToScreenUiManager;
-	
 
-	// Use this for initialization
-	void Start ()
-	{
-		_placedCities = new List<CityPlaceable>();
-		_groundPlacementController = FindObjectOfType<GroundPlacementController>();
-		_worldToScreenUiManager = FindObjectOfType<WorldToScreenUiManager>();
-		_citiesToPlace = new List<CityToPlace>();
-		StartCoroutine(PlacePendingCity());
-		AddRandomCity();
-	}
+    // Use this for initialization
+    void Start()
+    {
+        _placedCities = new List<CityPlaceable>();
+        _groundPlacementController = FindObjectOfType<GroundPlacementController>();
+        _worldToScreenUiManager = FindObjectOfType<WorldToScreenUiManager>();
+        AddRandomCity();
+    }
 
-	private void AddRandomCity()
-	{
-		AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], Vector2Int.zero);
-	}
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            AddRandomCity();
+        }
+    }
 
-	public CityPlaceable GetCity(string cityName)
-	{
-		foreach (CityPlaceable cityPlaceable in _placedCities)
-		{
-			if (cityPlaceable.BuildingName.ToLower().Equals(cityName.ToLower()))
-			{
-				return cityPlaceable;
-			}
-		}
-		return null;
-	}
+    private void AddRandomCity()
+    {
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, 0.5f));
+    }
 
-	private void AddCity(CityPlaceable cityPlaceable, Vector2Int offset)
-	{
-		_citiesToPlace.Add(new CityToPlace(cityPlaceable, offset));
-	}
+    public CityPlaceable GetCity(string cityName)
+    {
+        foreach (CityPlaceable cityPlaceable in _placedCities)
+        {
+            if (cityPlaceable.BuildingName.ToLower().Equals(cityName.ToLower()))
+            {
+                return cityPlaceable;
+            }
+        }
 
-	private IEnumerator PlacePendingCity()
-	{
-		while (!_groundPlacementController.TerrainGenerator.IsReady())
-		{ yield return new WaitForSeconds(0.1f); }
+        return null;
+    }
 
-		while (true)
-		{
-			if (_citiesToPlace.Count > 0)
-			{
-				CityToPlace cityToPlace = _citiesToPlace[0];
-				_citiesToPlace.Remove(cityToPlace);
+    private void AddCity(CityPlaceable cityPlaceable, Vector3 offset)
+    {
+        CityToPlace cityToPlace = new CityToPlace(cityPlaceable, offset);
+        ThreadedDataRequester.RequestData(() => PlacePendingCity(cityToPlace), OnPlacementPositionFound);
+    }
 
-				CityPlaceable cityPlaceable = cityToPlace.CityPlaceable;
-				GameObject cityInstance = Instantiate(cityPlaceable.gameObject);
+    private void OnPlacementPositionFound(object cityToPlaceObject)
+    {
+        CityToPlace cityToPlace = (CityToPlace) cityToPlaceObject;
+//        Debug.Log(cityToPlace.Position + ": " + cityToPlace.CityPlaceableNeededSpaces.Count + ", " + _groundPlacementController.IsPlaceable(cityToPlace.Position, cityToPlace.CityPlaceableNeededSpaces));
+//        foreach (NeededSpace neededSpace in cityToPlace.CityPlaceableNeededSpaces)
+//        {
+//            Debug.Log(neededSpace.UsedCoordinate);
+//        }
+        CityPlaceable city = Instantiate(cityToPlace.CityPlaceable);
+        city.transform.position = cityToPlace.Position;
 
-				CityPlaceable city = cityInstance.GetComponent<CityPlaceable>();
-				city.Translate(cityToPlace.Offset.x, 0, cityToPlace.Offset.y);
-				if (_worldToScreenUiManager)
-				{
-					GameObject uiGameObject = _worldToScreenUiManager.Add(_cityWorldToScreenUi.gameObject, city.gameObject.transform, new Vector3(0,50f,0));
-					CityWorldToScreenUi worldToScreenUi = uiGameObject.GetComponent<CityWorldToScreenUi>();
-					worldToScreenUi.Text.text = "".Equals(city.BuildingName) || city.BuildingName == null ? "Default Name" : city.BuildingName;
-				}
-					
+        WorldToScreenUiManager.WorldUiElement uiGameObject = _worldToScreenUiManager.Add(
+            _cityWorldToScreenUi.gameObject,
+            city.gameObject.transform, new Vector3(0, 50f, 0));
+        CityWorldToScreenUi worldToScreenUi = uiGameObject.UiTransform.gameObject.GetComponent<CityWorldToScreenUi>();
+        worldToScreenUi.Text.text = "".Equals(city.BuildingName) || city.BuildingName == null
+            ? "Default Name"
+            : city.BuildingName;
 
-				yield return Move(city);
-			}
-			yield return new WaitForSeconds(1);
-		}
-	}
+        if (!_groundPlacementController.PlaceObject(city))
+        {
+            _worldToScreenUiManager.Remove(uiGameObject);
+//            Destroy(city.gameObject);
+        }
+    }
 
-	private IEnumerator Move(CityPlaceable cityPlaceable)
-	{
-		int x = 0;
-		int z = 0;
-		
-		int targetXMove = 0;
-		int targetYMove = 0;
-		int currentXMove = 0;
-		int currentYMove = 0;
-		int direction = -1;
+    CityToPlace PlacePendingCity(CityToPlace cityToPlace)
+    {
+        while (!_groundPlacementController.TerrainGenerator.IsReady())
+        {
+//            Debug.Log("Not Ready");
+        }
 
-		// Moves the cityPlaceable in a growing square around the starting position until a suitable location is found
-		while (!_groundPlacementController.PlaceObject(cityPlaceable))
-		{
-			// Move one step at a time
-			if (currentXMove > 0)
-			{
-				cityPlaceable.Translate(direction, 0, 0);
-				x += direction;
-				currentXMove--;
-				continue;
-			}
-			if (currentYMove > 0)
-			{
-				cityPlaceable.Translate(0, 0, direction);
-				z += direction;
-				currentYMove--;
-				continue;
-			}
+        return MoveToPlaceablePosition(cityToPlace);
+    }
 
-			// Control step Amount
-			if (targetXMove == targetYMove)
-			{
-				direction = -direction;
-				targetXMove++;
-				currentXMove = targetXMove;
-			}
-			else
-			{
-				targetYMove = targetXMove;
-				currentYMove = targetYMove;
-			}
+    private CityToPlace MoveToPlaceablePosition(CityToPlace cityToPlace)
+    {
+        int targetXMove = 0;
+        int targetYMove = 0;
+        int currentXMove = 0;
+        int currentYMove = 0;
+        int direction = -1;
 
-			yield return null;
-		}
-	}
+        // Moves the cityPlaceable in a growing square around the starting position until a suitable location is found
+        while (!_groundPlacementController.IsPlaceable(cityToPlace.Position, cityToPlace.CityPlaceableNeededSpaces))
+        {
+            // Move one step at a time
+            if (currentXMove > 0)
+            {
+                cityToPlace.Translate(direction, 0, 0);
+                currentXMove--;
+                continue;
+            }
 
-	private struct CityToPlace
-	{
-		private CityPlaceable _cityPlaceable;
-		private Vector2Int _offset;
+            if (currentYMove > 0)
+            {
+                cityToPlace.Translate(0, 0, direction);
+                currentYMove--;
+                continue;
+            }
 
-		public CityToPlace(CityPlaceable cityPlaceable, Vector2Int offset)
-		{
-			_cityPlaceable = cityPlaceable;
-			_offset = offset;
-		}
+            // Control step Amount
+            if (targetXMove == targetYMove)
+            {
+                direction = -direction;
+                targetXMove++;
+                currentXMove = targetXMove;
+            }
+            else
+            {
+                targetYMove = targetXMove;
+                currentYMove = targetYMove;
+            }
+        }
 
-		public CityPlaceable CityPlaceable {
-			get {
-				return _cityPlaceable;
-			}
-		}
+        return cityToPlace;
+    }
 
-		public Vector2Int Offset {
-			get {
-				return _offset;
-			}
-		}
-	}
+    private struct CityToPlace
+    {
+        private Vector3 _position;
+        private List<NeededSpace> _cityPlaceableNeededSpaces;
+        private CityPlaceable _cityPlaceable;
+
+        public CityToPlace(CityPlaceable cityPlaceable, Vector3 offset)
+        {
+            _cityPlaceable = cityPlaceable;
+            _cityPlaceableNeededSpaces = new List<NeededSpace>();
+            foreach (SimpleMapPlaceable childMapPlaceable in cityPlaceable.ChildMapPlaceables)
+            {
+                foreach (NeededSpace neededSpace in childMapPlaceable.UsedCoordinates)
+                {
+                    _cityPlaceableNeededSpaces.Add(new NeededSpace(neededSpace, Vector3Int.FloorToInt(childMapPlaceable.transform.localPosition)));
+                }
+            }
+            _position = offset;
+        }
+
+        public List<NeededSpace> CityPlaceableNeededSpaces
+        {
+            get => _cityPlaceableNeededSpaces;
+            set => _cityPlaceableNeededSpaces = value;
+        }
+
+        public Vector3 Position
+        {
+            get => _position;
+            set => _position = value;
+        }
+
+        public CityPlaceable CityPlaceable
+        {
+            get => _cityPlaceable;
+            set => _cityPlaceable = value;
+        }
+
+        public void Translate(float x, float y, float z)
+        {
+            _position += new Vector3(x, y, z);
+        }
+    }
 }

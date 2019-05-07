@@ -15,39 +15,6 @@ public class TerrainPathFinder : AbstractPathFinder
         _terrainGenerator = FindObjectOfType<TerrainGenerator>();
         _pathFindingAlgorithm = new TerrainAStarPathFinding(_terrainGenerator, TerrainGenerator.TerrainType.Ocean);
     }
-
-    public override void FindPath(TransportRoute transportRoute, Action<TransportRoute> callback)
-    {
-        ThreadStart threadStart = delegate { CalculatePath(transportRoute, callback); };
-        threadStart.Invoke();
-//        StartCoroutine(CalculatePath(transportRoute, callback));
-    }
-
-    private void CalculatePath(TransportRoute transportRoute, System.Action<TransportRoute> callback)
-    {
-        foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
-        {
-            IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
-            Path path;
-            if (pathNode != null)
-            {
-                path = pathNode.PathTo(transportRouteElement.ToNode);
-                if (path == null)
-                {
-                    path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-                    pathNode.AddPath(transportRouteElement.ToNode, path);
-                }
-            }
-            else
-            {
-                path = _pathFindingAlgorithm.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
-            }
-
-            transportRouteElement.Path = path;
-        }
-
-        callback(transportRoute);
-    }
 }
 
 class TerrainNode : Node, IHeapItem<TerrainNode>
@@ -85,7 +52,7 @@ class TerrainNode : Node, IHeapItem<TerrainNode>
 
     public int CompareTo(TerrainNode other)
     {
-        return -base.CompareTo(other);
+        return base.CompareTo(other);
     }
 
     public override bool Equals(object obj)
@@ -111,7 +78,7 @@ class TerrainAStarPathFinding : IPathFindingAlgorithm
         TerrainType = terrainType;
     }
 
-    public TerrainGenerator.TerrainType TerrainType
+    private TerrainGenerator.TerrainType TerrainType
     {
         get { return _terrainType; }
         set { _terrainType = value; }
@@ -122,16 +89,17 @@ class TerrainAStarPathFinding : IPathFindingAlgorithm
         return Mathf.RoundToInt((nodeA - nodeB).magnitude);
     }
 
-    private Vector3 GetWaterPosition(SimpleMapPlaceable simpleMapPlaceable)
+    private Vector2Int GetWaterPosition(PathFindingNode simpleMapPlaceable)
     {
         foreach (NeededSpace neededSpace in simpleMapPlaceable.UsedCoordinates)
         {
             if (neededSpace.TerrainType == _terrainType)
-                return neededSpace.UsedCoordinate + simpleMapPlaceable.transform.position;
+            {
+                Vector3 waterPosition = neededSpace.UsedCoordinate + simpleMapPlaceable.ThreadsafePosition;
+                return new Vector2Int((int)waterPosition.x, (int)waterPosition.z);
+            }
         }
-
-        Debug.LogError("No NeededSpace with the " + _terrainType + " terrain type found.");
-        return simpleMapPlaceable.transform.position;
+        throw new NotSupportedException("No NeededSpace with the " + _terrainType + " terrain type found in " + simpleMapPlaceable.BuildingName);
     }
 
     public Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
@@ -139,22 +107,20 @@ class TerrainAStarPathFinding : IPathFindingAlgorithm
         List<TerrainNode> openSet = new List<TerrainNode>();
         HashSet<Vector2Int> closedSet = new HashSet<Vector2Int>();
 
-        Vector3 startPositionVec3 = GetWaterPosition(startNode);
-        Vector2Int startPositionVec2 = new Vector2Int((int) startPositionVec3.x, (int) startPositionVec3.z);
+        Vector2Int startPositionVec2 = GetWaterPosition(startNode);
         TerrainNode startTerrainNode = new TerrainNode(startPositionVec2);
         openSet.Add(startTerrainNode);
-        Vector3 endPositionVec3 = GetWaterPosition(endNode);
-        Vector2Int endPosition = new Vector2Int((int) endPositionVec3.x, (int) endPositionVec3.z);
+        Vector2Int endPosition = GetWaterPosition(endNode);
 
-        Debug.Log("Start: " + startPositionVec3 + "; End: " + endPosition);
-
+//        Debug.Log("From " + startPositionVec2.ToString() + " to " + endPosition.ToString());
+        
         while (openSet.Count > 0)
         {
             TerrainNode currentNode = openSet[0];
             openSet.RemoveAt(0);
             closedSet.Add(currentNode.PositionVector2);
 
-            if (currentNode.PositionVector2.Equals(endPosition))
+            if (GetDistance(currentNode.PositionVector2, endPosition) < 1.5f)
             {
                 return RetracePath(startTerrainNode, currentNode);
             }
@@ -216,6 +182,8 @@ class TerrainAStarPathFinding : IPathFindingAlgorithm
                 }
                 else
                 {
+//                    GameObject obj = new GameObject(tilePosition.ToString());
+//					obj.transform.position = new Vector3(tilePosition.x, 1.5f, tilePosition.y);
                     neighborNode = new TerrainNode(currentNode, tilePosition, updatedHCost, updatedGCost);
                     openSet.Add(neighborNode);
                 }

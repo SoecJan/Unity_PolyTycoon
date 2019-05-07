@@ -4,9 +4,16 @@ This is a hobbyist/self study project. Using Unity to create a clone of a transp
 Trello: https://trello.com/b/bPIOa4Pt/polytycoon
 
 # Getting Started
-Clone this repository and open the root folder using the Unity Game Engine. 
-- Add JSON.Net from the unity asset store.
-- Add PostProcessing Stack from the Package Manager.
+1. Clone this repository.
+2. Open the root folder using Unity 2019.1.0f2 or later. 
+3. Add packages from Package Manager:
+    - LightWeightRenderPipeline (LWRP)
+    - RenderPipeline Core Library
+    - ShaderGraph
+    - PostProcessing Stack
+4. Add assets from Unity Asset Store:
+    - JSON.Net
+
 
 # Past
 
@@ -24,18 +31,16 @@ Clone this repository and open the root folder using the Unity Game Engine.
 
 12.2018 - Break due to university
 
-03.2019 - Updated Ui Design, added proper curve animations for vehicles
+03.2019 - Updated ui design, added proper curve animations for trucks
+
+04.2019 - New 3D models, train, plane and ship transportation and pathfinding, storage buildings
+
+05.2019 - Multithreaded pathfinding and city placement
 
 # Future Plans
 
-## Terrain Generation
-- Water & Deep Water zones
-- Water animation
-
 ## Transport System
 - Visuals: Loaded products visible
-- More vehicles: planes, trains, ships
-- Storage buildings
 
 ## Traffic System
 - Stopping on intersections
@@ -46,5 +51,4 @@ Clone this repository and open the root folder using the Unity Game Engine.
 - Bigger supply chains require better vehicles
 
 ## Performance
-- Pathsfinding process moved from vehicles to buildings -> Easier update of the current situation
-- Multithreading for vehicle movement and loading logic -> Find a workaround for multithreading in Unity
+- Multithreading for vehicle movement and loading logic
