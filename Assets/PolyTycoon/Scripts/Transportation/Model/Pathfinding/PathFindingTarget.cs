@@ -5,7 +5,7 @@ public abstract class PathFindingTarget : PathFindingNode
 	protected override void Initialize()
     {
 	    base.Initialize();
-	    IsClickable = true;
+	    _isClickable = true;
     }
     
     public override bool IsTraversable()
@@ -13,7 +13,7 @@ public abstract class PathFindingTarget : PathFindingNode
 	    return false;
     }
 
-    public override bool IsNode()
+    protected override bool IsNode()
     {
 	    return true;
     }

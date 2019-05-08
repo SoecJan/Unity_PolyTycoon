@@ -65,7 +65,7 @@ public class CityView : AbstractUi
 	{
 		while (_cityBuilding != null)
 		{
-			_cityGeneralText.text = "Name: " + CityBuilding.CityPlaceable().BuildingName + 
+			_cityGeneralText.text = "Name: " + CityBuilding.CityPlaceable().transform.name + 
 			                        "\nPeople: " + CityBuilding.CityPlaceable().CurrentInhabitantCount();
 			for (int i = 0; i < _neededProductScrollView.childCount; i++)
 			{

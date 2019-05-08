@@ -9,7 +9,7 @@ public class Factory : PathFindingTarget, IConsumer, IProducer, IPathNode
 	[SerializeField] private Dictionary<ProductData, ProductStorage> _neededProducts; // Dict of needed Products
 	[SerializeField] private ProductStorage _producedProduct; // The currently produced product
 	private bool _isProductSelectable = true;
-	private bool _isProducing = false;
+	private bool _isProducing;
 	private float _elapsedTime; // Time elapsed since the begin of the production process
 	private int _tempMaxAmount = 20;
 	private Coroutine _produceCoroutine;
@@ -19,9 +19,7 @@ public class Factory : PathFindingTarget, IConsumer, IProducer, IPathNode
 
 	#region Getter & Setter
 	public ProductData ProductData {
-		get {
-			return ProducedProductStorage().StoredProductData;
-		}
+		get => ProducedProductStorage().StoredProductData;
 
 		set {
 			// Don't alter if this is the same Product
@@ -33,16 +31,9 @@ public class Factory : PathFindingTarget, IConsumer, IProducer, IPathNode
 		}
 	}
 
-	public float ProductionProgress {
-		get {
-			return _elapsedTime / ProductData.ProductionTime;
-		}
-	}
+	public float ProductionProgress => _elapsedTime / ProductData.ProductionTime;
 
-	public bool IsProductSelectable
-	{
-		get { return _isProductSelectable; }
-	}
+	public bool IsProductSelectable => _isProductSelectable;
 
 	//public Dictionary<BiomeGenerator.Biome, float> BiomeValueDictionary {
 	//	get {
@@ -158,7 +149,7 @@ public class Factory : PathFindingTarget, IConsumer, IProducer, IPathNode
 	private bool IsProductionReady()
 	{
 		bool productionReady = ProductData != null && ProducedProductStorage().Amount < ProducedProductStorage().MaxAmount;
-		if (!productionReady) return productionReady;
+		if (!productionReady) return false;
 		foreach (NeededProduct neededProduct in ProductData.NeededProduct)
 		{
 			if (neededProduct.Amount > NeededProducts()[neededProduct.Product].Amount)

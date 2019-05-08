@@ -25,7 +25,7 @@ public class ConstructionChoiceView : AbstractUi
 	private void FillView()
 	{
 		GroundPlacementController buildingManager = GameObject.FindObjectOfType<GroundPlacementController>();
-		foreach (SimpleMapPlaceable mapPlaceable in buildingManager.Buildings)
+		foreach (MapPlaceable mapPlaceable in buildingManager.Buildings)
 		{
 			ConstructionElementView constructionChoiceView = GameObject.Instantiate(_constructionElementViewPrefab, _scrollViewContent);
 			constructionChoiceView.MapPlaceable = mapPlaceable;

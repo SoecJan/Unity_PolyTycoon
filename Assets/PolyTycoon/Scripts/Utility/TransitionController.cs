@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TransitionController : MonoBehaviour
 {
@@ -8,10 +6,7 @@ public class TransitionController : MonoBehaviour
 
 	//private GameSettingManager _gameSettingManager;
 	//private TerrainGenerator _terrainGenerator;
-
-	private MoneyController _moneyController;
-	private CityManager _cityManager;
-	private CompanyInformationView _companyUi;
+//	private CityManager _cityManager;
 
 	public void StartTransition()
 	{

@@ -13,7 +13,8 @@ using UnityEngine.EventSystems;
 public class GroundPlacementController : MonoBehaviour
 {
     #region Attributes
-    [SerializeField] private SimpleMapPlaceable[] _buildings; // Objects that can be placed
+
+    [SerializeField] private MapPlaceable[] _buildings; // Objects that can be placed
 
     [SerializeField]
     private TerrainGenerator _terrainGenerator; // Needed to check the ground belpw a building before placement
@@ -26,15 +27,15 @@ public class GroundPlacementController : MonoBehaviour
 
     private Camera _mainCamera;
     private UserInformationPopup _userInformationPopup;
-    private SimpleMapPlaceable _currentPlaceableObject; // Object that is being placed
-    private Dictionary<Vector2, SimpleMapPlaceable> _draggedGameObjects;
-    private bool _isDragging = false;
+    private MapPlaceable _currentPlaceableObject; // Object that is being placed
+    private Dictionary<Vector2, MapPlaceable> _draggedGameObjects;
+    private bool _isDragging;
 
     #endregion
 
     #region Getter & Setter
 
-    public SimpleMapPlaceable PlaceableObjectPrefab
+    public MapPlaceable PlaceableObjectPrefab
     {
         set
         {
@@ -47,9 +48,9 @@ public class GroundPlacementController : MonoBehaviour
 
     public TerrainGenerator TerrainGenerator
     {
-        get { return _terrainGenerator; }
+        get => _terrainGenerator;
 
-        set { _terrainGenerator = value; }
+        set => _terrainGenerator = value;
     }
 
     public SimpleMapPlaceable GetBuilding(string buildingName)
@@ -63,12 +64,7 @@ public class GroundPlacementController : MonoBehaviour
         return null;
     }
 
-    public SimpleMapPlaceable[] Buildings
-    {
-        get { return _buildings; }
-
-        set { _buildings = value; }
-    }
+    public MapPlaceable[] Buildings => _buildings;
 
     #endregion
 
@@ -77,7 +73,7 @@ public class GroundPlacementController : MonoBehaviour
     void Awake()
     {
         BuildingManager = new BuildingManager();
-        _draggedGameObjects = new Dictionary<Vector2, SimpleMapPlaceable>();
+        _draggedGameObjects = new Dictionary<Vector2, MapPlaceable>();
         _userInformationPopup = FindObjectOfType<UserInformationPopup>();
         _mainCamera = Camera.main;
     }
@@ -109,8 +105,7 @@ public class GroundPlacementController : MonoBehaviour
     {
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         // Get current MousePosition
-        RaycastHit hitInfo;
-        if (!Physics.Raycast(ray, out hitInfo, Mathf.Infinity, _buildingsMask)) return;
+        if (!Physics.Raycast(ray, out var hitInfo, Mathf.Infinity, _buildingsMask)) return;
         hitInfo.point -=
             new Vector3(_offsetVec3.x, 0f,
                 _offsetVec3.z); // Align the current cursor position to the offset, but keep object height
@@ -123,21 +118,25 @@ public class GroundPlacementController : MonoBehaviour
             SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
             if (mapPlaceable && mapPlaceable.IsDraggable && _isDragging)
             {
-                Vector2 key = new Vector2(_currentPlaceableObject.transform.position.x,
-                    _currentPlaceableObject.transform.position.z);
+                Vector3 currentPlaceablePosition = _currentPlaceableObject.transform.position;
+                Vector2 key = new Vector2(currentPlaceablePosition.x, currentPlaceablePosition.z);
                 if (!_draggedGameObjects.ContainsKey(key))
                 {
+                    Transform currentPlaceableTransform = _currentPlaceableObject.transform;
                     _draggedGameObjects.Add(key,
-                        Instantiate(_currentPlaceableObject, _currentPlaceableObject.transform.position,
-                            _currentPlaceableObject.transform.rotation));
+                        Instantiate(_currentPlaceableObject, currentPlaceableTransform.position,
+                            currentPlaceableTransform.rotation));
                 }
             }
         }
 
         foreach (SimpleMapPlaceable previewGameObject in _draggedGameObjects.Values)
         {
-            previewGameObject.transform.position = new Vector3(previewGameObject.transform.position.x,
-                hitInfo.point.y + animationHeightOffset, previewGameObject.transform.position.z);
+            Transform previewGameObjectTransform = previewGameObject.transform;
+            Vector3 previewGameObjectPosition = previewGameObjectTransform.position;
+            previewGameObjectPosition = new Vector3(previewGameObjectPosition.x,
+                hitInfo.point.y + animationHeightOffset, previewGameObjectPosition.z);
+            previewGameObjectTransform.position = previewGameObjectPosition;
         }
 
         _currentPlaceableObject.transform.position = position;
@@ -161,8 +160,7 @@ public class GroundPlacementController : MonoBehaviour
         }
         else if (_isDragging && Input.GetMouseButtonUp(0))
         {
-            SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
-            if (mapPlaceable.IsDraggable)
+            if (_currentPlaceableObject.IsDraggable)
             {
                 for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
                 {
@@ -177,11 +175,12 @@ public class GroundPlacementController : MonoBehaviour
                 _draggedGameObjects.Clear();
             }
 
-            if (mapPlaceable is ComplexMapPlaceable && !PlaceObject((ComplexMapPlaceable) mapPlaceable))
+            if (_currentPlaceableObject is ComplexMapPlaceable &&
+                !PlaceObject((ComplexMapPlaceable) _currentPlaceableObject))
             {
                 Destroy(_currentPlaceableObject.gameObject);
             }
-            else if (!PlaceObject(mapPlaceable))
+            else if (_currentPlaceableObject is SimpleMapPlaceable && !PlaceObject((SimpleMapPlaceable)_currentPlaceableObject))
             {
                 Destroy(_currentPlaceableObject.gameObject);
             }
@@ -191,23 +190,21 @@ public class GroundPlacementController : MonoBehaviour
         }
 
         // Remove selected Object on right click
-        if (Input.GetMouseButtonDown(1))
-        {
-            SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
-            if (mapPlaceable && mapPlaceable.IsDraggable)
-            {
-                for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
-                {
-                    Destroy(_draggedGameObjects.Values.ElementAt(i).gameObject);
-                }
+        if (!Input.GetMouseButtonDown(1)) return;
 
-                _draggedGameObjects.Clear();
+        if (_currentPlaceableObject != null && (_currentPlaceableObject.IsDraggable))
+        {
+            for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
+            {
+                Destroy(_draggedGameObjects.Values.ElementAt(i).gameObject);
             }
 
+            _draggedGameObjects.Clear();
             Destroy(_currentPlaceableObject.gameObject);
-            _currentPlaceableObject = null;
-            _isDragging = false;
         }
+
+        _currentPlaceableObject = null;
+        _isDragging = false;
     }
 
     #endregion
@@ -224,8 +221,9 @@ public class GroundPlacementController : MonoBehaviour
             }
         }
 
-        TerrainChunk terrainChunk = TerrainGenerator.GetChunk(complexMapPlaceable.transform.position.x,
-            complexMapPlaceable.transform.position.z);
+        Transform complexPlaceableTransform = complexMapPlaceable.transform;
+        Vector3 position = complexPlaceableTransform.position;
+        TerrainChunk terrainChunk = TerrainGenerator.GetChunk(position.x, position.z);
         complexMapPlaceable.transform.parent = terrainChunk.meshObject.transform;
         foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
         {
@@ -246,14 +244,15 @@ public class GroundPlacementController : MonoBehaviour
         float objectBottomHeight = placeableObject.GetHeight() / 2f;
         float yOffset = TerrainGenerator ? TerrainGenerator.TerrainPlaceableHeight : 0f;
 
-        placeableObject.gameObject.transform.position = new Vector3(placeableObject.gameObject.transform.position.x,
-            objectBottomHeight + yOffset, placeableObject.gameObject.transform.position.z);
+        GameObject placeableObjectGameObject = placeableObject.gameObject;
+        var position = placeableObjectGameObject.transform.position;
+        position = new Vector3(position.x, objectBottomHeight + yOffset, position.z);
+        placeableObjectGameObject.transform.position = position;
 
         if (placeableObject && IsPlaceable(placeableObject.transform.position, placeableObject.UsedCoordinates))
         {
             BuildingManager.AddMapPlaceable(placeableObject);
-            Vector2 chunkVec = TerrainGenerator.GetTerrainChunkPosition(placeableObject.transform.position.x,
-                placeableObject.transform.position.z);
+            Vector2 chunkVec = TerrainGenerator.GetTerrainChunkPosition(position.x, position.z);
             TerrainChunk terrainChunk = TerrainGenerator.GetTerrainChunk(chunkVec);
             placeableObject.transform.parent = terrainChunk.meshObject.transform;
         }
@@ -286,6 +285,7 @@ public class GroundPlacementController : MonoBehaviour
                 return false;
             }
         }
+
         return true;
     }
 

@@ -16,7 +16,7 @@ public class Rail : PathFindingConnector
 
     public override WayPoint GetTraversalVectors(int fromDirection, int toDirection)
     {
-        Vector3 offset = transform.position;
+        Vector3 offset = ThreadsafePosition;
 		// Start Points
 		if (fromDirection == -1)
 		{

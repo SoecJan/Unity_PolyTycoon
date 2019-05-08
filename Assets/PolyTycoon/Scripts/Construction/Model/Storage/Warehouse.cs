@@ -7,6 +7,6 @@ public class Warehouse : AbstractStorageContainer
     protected override void Initialize()
     {
         base.Initialize();
-        IsClickable = true;
+        _isClickable = true;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TransportRouteManager : MonoBehaviour
 {
@@ -9,10 +8,7 @@ public class TransportRouteManager : MonoBehaviour
 	[SerializeField] private TransportRouteOverview _transportRouteOverview;
 	[SerializeField] private VehicleManager _vehicleManager;
 
-	private NetworkPathFinder _networkPathFinder;
-	private TerrainPathFinder _terrainPathFinder;
-	private AirPathFinder _airPathFinder;
-	private RailPathFinder _railPathFinder;
+	private PathFinder _pathFinder;
 	private UserInformationPopup _userPopup;
 	#endregion
 
@@ -33,10 +29,7 @@ public class TransportRouteManager : MonoBehaviour
 	{
 		_vehicleManager = FindObjectOfType<VehicleManager>();
 		_userPopup = FindObjectOfType<UserInformationPopup>();
-		_networkPathFinder = FindObjectOfType<NetworkPathFinder>();
-		_terrainPathFinder = FindObjectOfType<TerrainPathFinder>();
-		_airPathFinder = FindObjectOfType<AirPathFinder>();
-		_railPathFinder = FindObjectOfType<RailPathFinder>();
+		_pathFinder = FindObjectOfType<PathFinder>();
 	}
 
 	private void Reset()
@@ -64,31 +57,7 @@ public class TransportRouteManager : MonoBehaviour
 			transportRoute.TransportRouteElements.Add(view.RouteElement);
 		}
 		PrintNodes(transportRoute);
-		AbstractPathFinder abstractPathFinder = null;
-		switch (transportRoute.Vehicle.MoveType)
-		{
-			case Vehicle.PathType.Road:
-//				_networkPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
-				abstractPathFinder = _networkPathFinder;
-				break;
-			case Vehicle.PathType.Rail:
-//				_railPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
-				abstractPathFinder = _railPathFinder;
-				break;
-			case Vehicle.PathType.Water:
-				abstractPathFinder = _terrainPathFinder;
-//				ThreadedDataRequester.RequestData(() => _terrainPathFinder.FindPath(transportRoute), FoundPath);
-//				OnTransportRoutePathFound(_terrainPathFinder.FindPath(transportRoute)); // Non Threaded
-				break;
-			case Vehicle.PathType.Air:
-//				_airPathFinder.FindPath(transportRoute, OnTransportRoutePathFound);
-				abstractPathFinder = _airPathFinder;
-				break;
-			default:
-				Debug.LogError("Should not reach here");
-				throw new NotImplementedException();
-		}
-		ThreadedDataRequester.RequestData(() => abstractPathFinder.FindPath(transportRoute), FoundPath);
+		ThreadedDataRequester.RequestData(() => _pathFinder.FindPath(transportRoute), FoundPath);
 	}
 
 	private void FoundPath(object result)

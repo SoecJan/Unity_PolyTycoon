@@ -30,6 +30,7 @@ public class BuildingManager
         _factoryView = Object.FindObjectOfType<FactoryView>();
         _cityView = Object.FindObjectOfType<CityView>();
         _storageContainerView = Object.FindObjectOfType<StorageContainerView>();
+        SimpleMapPlaceable.OnClickAction += OnPlaceableClick;
     }
 
     #endregion
@@ -39,24 +40,6 @@ public class BuildingManager
     private Vector3 TransformPosition(Vector3 position)
     {
         return Vector3Int.RoundToInt(position - (Vector3.one / 2f)); // Prevents rounding errors
-    }
-    
-    /// <summary>
-    /// Returns a MapPlaceable at a given position.
-    /// </summary>
-    /// <param name="position"></param>
-    /// <returns>The MapPlaceable at the given position. May be null. </returns>
-    public SimpleMapPlaceable GetMapPlaceable(Vector3 position)
-    {
-        Vector3 positionVector = TransformPosition(position);
-        try
-        {
-            return _placedBuildingDictionary[positionVector];
-        }
-        catch (KeyNotFoundException)
-        {
-            return null;
-        }
     }
 
     public PathFindingNode GetNode(Vector3 position)
@@ -81,23 +64,9 @@ public class BuildingManager
         }
     }
 
-    public bool IsPlaceable(ComplexMapPlaceable complexMapPlaceable)
-    {
-        foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
-        {
-            if (!IsPlaceable(simpleMapPlaceable.transform.position, simpleMapPlaceable.UsedCoordinates))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /// <summary>
     /// Checks if a MapPlaceable can be placed at it's postition without changing the buildingDictionary
     /// </summary>
-    /// <param name="placedObject"></param>
     /// <returns></returns>
     public bool IsPlaceable(Vector3 position, List<NeededSpace> neededSpaces)
     {
@@ -118,38 +87,13 @@ public class BuildingManager
     #region Dictionary Modification
 
     /// <summary>
-    /// Adds a ComplexMapPlaceable. Calls OnPlacement function on each ChildMapPlaceable.
-    /// </summary>
-    /// <param name="placedObject"></param>
-    /// <returns></returns>
-    public bool AddMapPlaceable(ComplexMapPlaceable placedObject)
-    {
-        if (!placedObject) return false;
-        Debug.Log(placedObject.transform.name);
-        for (int i = 0; i < placedObject.ChildMapPlaceables.Count; i++)
-        {
-            // Place Object and if not successful remove all placed Objects before the failed one.
-            if (AddMapPlaceable(placedObject.ChildMapPlaceables[i])) continue;
-            for (int removeIndex = i; removeIndex >= 0; removeIndex--)
-            {
-                RemoveMapPlaceable(placedObject.ChildMapPlaceables[removeIndex].ThreadsafePosition);
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
-
-    /// <summary>
     /// Adds a MapPlaceable to the placedBuildingDictionary
     /// </summary>
     /// <param name="placedObject"></param>
     /// <returns></returns>
-    public bool AddMapPlaceable(SimpleMapPlaceable placedObject)
+    public void AddMapPlaceable(SimpleMapPlaceable placedObject)
     {
-        if (!placedObject) return false;
+        if (!placedObject) return;
         Vector3 placedPosition = TransformPosition(placedObject.transform.position);
         for (int i = 0; i < placedObject.UsedCoordinates.Count; i++)
         {
@@ -165,20 +109,17 @@ public class BuildingManager
                 // Remove all previously added entries
                 for (int removeIndex = i; removeIndex > 0; removeIndex--)
                 {
-                    Vector3 removedSpace = TransformPosition(placedObject.ThreadsafePosition) +
+                    Vector3 removedSpace = TransformPosition(placedObject.transform.position) +
                                            placedObject.UsedCoordinates[removeIndex].UsedCoordinate;
                     _placedBuildingDictionary.Remove(removedSpace);
                 }
 
-                return false;
+                return;
             }
         }
 
 //        placedObject.transform.position = placedPosition + (Vector3.one / 2f);
         placedObject.OnPlacement();
-        placedObject.OnClickAction -= OnPlaceableClick;
-        placedObject.OnClickAction += OnPlaceableClick;
-        return true;
     }
 
     /// <summary>
@@ -186,27 +127,14 @@ public class BuildingManager
     /// </summary>
     /// <param name="position"></param>
     /// <returns>The removed MapPlaceable. May be null</returns>
-    public SimpleMapPlaceable RemoveMapPlaceable(Vector3 position)
+    public void RemoveMapPlaceable(Vector3 position)
     {
         Vector3 placedPosition = TransformPosition(position);
         SimpleMapPlaceable mapPlaceable = _placedBuildingDictionary[placedPosition];
-        ComplexMapPlaceable complexMapPlaceable = mapPlaceable as ComplexMapPlaceable;
-        if (!complexMapPlaceable) complexMapPlaceable = mapPlaceable.GetComponentInParent<ComplexMapPlaceable>();
-        
-        if (complexMapPlaceable)
-        {
-            foreach (SimpleMapPlaceable childMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
-            {
-                RemoveMapPlaceable(childMapPlaceable);
-            }
-            Object.Destroy(complexMapPlaceable.gameObject);
-        }
-        else if (mapPlaceable)
+        if (mapPlaceable)
         {
             RemoveMapPlaceable(mapPlaceable);
-            return mapPlaceable;
         }
-        return null;
     }
 
     public void RemoveMapPlaceable(SimpleMapPlaceable mapPlaceable)
@@ -232,9 +160,10 @@ public class BuildingManager
         Debug.Log("Placeable clicked: " + mapPlaceable.BuildingName);
         if (_routeCreateController && _routeCreateController.VisibleObject.activeSelf)
         {
-            if (mapPlaceable is CityBuilding)
+            CityBuilding cityBuilding = mapPlaceable as CityBuilding;
+            if (cityBuilding != null)
             {
-                mapPlaceable = (SimpleMapPlaceable) ((CityBuilding) mapPlaceable).CityPlaceable().MainBuilding;
+                mapPlaceable = cityBuilding.CityPlaceable().MainBuilding;
             }
 
             _routeCreateController.RouteElementController.OnTransportStationClick((PathFindingNode) mapPlaceable);

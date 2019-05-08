@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class CityManager : MonoBehaviour
@@ -38,7 +36,7 @@ public class CityManager : MonoBehaviour
     {
         foreach (CityPlaceable cityPlaceable in _placedCities)
         {
-            if (cityPlaceable.BuildingName.ToLower().Equals(cityName.ToLower()))
+            if (cityPlaceable.transform.name.ToLower().Equals(cityName.ToLower()))
             {
                 return cityPlaceable;
             }
@@ -64,19 +62,15 @@ public class CityManager : MonoBehaviour
         CityPlaceable city = Instantiate(cityToPlace.CityPlaceable);
         city.transform.position = cityToPlace.Position;
 
+        if (!_groundPlacementController.PlaceObject(city)) return;
+        
+        _placedCities.Add(city);
+            
         WorldToScreenUiManager.WorldUiElement uiGameObject = _worldToScreenUiManager.Add(
             _cityWorldToScreenUi.gameObject,
             city.gameObject.transform, new Vector3(0, 50f, 0));
         CityWorldToScreenUi worldToScreenUi = uiGameObject.UiTransform.gameObject.GetComponent<CityWorldToScreenUi>();
-        worldToScreenUi.Text.text = "".Equals(city.BuildingName) || city.BuildingName == null
-            ? "Default Name"
-            : city.BuildingName;
-
-        if (!_groundPlacementController.PlaceObject(city))
-        {
-            _worldToScreenUiManager.Remove(uiGameObject);
-//            Destroy(city.gameObject);
-        }
+        worldToScreenUi.Text.text = city.transform.name;
     }
 
     CityToPlace PlacePendingCity(CityToPlace cityToPlace)
@@ -136,11 +130,10 @@ public class CityManager : MonoBehaviour
     {
         private Vector3 _position;
         private List<NeededSpace> _cityPlaceableNeededSpaces;
-        private CityPlaceable _cityPlaceable;
 
         public CityToPlace(CityPlaceable cityPlaceable, Vector3 offset)
         {
-            _cityPlaceable = cityPlaceable;
+            CityPlaceable = cityPlaceable;
             _cityPlaceableNeededSpaces = new List<NeededSpace>();
             foreach (SimpleMapPlaceable childMapPlaceable in cityPlaceable.ChildMapPlaceables)
             {
@@ -152,23 +145,11 @@ public class CityManager : MonoBehaviour
             _position = offset;
         }
 
-        public List<NeededSpace> CityPlaceableNeededSpaces
-        {
-            get => _cityPlaceableNeededSpaces;
-            set => _cityPlaceableNeededSpaces = value;
-        }
+        public List<NeededSpace> CityPlaceableNeededSpaces => _cityPlaceableNeededSpaces;
 
-        public Vector3 Position
-        {
-            get => _position;
-            set => _position = value;
-        }
+        public Vector3 Position => _position;
 
-        public CityPlaceable CityPlaceable
-        {
-            get => _cityPlaceable;
-            set => _cityPlaceable = value;
-        }
+        public CityPlaceable CityPlaceable { get; private set; }
 
         public void Translate(float x, float y, float z)
         {

@@ -36,8 +36,8 @@ public abstract class PathFindingConnector : PathFindingNode
     {
         return true;
     }
-    
-    public override bool IsNode()
+
+    protected override bool IsNode()
     {
         bool verticalStreet = AdjacentNodes(0) && AdjacentNodes(2) && !AdjacentNodes(3) && !AdjacentNodes(1);
         bool horizontalStreet = !AdjacentNodes(0) && !AdjacentNodes(2) && AdjacentNodes(3) && AdjacentNodes(1);
@@ -97,42 +97,35 @@ public abstract class PathFindingConnector : PathFindingNode
 
 public struct TraversalPoints
 {
-    // Center points
-    private static Vector3 middleLeft = new Vector3(-0.5f, 0f, 0f);
-    private static Vector3 middleRight = new Vector3(0.5f, 0f, 0f);
-    private static Vector3 middleTop = new Vector3(0f, 0f, 0.5f);
-    private static Vector3 middleBottom = new Vector3(0f, 0f, -0.5f);
-	
-    // Lane points
-    private static Vector3 topLeft = new Vector3(-0.25f, 0f, 0.5f);
-    private static Vector3 topRight = new Vector3(0.25f, 0f, 0.5f);
-    private static Vector3 rightTop = new Vector3(0.5f, 0f, 0.25f);
-    private static Vector3 rightBottom = new Vector3(0.5f, 0f, -0.25f);
-    private static Vector3 bottomRight = new Vector3(0.25f, 0f, -0.5f);
-    private static Vector3 bottomLeft = new Vector3(-0.25f, 0f, -0.5f);
-    private static Vector3 leftBottom = new Vector3(-0.5f, 0f, -0.25f);
-    private static Vector3 leftTop = new Vector3(-0.5f, 0f, 0.25f);
+    public static Vector3 TopLeft { get; } = new Vector3(-0.25f, 0f, 0.5f);
 
-    // Turn helper
-    private static Vector3 centerTopRight = new Vector3(0.25f, 0f, 0.25f);
-    private static Vector3 centerTopLeft = new Vector3(-0.25f, 0f, 0.25f);
-    private static Vector3 centerBottomRight = new Vector3(0.25f, 0f, -0.25f);
-    private static Vector3 centerBottomLeft = new Vector3(-0.25f, 0f, -0.25f);
+    public static Vector3 TopRight { get; } = new Vector3(0.25f, 0f, 0.5f);
 
-    public static Vector3 TopLeft => topLeft;
-    public static Vector3 TopRight => topRight;
-    public static Vector3 RightTop => rightTop;
-    public static Vector3 RightBottom => rightBottom;
-    public static Vector3 BottomRight => bottomRight;
-    public static Vector3 BottomLeft => bottomLeft;
-    public static Vector3 LeftBottom => leftBottom;
-    public static Vector3 LeftTop => leftTop;
-    public static Vector3 CenterTopRight => centerTopRight;
-    public static Vector3 CenterTopLeft => centerTopLeft;
-    public static Vector3 CenterBottomRight => centerBottomRight;
-    public static Vector3 CenterBottomLeft => centerBottomLeft;
-    public static Vector3 MiddleLeft => middleLeft;
-    public static Vector3 MiddleRight => middleRight;
-    public static Vector3 MiddleTop => middleTop;
-    public static Vector3 MiddleBottom => middleBottom;
+    public static Vector3 RightTop { get; } = new Vector3(0.5f, 0f, 0.25f);
+
+    public static Vector3 RightBottom { get; } = new Vector3(0.5f, 0f, -0.25f);
+
+    public static Vector3 BottomRight { get; } = new Vector3(0.25f, 0f, -0.5f);
+
+    public static Vector3 BottomLeft { get; } = new Vector3(-0.25f, 0f, -0.5f);
+
+    public static Vector3 LeftBottom { get; } = new Vector3(-0.5f, 0f, -0.25f);
+
+    public static Vector3 LeftTop { get; } = new Vector3(-0.5f, 0f, 0.25f);
+
+    public static Vector3 CenterTopRight { get; } = new Vector3(0.25f, 0f, 0.25f);
+
+    public static Vector3 CenterTopLeft { get; } = new Vector3(-0.25f, 0f, 0.25f);
+
+    public static Vector3 CenterBottomRight { get; } = new Vector3(0.25f, 0f, -0.25f);
+
+    public static Vector3 CenterBottomLeft { get; } = new Vector3(-0.25f, 0f, -0.25f);
+
+    public static Vector3 MiddleLeft { get; } = new Vector3(-0.5f, 0f, 0f);
+
+    public static Vector3 MiddleRight { get; } = new Vector3(0.5f, 0f, 0f);
+
+    public static Vector3 MiddleTop { get; } = new Vector3(0f, 0f, 0.5f);
+
+    public static Vector3 MiddleBottom { get; } = new Vector3(0f, 0f, -0.5f);
 }

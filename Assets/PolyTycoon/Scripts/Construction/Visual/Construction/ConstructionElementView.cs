@@ -5,7 +5,7 @@ public class ConstructionElementView : MonoBehaviour
 {
 	#region Attributes
 	private static GroundPlacementController _groundPlacementController;
-	private SimpleMapPlaceable _mapPlaceable;
+	private MapPlaceable _mapPlaceable;
 	[Header("Visuals")]
 	[SerializeField] private Button _buildingSelectButton;
 	[SerializeField] private Image _buildingImage;
@@ -19,7 +19,7 @@ public class ConstructionElementView : MonoBehaviour
 		_buildingSelectButton.onClick.AddListener(OnClick);
 	}
 
-	public SimpleMapPlaceable MapPlaceable {
+	public MapPlaceable MapPlaceable {
 		get {
 			return _mapPlaceable;
 		}

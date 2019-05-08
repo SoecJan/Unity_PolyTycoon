@@ -8,10 +8,8 @@ using UnityEngine;
 public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNode
 {
 	#region Attributes
-
 	private Dictionary<ProductData, ProductStorage> _neededProductStorages;
 	private Vector2 _centerPosition; // Center Position of this CityPlaceable
-	private int _size;
 
 	[SerializeField] private CityMainBuilding _mainBuilding;
 	[SerializeField] private ProductData _producedProduct;
@@ -31,39 +29,23 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNod
 	}
 
 	public Vector2 CenterPosition {
-		get {
-			return _centerPosition;
-		}
+		get => _centerPosition;
 
-		set {
-			_centerPosition = value;
-		}
+		set => _centerPosition = value;
 	}
 
-	public int Size {
-		get {
-			return _size;
-		}
-
-		set {
-			_size = value;
-		}
-	}
+	public int Size { get; set; }
 
 	public CityMainBuilding MainBuilding {
-		get {
-			return _mainBuilding;
-		}
+		get => _mainBuilding;
 
-		set {
-			_mainBuilding = value;
-		}
+		set => _mainBuilding = value;
 	}
 	#endregion
 
 	#region Methods
 
-	protected override void Initialize()
+	void Start()
 	{
 		if (ChildMapPlaceables.Count == 0)
 		{
@@ -77,7 +59,6 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNod
 		_paths = new Dictionary<PathFindingNode, Path>();
 		_neededProductStorages = new Dictionary<ProductData, ProductStorage>();
 		_productStorage = new ProductStorage(_producedProduct, Random.Range(0, 4) + 3);
-		Rotate(Vector3.up, Random.Range(0, 4) * 90);
 		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
 		{
 			if (!(simpleMapPlaceable is CityBuilding)) continue;
@@ -107,15 +88,6 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNod
 		_centerPosition.x += x;
 		_centerPosition.y += z;
 		transform.Translate(x, y, z);
-	}
-
-	/// <summary>
-	/// In game height of this object.
-	/// </summary>
-	/// <returns></returns>
-	public override float GetHeight()
-	{
-		return GetComponentInChildren<Transform>().lossyScale.y;
 	}
 
 	/// <summary>

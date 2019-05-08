@@ -34,7 +34,7 @@ public class CityBuilding : PathFindingTarget, ICityBuilding
 
 	protected override void Initialize()
 	{
-		IsClickable = true;
+		_isClickable = true;
 		if (!_cityPlaceable && transform.parent) _cityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
 		RotateUsedCoords(transform.eulerAngles.y);
 	}
