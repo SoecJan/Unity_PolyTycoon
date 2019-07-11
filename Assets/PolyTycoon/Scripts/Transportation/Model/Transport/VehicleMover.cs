@@ -2,133 +2,141 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.PolyTycoon.Scripts.Transportation.Model.Transport
+public class VehicleMover : MonoBehaviour
 {
-	public class VehicleMover : MonoBehaviour
+	private bool _wait = true;
+	private bool _isWayPointReached = false;
+	private float progress = 0f;
+	[SerializeField] private float _speed = 2f;
+	private List<WayPoint> _wayPointList;
+	private int _wayPointIndex;
+	//private WayPoint _previousWayPoint;
+
+	// Start is called before the first frame update
+	void Start()
 	{
-		#region Attributes
-		private System.Action _onArrive;
-		private bool _wait = true;
-		private List<Vector3> _wayPointList;
-		private int _wayPointIndex;
-		private Vector3 _previousWayPoint;
-
-		[Header("General")]
-		[SerializeField] private Transform _visibleTransform;
-		[SerializeField] private Transform _moveTransform;
-		[Header("Vehicle Settings")]
-		[SerializeField] private float _cornerSpeed;
-		[SerializeField] private float _breakStrength;
-		[SerializeField] private float _accelerationStrength;
-		[SerializeField] private float _maxSpeed;
-		[SerializeField] private float _weight;
-		[SerializeField] private AnimationCurve _speedCurve;
-		#endregion
-
-		#region Getter & Setter
-		private Vector3 TargetWayPoint {
-			get { return _wayPointList[_wayPointIndex]; }
-		}
-
-		public Action OnArrive {
-			get {
-				return _onArrive;
-			}
-
-			set {
-				_onArrive = value;
-			}
-		}
-
-		public List<Vector3> WayPointList {
-			get { return _wayPointList; }
-			set {
-				_wayPointList = value;
-				_previousWayPoint = _wayPointList[0];
-				_wayPointIndex = 0;
-				_wait = false;
-			}
-		}
-
-		public float MaxSpeed {
-			get {
-				return _maxSpeed;
-			}
-
-			set {
-				_maxSpeed = value;
-			}
-		}
-		#endregion
-
-		#region Methods
-		private void Start()
+		if (OnArrive != null)
 		{
-			if (!_moveTransform) _moveTransform = transform;
 			OnArrive();
 		}
+	}
 
-		private void Update()
+	// Update is called once per frame
+	void Update()
+	{
+		if (_wait) return;
+		Move();
+	}
+
+	public float MaxSpeed
+	{
+		get { return _speed; }
+	}
+
+	public Action OnArrive { get; set; }
+
+	public List<WayPoint> WayPointList
+	{
+		get { return _wayPointList; }
+		set
 		{
-			if (_wait) return;
-			Move();
+			_wayPointList = value;
+			//_previousWayPoint = _wayPointList[0];
+			_wayPointIndex = 0;
+			_wait = false;
 		}
+	}
 
-		private void Move()
+	private void Move()
+	{
+		if (_wayPointList == null) return;
+		WayPoint currentWayPoint = _wayPointList[_wayPointIndex];
+		
+		// Drive Straight
+		if (_wayPointIndex == 0)
 		{
-			if (_wayPointList == null) return;
-			Vector3 targetPositionDifference = TargetWayPoint - _moveTransform.position;
-			//Vector3 previousPositionDifference = _previousWayPoint - _moveTransform.position;
-			Vector3 targetDirection = targetPositionDifference.normalized;
-			Vector3 velocityVector3 = targetDirection * Time.deltaTime * MaxSpeed;
-			Vector3 futurePositionDifference = TargetWayPoint - (_moveTransform.position + velocityVector3);
-
-			if (targetPositionDifference.sqrMagnitude < futurePositionDifference.sqrMagnitude)
+			if (!_isWayPointReached)
 			{
-				velocityVector3 = targetPositionDifference;
-				_previousWayPoint = TargetWayPoint;
-				_wayPointIndex++;
-				if (_wayPointIndex < _wayPointList.Count)
+				_isWayPointReached = DriveStraightToDestination(currentWayPoint.TraversalVectors[0]);
+			}
+			else
+			{
+				if (DriveStraightToDestination(currentWayPoint.TraversalVectors[1]))
 				{
-					targetPositionDifference = TargetWayPoint - _moveTransform.position;
-					targetDirection = targetPositionDifference.normalized;
-					Rotate(targetDirection);
-				}
-				else
-				{
-					_wait = true;
-					OnArrive();
+					_wayPointIndex = (_wayPointIndex + 1);
+					_isWayPointReached = false;
 				}
 			}
-			else if (targetPositionDifference.sqrMagnitude < _cornerSpeed)
+		} 
+		else if (currentWayPoint.TraversalVectors.Length == 2)
+		{
+			if (DriveStraightToDestination(currentWayPoint.TraversalVectors[1]))
 			{
-				float multiplier = _speedCurve.Evaluate(targetPositionDifference.sqrMagnitude / _cornerSpeed);
-				velocityVector3 *= multiplier;
+				_wayPointIndex = (_wayPointIndex + 1); // Straight intersection
 			}
-			//else if (currentPositionDifference.sqrMagnitude < _weight / _breakStrength)
-			//{
-			//	float speedMultiplier = Mathf.Min(currentPositionDifference.sqrMagnitude, 1);
-			//	velocityVector3 = velocityVector3 * Mathf.Max(speedMultiplier, _cornerSpeed);
-			//}
-			//else if ((_previousWayPoint - _moveTransform.position).sqrMagnitude < _weight / _accelerationStrength)
-			//{
-			//	float speedMultiplier = Mathf.Max((_previousWayPoint - _moveTransform.position).sqrMagnitude, _cornerSpeed);
-			//	velocityVector3 = velocityVector3 * speedMultiplier;
-			//}
-			_moveTransform.Translate(velocityVector3);
+		}
+		else
+		{
+			// Drive straight to Corner
+			if (!_isWayPointReached)
+			{
+				_isWayPointReached = DriveStraightToDestination(currentWayPoint.TraversalVectors[0]); // Drive to Corner intersection
+			}
+			else
+			{
+				// Drive smooth corner
+				float circumferenceDistanceToAngle = GetAngle(currentWayPoint.Radius, Time.deltaTime * _speed); // Angle at a Radius of 0.5f Units
+				progress += circumferenceDistanceToAngle / 90f; // 90 Degree Turn at each corner
+				transform.position = GetPoint(currentWayPoint.TraversalVectors[0], currentWayPoint.TraversalVectors[1], currentWayPoint.TraversalVectors[2], progress);
+				transform.LookAt(transform.position + GetFirstDerivative(currentWayPoint.TraversalVectors[0], currentWayPoint.TraversalVectors[1], currentWayPoint.TraversalVectors[2], progress).normalized);
+				if (!(progress > 1f)) return;
+				_wayPointIndex = (_wayPointIndex + 1);
+				progress = 0f;
+				_isWayPointReached = false;
+				//if (Input.GetButtonDown("Jump"))
+				//{
+				//	_wayPointIndex = (_wayPointIndex + 1) % _wayPointList.Count;
+				//	Debug.Log(_wayPointIndex + ", " + currentWayPoint.ToString());
+				//}
+			}
 		}
 
-		private void Rotate(Vector3 targetVector3)
+		if (_wayPointIndex != _wayPointList.Count) return;
+		_wait = true;
+		OnArrive();
+	}
+
+	bool DriveStraightToDestination(Vector3 destinationVector3)
+	{
+		Vector3 difference = destinationVector3 - transform.position;
+		Vector3 direction = difference.normalized;
+		Vector3 futurePosition = transform.position + (direction * _speed * Time.deltaTime);
+		Vector3 futureDifference = destinationVector3 - futurePosition;
+
+		if (difference.magnitude > futureDifference.magnitude)
 		{
-			if (!_visibleTransform) return;
-			targetVector3.Normalize();
-			float rotZ = Mathf.Atan2(targetVector3.z, targetVector3.x) * Mathf.Rad2Deg;
-			if (Math.Abs(rotZ - 180) < 1 || Math.Abs(rotZ + 180) < 1 || Math.Abs(rotZ - 360) < 1 || Math.Abs(rotZ) < 1)
-			{
-				rotZ += 180;
-			}
-			_visibleTransform.rotation = Quaternion.Euler(0f, rotZ, 0f);
+			transform.LookAt(futurePosition);
+			transform.position = futurePosition;
+			return false;
 		}
-		#endregion
+		transform.position = destinationVector3;
+		return true;
+	}
+
+	private static float GetAngle(float radius, float distance)
+	{
+		return (distance * 180) / (Mathf.PI * radius);
+	}
+
+	private static Vector3 GetPoint(Vector3 startVector3, Vector3 offsetVector3, Vector3 targetVector3, float progress)
+	{
+		return Vector3.Lerp(Vector3.Lerp(startVector3, offsetVector3, progress), Vector3.Lerp(offsetVector3, targetVector3, progress), progress);
+	}
+
+	private static Vector3 GetFirstDerivative(Vector3 startVector3, Vector3 offsetVector3, Vector3 targetVector3, float progress)
+	{
+		return
+			2f * (1f - progress) * (offsetVector3 - startVector3) +
+			2f * progress * (targetVector3 - offsetVector3);
 	}
 }

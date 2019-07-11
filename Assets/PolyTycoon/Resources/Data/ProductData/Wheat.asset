@@ -4,7 +4,8 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -13,8 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _productSprite: {fileID: 21300000, guid: d672689b654774042b02bba2414281f7, type: 3}
   _productName: Wheat
-  _description: Don't call it weed.
+  _description: Can be used to make flour.
   _productionTime: 5
-  _neededProduct:
-    product: {fileID: 0}
-    amount: 0
+  _neededProduct: []

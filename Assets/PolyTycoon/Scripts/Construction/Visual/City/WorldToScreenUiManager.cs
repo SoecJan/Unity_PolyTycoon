@@ -9,7 +9,6 @@ public class WorldToScreenUiManager : MonoBehaviour
 	[SerializeField] private Button _vibilityButton;
 	[SerializeField] private GameObject _visibleGameObject;
 
-
 	private Camera _mainCamera;
 	private List<WorldUiElement> _handledTransforms;
 
@@ -29,26 +28,22 @@ public class WorldToScreenUiManager : MonoBehaviour
 		}
 	}
 
-	public void Add(Transform uiTransform, Transform anchorTransform, Vector3 offset)
-	{
-		uiTransform.parent = _visibleGameObject.transform;
-		_handledTransforms.Add(new WorldUiElement(uiTransform, anchorTransform, offset));
-	}
-
-	public void Add(Transform uiTransform, Transform anchorTransform)
-	{
-		uiTransform.parent = _visibleGameObject.transform;
-		_handledTransforms.Add(new WorldUiElement(uiTransform, anchorTransform));
-	}
-
-	public GameObject Add(GameObject uiPrefab, Transform anchorTransform, Vector3 offset)
+	public WorldUiElement Add(GameObject uiPrefab, Transform anchorTransform, Vector3 offset)
 	{
 		GameObject instanceObject = Instantiate(uiPrefab, _visibleGameObject.transform);
-		_handledTransforms.Add(new WorldUiElement(instanceObject.transform, anchorTransform, offset));
-		return instanceObject;
+		WorldUiElement uiElement = new WorldUiElement(instanceObject.transform, anchorTransform, offset);
+		_handledTransforms.Add(uiElement);
+		return uiElement;
 	}
 
-	struct WorldUiElement
+	public void Remove(WorldUiElement worldUiObject)
+	{
+		_handledTransforms.Remove(worldUiObject);
+		Destroy(worldUiObject.UiTransform.gameObject);
+		Destroy(worldUiObject.AnchorTransform.gameObject);
+	}
+
+	public struct WorldUiElement
 	{
 		private Transform _uiTransform;
 		private Transform _anchorTransform;

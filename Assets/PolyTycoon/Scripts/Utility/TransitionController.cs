@@ -1,17 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TransitionController : MonoBehaviour
 {
 	[SerializeField] private GameObject _transitionGameObject;
 
 	//private GameSettingManager _gameSettingManager;
-	private TerrainGenerator _terrainGenerator;
-
-	private MoneyController _moneyController;
-	private CityManager _cityManager;
-	private CompanyUi _companyUi;
+	//private TerrainGenerator _terrainGenerator;
+//	private CityManager _cityManager;
 
 	public void StartTransition()
 	{
@@ -21,7 +16,7 @@ public class TransitionController : MonoBehaviour
 	public void EndTransition()
 	{
 		//_gameSettingManager = FindObjectOfType<GameSettingManager>();
-		_terrainGenerator = FindObjectOfType<TerrainGenerator>();
+		//_terrainGenerator = FindObjectOfType<TerrainGenerator>();
 		//_terrainGenerator.heightMapSettings.noiseSettings.seed = _gameSettingManager.Setting.WorldSeed;
 		//switch (_gameSettingManager.Setting.WorldSize)
 		//{

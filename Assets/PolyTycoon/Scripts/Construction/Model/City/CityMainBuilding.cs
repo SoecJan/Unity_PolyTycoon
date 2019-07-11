@@ -1,24 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Assets.PolyTycoon.Resources.Data.ProductData;
-using Assets.PolyTycoon.Scripts.Construction.Model.City;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Product;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class CityMainBuilding : CityBuilding, IConsumer {
+public class CityMainBuilding : PathFindingTarget, IConsumer, ICityBuilding
+{
+	[SerializeField] private CityPlaceable _cityPlaceable;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+	protected override void Initialize()
+	{
+		base.Initialize();
+		RotateUsedCoords(transform.eulerAngles.y);
+		if (!_cityPlaceable && transform.parent) _cityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
 	}
 
 	public Dictionary<ProductData, ProductStorage> NeededProducts()
 	{
-		return ((IConsumer) CityPlaceable).NeededProducts();
+		return ((IConsumer) _cityPlaceable).NeededProducts();
+	}
+
+	public CityPlaceable CityPlaceable()
+	{
+		return _cityPlaceable;
 	}
 }

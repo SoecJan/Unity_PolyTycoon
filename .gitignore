@@ -5,7 +5,10 @@
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
+/.idea/
 /Assets/ConnectUI/Plugins/JsonDotNet/
+/Assets/Plugins/
+/Assets/Plugins.meta
 
 /Assets/AssetStoreTools*
 
@@ -26,6 +29,8 @@ ExportedObj/
 *.booproj
 *.svd
 *.pdb
+*.blend1
+*.blend1.meta
 
 
 # Unity3D generated meta files

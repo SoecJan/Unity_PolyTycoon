@@ -1,228 +1,243 @@
 ﻿using System;
 using System.Collections;
-using Assets.PolyTycoon.Resources.Data.ProductData;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Product;
-using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate;
-using Assets.PolyTycoon.Scripts.Transportation.Visual.TransportRouteMenu.TransportRouteCreate.Setting;
-using Assets.PolyTycoon.Scripts.Utility;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Assets.PolyTycoon.Scripts.Construction.Visual.Factory
+/// <summary>
+/// This class provides a UI that displays <see cref="Factory"/> data to the Player.
+/// The Player can set what productData this factory is supposed to produce.
+/// </summary>
+public class FactoryView : AbstractUi
 {
-	/// <summary>
-	/// This class provides a UI that displays <see cref="Factory"/> data to the Player.
-	/// The Player can set what productData this factory is supposed to produce.
-	/// </summary>
-	public class FactoryView : AbstractUi
-	{
-		#region Attributes
+    #region Attributes
 
-		private static TransportRouteCreateController _transportRouteCreateController;
-		private static RouteSettingProductSelector _productSelector;
-		private Model.Factory.Factory _factory;
+    private static TransportRouteCreateController _transportRouteCreateController;
+    private static ProductSelector _productSelector;
+    private Factory _factory;
 
-		[Header("General")]
-		[SerializeField] private Button _exitButton;
-		[SerializeField] private Transform _productSelectorPosition;
-		[Header("Factory Information")]
-		[SerializeField] private Text _amountLabel;
-		[SerializeField] private Slider _productionTimeSlider;
-		[SerializeField] private Image _productImage;
-		[SerializeField] private Button _productChangeButton;
-		[Header("ToolTip")] 
-		[SerializeField] private FactoryProductToolTip _factoryProductToolTip;
-		[Header("Needed Product")] 
-		[SerializeField] private FactoryNeededProductView _factoryNeededProductView;
+    [Header("General")] 
+    [SerializeField] private Button _exitButton;
+    [SerializeField] private Transform _productSelectorPosition;
 
-		[Header("Transport Route")] 
-		[SerializeField] private Button _routeCreateButton;
-		#endregion
+    [Header("Factory Information")] 
+    [SerializeField] private Text _titleText;
+    [SerializeField] private Text _amountLabel;
 
-		#region Getter & Setter
-		public Model.Factory.Factory Factory {
-			set {
-				_factory = value;
-				if (!_factory)
-				{
-					_productSelector.OnProductSelectAction -= OnProductChange;
-					return;
-				}
-				LoadNeededProducts();
-				SetVisible(true);
-				_productSelector.OnProductSelectAction += OnProductChange;
-				_productSelector.gameObject.SetActive(true);
-				StartCoroutine(UpdateUI());
-			}
-		}
-		#endregion
+    [SerializeField] private Slider _productionTimeSlider;
+    [SerializeField] private Image _productImage;
+    private Sprite _defaultProductSprite;
+    [SerializeField] private Button _productChangeButton;
+    [Header("ToolTip")] 
+    [SerializeField] private FactoryProductToolTip _factoryProductToolTip;
 
-		#region Methods
+    [Header("Needed Product")] 
+    [SerializeField] private FactoryNeededProductView _factoryNeededProductView;
 
-		private void Start()
-		{
-			_transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
-			_productSelector = FindObjectOfType<RouteSettingProductSelector>();
-			_routeCreateButton.onClick.AddListener(delegate { _transportRouteCreateController.SetVisible(true); });
-			_exitButton.onClick.AddListener(delegate { SetVisible(false); });
-			_productChangeButton.onClick.AddListener(OnProductChangeClick);
-		}
+    [Header("Transport Route")] 
+    [SerializeField] private Button _routeCreateButton;
 
-		private void LoadNeededProducts()
-		{
-			_factoryNeededProductView.ScrollView.ClearObjects();
-			if (!_factory) return;
-			_factoryNeededProductView.VisibleGameObject.SetActive(_factory.NeededProducts() != null);
-			if (_factory.NeededProducts() == null)
-			{
-				return;
-			}
-			foreach (ProductStorage neededProductStorage in _factory.NeededProducts().Values)
-			{
-				GameObject prefabInstance = _factoryNeededProductView.ScrollView.AddObject((RectTransform)_factoryNeededProductView.ProductUiSlotPrefab.transform);
-				NeededProductStorageView productView = prefabInstance.GetComponent<NeededProductStorageView>();
-				productView.ProductData = neededProductStorage.StoredProductData;
-				productView.NeededAmountText.text = neededProductStorage.Amount + "/" + neededProductStorage.MaxAmount;
-				productView.StoredProductAmountText.text = _factory.ProductData.NeededProduct.Amount.ToString();
-			}
-		}
+    #endregion
 
-		private void OnProductChangeClick()
-		{
-			_productSelector.VisibleGameObject.transform.position = _productSelectorPosition.position;
-			_productSelector.VisibleGameObject.SetActive(!_productSelector.VisibleGameObject.activeSelf);
-		}
+    #region Getter & Setter
 
-		private void OnProductChange(ProductData productData)
-		{
-			if (!_factory) return;
-			_factory.ProductData = productData;
-			_productSelector.VisibleGameObject.SetActive(false);
+    public Factory Factory
+    {
+        set
+        {
+            _factory = value;
+            if (!_factory)
+            {
+                _productSelector.OnProductSelectAction = null;
+                return;
+            }
 
-			_factoryProductToolTip.Image.sprite = productData.ProductSprite;
-			_factoryProductToolTip.ProductNameText.text = productData.ProductName;
-			_factoryProductToolTip.ProductInformationText.text = productData.Description + "\nProduction Time: " + productData.ProductionTime;
+            _productChangeButton.interactable = _factory.IsProductSelectable;
+            OnProductChange(_factory.ProductData);
+//            LoadNeededProducts();
+            _titleText.text = _factory.BuildingName;
+            SetVisible(true);
+            _productSelector.OnProductSelectAction = OnProductChange;
+            _productSelector.gameObject.SetActive(true);
+            StartCoroutine(UpdateUI());
+        }
+    }
 
-			LoadNeededProducts();
-		}
+    #endregion
 
-		private IEnumerator UpdateUI()
-		{
-			while (_factory)
-			{
-				if (_factory.ProductData != null)
-				{
-					_amountLabel.text = _factory.ProductStorage().Amount.ToString() + "/" + _factory.ProductStorage().MaxAmount.ToString();
-					_productionTimeSlider.value = _factory.ProductionProgress;
-					_productImage.sprite = _factory.ProductData.ProductSprite;
-					foreach (RectTransform rectTransform in _factoryNeededProductView.ScrollView.ContentObjects)
-					{
-						NeededProductView productView = rectTransform.gameObject.GetComponent<NeededProductView>();
-						ProductStorage productStorage = ((IConsumer) _factory).NeededProducts()[productView.ProductData];
-						productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
-					}
-				}
-				else
-				{
-					_amountLabel.text = "Select ProductData";
-					_productImage.sprite = null;
-					_productionTimeSlider.value = 0;
-				}
-				yield return 1;
-			}
-		}
+    #region Methods
 
-		public new void Reset()
-		{
-			Factory = null;
-			_amountLabel.text = "Select ProductData";
-			_productImage.sprite = null;
-			_productionTimeSlider.value = 0;
-			_productSelector.VisibleGameObject.SetActive(false);
-		}
-		#endregion
+    private void Start()
+    {
+        _defaultProductSprite = _productImage.sprite;
+        _transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
+        _productSelector = FindObjectOfType<ProductSelector>();
+        _routeCreateButton.onClick.AddListener(delegate { _transportRouteCreateController.SetVisible(true); });
+        _exitButton.onClick.AddListener(delegate { SetVisible(false); });
+        _productChangeButton.onClick.AddListener(OnProductChangeClick);
+    }
 
-		[Serializable]
-		private struct FactoryProductToolTip
-		{
-			[SerializeField] private Image _image;
-			[SerializeField] private Text _productNameText;
-			[SerializeField] private Text _productInformationText;
+    private void LoadNeededProducts()
+    {
+        _factoryNeededProductView.ClearObjects();
+        if (!_factory) return;
+        _factoryNeededProductView.VisibleGameObject.SetActive(_factory.NeededProducts() != null);
+        if (_factory.NeededProducts() == null)
+        {
+            return;
+        }
 
-			public FactoryProductToolTip(Image image, Text productNameText, Text productInformationText)
-			{
-				_image = image;
-				_productNameText = productNameText;
-				_productInformationText = productInformationText;
-			}
+        // Add NeededProduct views to UI
+        foreach (ProductStorage neededProductStorage in _factory.NeededProducts().Values)
+        {
+            NeededProductStorageView neededProductStorageView = GameObject.Instantiate(_factoryNeededProductView.NeededProductStorageViewPrefab,
+                _factoryNeededProductView.ScrollView);
+            neededProductStorageView.ProductData = neededProductStorage.StoredProductData;
+            neededProductStorageView.NeededAmountText.text = neededProductStorage.Amount + "/" + neededProductStorage.MaxAmount;
+            foreach (NeededProduct neededProduct in _factory.ProductData.NeededProduct)
+            {
+                if (neededProductStorageView.ProductData.Equals(neededProduct.Product))
+                {
+                    neededProductStorageView.StoredProductAmountText.text = neededProduct.Amount.ToString();
+                    continue;
+                }
+            }
+            
+        }
+    }
 
-			public Image Image {
-				get {
-					return _image;
-				}
+    private void OnProductChangeClick()
+    {
+        _productSelector.VisibleGameObject.transform.position = _productSelectorPosition.position;
+        _productSelector.VisibleGameObject.SetActive(!_productSelector.VisibleGameObject.activeSelf);
+    }
 
-				set {
-					_image = value;
-				}
-			}
+    private void OnProductChange(ProductData productData)
+    {
+        if (!_factory) return;
+        _factory.ProductData = productData;
+        _productSelector.VisibleGameObject.SetActive(false);
+        LoadNeededProducts();
 
-			public Text ProductNameText {
-				get {
-					return _productNameText;
-				}
+        if (!productData) return;
+        // Update Tooltip
+        _factoryProductToolTip.Image.sprite = productData.ProductSprite;
+        _factoryProductToolTip.ProductNameText.text = productData.ProductName;
+        _factoryProductToolTip.ProductInformationText.text = productData.Description + "\nProduction Time: " + productData.ProductionTime;
+    }
 
-				set {
-					_productNameText = value;
-				}
-			}
+    private IEnumerator UpdateUI()
+    {
+        while (_factory && VisibleObject.activeSelf)
+        {
+            if (_factory.ProductData != null)
+            {
+                _amountLabel.text = _factory.ProducedProductStorage().Amount.ToString() + "/" +
+                                    _factory.ProducedProductStorage().MaxAmount.ToString();
+                _productionTimeSlider.value = _factory.ProductionProgress;
+                _productImage.sprite = _factory.ProductData.ProductSprite;
+                for (int i = 0; i < _factoryNeededProductView.ScrollView.childCount; i++)
+                {
+                    NeededProductView productView = _factoryNeededProductView.ScrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
+                    if (!((IConsumer) _factory).NeededProducts().ContainsKey(productView.ProductData)) continue;
+                    ProductStorage productStorage = ((IConsumer) _factory).NeededProducts()[productView.ProductData];
+                    productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+                }
+            }
+            else
+            {
+                _amountLabel.text = "Select ProductData";
+                _productImage.sprite = _defaultProductSprite;
+                _productionTimeSlider.value = 0;
+            }
 
-			public Text ProductInformationText {
-				get {
-					return _productInformationText;
-				}
+            yield return 1;
+        }
+    }
 
-				set {
-					_productInformationText = value;
-				}
-			}
-		}
+    public override void Reset()
+    {
+        Factory = null;
+        _titleText.text = "Information";
+        _amountLabel.text = "Select ProductData";
+        _productImage.sprite = _defaultProductSprite;
+        _productionTimeSlider.value = 0;
+        _productSelector.VisibleGameObject.SetActive(false);
+        Debug.Log("Reset FactoryView");
+    }
 
-		[Serializable]
-		private struct FactoryNeededProductView
-		{
-			[SerializeField] private GameObject _visibleGameObject;
-			[SerializeField] private ScrollViewHandle _scrollView;
-			[SerializeField] private NeededProductStorageView _productUiSlotPrefab;
+    #endregion
 
-			public ScrollViewHandle ScrollView {
-				get {
-					return _scrollView;
-				}
+    [Serializable]
+    private struct FactoryProductToolTip
+    {
+        [SerializeField] private Image _image;
+        [SerializeField] private Text _productNameText;
+        [SerializeField] private Text _productInformationText;
 
-				set {
-					_scrollView = value;
-				}
-			}
+        public FactoryProductToolTip(Image image, Text productNameText, Text productInformationText)
+        {
+            _image = image;
+            _productNameText = productNameText;
+            _productInformationText = productInformationText;
+        }
 
-			public NeededProductStorageView ProductUiSlotPrefab {
-				get {
-					return _productUiSlotPrefab;
-				}
+        public Image Image
+        {
+            get { return _image; }
 
-				set {
-					_productUiSlotPrefab = value;
-				}
-			}
+            set { _image = value; }
+        }
 
-			public GameObject VisibleGameObject {
-				get {
-					return _visibleGameObject;
-				}
+        public Text ProductNameText
+        {
+            get { return _productNameText; }
 
-				set {
-					_visibleGameObject = value;
-				}
-			}
-		}
-	}
+            set { _productNameText = value; }
+        }
+
+        public Text ProductInformationText
+        {
+            get { return _productInformationText; }
+
+            set { _productInformationText = value; }
+        }
+    }
+
+    [Serializable]
+    private struct FactoryNeededProductView
+    {
+        [SerializeField] private GameObject _visibleGameObject;
+        [SerializeField] private RectTransform _scrollView;
+        [SerializeField] private NeededProductStorageView _neededProductStorageViewPrefab;
+
+        public RectTransform ScrollView
+        {
+            get { return _scrollView; }
+
+            set { _scrollView = value; }
+        }
+
+        public NeededProductStorageView NeededProductStorageViewPrefab
+        {
+            get { return _neededProductStorageViewPrefab; }
+
+            set { _neededProductStorageViewPrefab = value; }
+        }
+
+        public GameObject VisibleGameObject
+        {
+            get { return _visibleGameObject; }
+
+            set { _visibleGameObject = value; }
+        }
+
+        public void ClearObjects()
+        {
+            for (int i = 0; i < _scrollView.childCount; i++)
+            {
+                Destroy(_scrollView.transform.GetChild(i).gameObject);
+            }
+        }
+    }
 }

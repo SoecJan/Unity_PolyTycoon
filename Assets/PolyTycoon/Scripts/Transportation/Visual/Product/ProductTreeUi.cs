@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Assets.PolyTycoon.Resources.Data.ProductData;
-using Assets.PolyTycoon.Scripts.Transportation.Model.Product;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,21 +28,21 @@ public class ProductTreeUi : AbstractUi
 			productView.ProductData = productData;
 			productView.NeededAmountText.text = "";
 
-			if (productData.NeededProduct.Product == null) continue;
-			NeededProduct neededProduct = productData.NeededProduct;
-			GameObject neededProductGameObject = Instantiate(_neededProductViewPrefab.gameObject, _parentTransform);
-			RectTransform neededProductRectTransform = ((RectTransform)neededProductGameObject.transform);
-			neededProductRectTransform.anchoredPosition = productRectTransform.anchoredPosition + new Vector2(0f, 120f);
-			NeededProductView neededProductView = neededProductGameObject.GetComponent<NeededProductView>();
-			_displayedViews.Add(neededProductView);
-			neededProductView.ProductData = neededProduct.Product;
-			neededProductView.NeededAmountText.text = neededProduct.Amount.ToString();
+			if (productData.NeededProduct.Length == 0) continue;
+			
+//			NeededProduct neededProduct = productData.NeededProduct;
+//			GameObject neededProductGameObject = Instantiate(_neededProductViewPrefab.gameObject, _parentTransform);
+//			RectTransform neededProductRectTransform = ((RectTransform)neededProductGameObject.transform);
+//			neededProductRectTransform.anchoredPosition = productRectTransform.anchoredPosition + new Vector2(0f, 120f);
+//			NeededProductView neededProductView = neededProductGameObject.GetComponent<NeededProductView>();
+//			_displayedViews.Add(neededProductView);
+//			neededProductView.ProductData = neededProduct.Product;
+//			neededProductView.NeededAmountText.text = neededProduct.Amount.ToString();
 
-			GameObject connectorGameObject = Instantiate(_uiConnectorGameObject, _parentTransform);
-			RectTransform connectorRectTransform = ((RectTransform)connectorGameObject.transform);
-			connectorRectTransform.sizeDelta = new Vector2(10f, neededProductRectTransform.anchoredPosition.y - productRectTransform.anchoredPosition.y - productRectTransform.sizeDelta.y);
-			connectorRectTransform.anchoredPosition = productRectTransform.anchoredPosition + new Vector2((productRectTransform.sizeDelta.x / 2f) - (connectorRectTransform.sizeDelta.x / 2f), productRectTransform.sizeDelta.y);
-
+//			GameObject connectorGameObject = Instantiate(_uiConnectorGameObject, _parentTransform);
+//			RectTransform connectorRectTransform = ((RectTransform)connectorGameObject.transform);
+//			connectorRectTransform.sizeDelta = new Vector2(10f, neededProductRectTransform.anchoredPosition.y - productRectTransform.anchoredPosition.y - productRectTransform.sizeDelta.y);
+//			connectorRectTransform.anchoredPosition = productRectTransform.anchoredPosition + new Vector2((productRectTransform.sizeDelta.x / 2f) - (connectorRectTransform.sizeDelta.x / 2f), productRectTransform.sizeDelta.y);
 		}
 
 		_parentTransform.sizeDelta = new Vector2(_productManager.Products.Count * 60f, 60f);

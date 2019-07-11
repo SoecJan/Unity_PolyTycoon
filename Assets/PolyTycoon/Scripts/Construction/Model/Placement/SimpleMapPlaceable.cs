@@ -3,148 +3,142 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Assets.PolyTycoon.Scripts.Construction.Model.Placement
+
+/// <summary>
+/// All objects that can be placed on the map need to have this or a derivative of this component. 
+/// Placement on the grid is then processed by <see cref="GroundPlacementController"/> and registered by <see cref="BuildingManager"/>.
+/// </summary>
+public abstract class SimpleMapPlaceable : MapPlaceable
 {
-	/// <summary>
-	/// All objects that can be placed on the map need to have this or a derivative of this component. 
-	/// Placement on the grid is then processed by <see cref="GroundPlacementController"/> and registered by <see cref="BuildingManager"/>.
-	/// </summary>
-	public abstract class SimpleMapPlaceable : MonoBehaviour {
+    #region Attributes
 
-		#region Attributes
+    protected bool _isClickable;
+    
 
-		private bool _isDraggable;
-		protected bool IsClickable;
-		private static System.Action<SimpleMapPlaceable> _onClickAction;
-		[SerializeField] private Sprite _constructionUiSprite;
-		[SerializeField] private List<Vector3> _usedCoordinates; // All coordinates that are blocked relative to this transform
-		[SerializeField] private string _buildingName; // Name of this building
+    [SerializeField]
+    private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
 
-		private bool _isPlaced = false; // Whether it is placed on the map or not
-		#endregion
+    
 
-		#region Default Methods
-		/// <summary>
-		/// Gets the static reference to BuildingManager instance
-		/// </summary>
-		void Awake()
-		{
-			Initialize();
-		}
+    [SerializeField] private Vector3 _threadsafePosition;
 
-		protected abstract void Initialize();
+    #endregion
 
-		/// <summary>
-		/// Draws the UsedCoordinates for debugging
-		/// </summary>
-		void OnDrawGizmos()
-		{
-			Gizmos.color = Color.yellow;
-			foreach (Vector3 coordinate in UsedCoordinates)
-				Gizmos.DrawSphere(gameObject.transform.position + coordinate, 0.5f);
-		}
+    #region Default Methods
 
-		/// <summary>
-		/// Detects if a factory was clicked on by the player.
-		/// Prevents any detection if the factory was just placed by <see cref="GroundPlacementController"/>.
-		/// </summary>
-		void OnMouseOver()
-		{
-			if (IsClickable && Input.GetMouseButtonDown(0) && IsPlaced && !DestructionController.DestructionActive && !EventSystem.current.IsPointerOverGameObject())
-			{
-				_onClickAction(this);
-			}
-		}
-		#endregion
+    /// <summary>
+    /// Gets the static reference to BuildingManager instance
+    /// </summary>
+    void Awake()
+    {
+        Initialize();
+    }
 
-		#region Getter & Setter
-		public List<Vector3> UsedCoordinates {
-			get {
-				return _usedCoordinates;
-			}
+    protected abstract void Initialize();
 
-			set {
-				_usedCoordinates = value;
-			}
-		}
+    /// <summary>
+    /// Draws the UsedCoordinates for debugging
+    /// </summary>
+    void OnDrawGizmos()
+    {
+        foreach (NeededSpace coordinate in UsedCoordinates)
+        {
+            Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.yellow;
+            Gizmos.DrawSphere(gameObject.transform.position + coordinate.UsedCoordinate, 0.5f);
+        }
+    }
 
-		public string BuildingName {
-			get {
-				return _buildingName;
-			}
+    /// <summary>
+    /// Detects if a placeable was clicked on by the player.
+    /// Prevents any detection if the placeable was just placed by <see cref="GroundPlacementController"/>.
+    /// </summary>
+    void OnMouseOver()
+    {
+        if (_isClickable && Input.GetMouseButtonDown(0) && IsPlaced && !DestructionController.DestructionActive &&
+            !EventSystem.current.IsPointerOverGameObject())
+        {
+            OnClickAction(this);
+        }
+    }
 
-			set {
-				_buildingName = value;
-			}
-		}
+    #endregion
 
-		public bool IsPlaced {
-			get {
-				return _isPlaced;
-			}
+    #region Getter & Setter
+    public Vector3 ThreadsafePosition
+    {
+        get => _threadsafePosition.Equals(default(Vector3)) ? throw new NotImplementedException() : _threadsafePosition;
 
-			set {
-				_isPlaced = value;
-			}
-		}
+        private set => _threadsafePosition = value;
+    }
 
-		public Sprite ConstructionUiSprite {
-			get {
-				return _constructionUiSprite;
-			}
+    public List<NeededSpace> UsedCoordinates => _usedCoordinates;
 
-			set {
-				_constructionUiSprite = value;
-			}
-		}
+    
 
-		public bool IsDraggable {
-			get {
-				return _isDraggable;
-			}
+    protected bool IsPlaced { get; private set; }
 
-			set {
-				_isDraggable = value;
-			}
-		}
+    
 
-		public Action<SimpleMapPlaceable> OnClickAction {
-			get {
-				return _onClickAction;
-			}
+    public static Action<SimpleMapPlaceable> OnClickAction { get; set; }
 
-			set {
-				_onClickAction = value;
-			}
-		}
+    public virtual float GetHeight()
+    {
+        return transform.lossyScale.y;
+    }
 
-		public virtual float GetHeight()
-		{
-			return transform.lossyScale.y;
-		}
-		#endregion
+    #endregion
 
-		#region MapPlaceable common
-		/// <summary>
-		/// Is called by <see cref="BuildingManager"/> after successful placement of this MapPlaceable.
-		/// </summary>
-		public virtual void OnPlacement()
-		{
-			IsPlaced = true;
-		}
+    #region MapPlaceable common
 
-		/// <summary>
-		/// Rotates the UsedCoordinates to align to the current Transform rotation. 
-		/// Called before Placement by <see cref="GroundPlacementController"/>.
-		/// </summary>
-		public void RotateUsedCoordsToTransform()
-		{
-			for (int i = 0; i < _usedCoordinates.Count; i++)
-			{
-				Vector3 rotatedOffset = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * _usedCoordinates[i];
-				_usedCoordinates[i] = Vector3Int.RoundToInt(rotatedOffset);
-			}
-		}
-		#endregion
-	}
+    /// <summary>
+    /// Is called by <see cref="BuildingManager"/> after successful placement of this MapPlaceable.
+    /// </summary>
+    public virtual void OnPlacement()
+    {
+        IsPlaced = true;
+        ThreadsafePosition = transform.position;
+    }
+
+    /// <summary>
+    /// Rotates the UsedCoordinates to align to the current Transform rotation. 
+    /// Called before Placement by <see cref="GroundPlacementController"/>.
+    /// </summary>
+    protected void RotateUsedCoords(float rotationAmount)
+    {
+        foreach (NeededSpace neededSpace in _usedCoordinates)
+        {
+            Vector3 rotatedOffset = Quaternion.Euler(0, rotationAmount, 0) * neededSpace.UsedCoordinate;
+            neededSpace.UsedCoordinate = Vector3Int.RoundToInt(rotatedOffset);
+        }
+    }
+
+    public override void Rotate(Vector3 axis, float rotationAmount)
+    {
+        base.Rotate(axis, rotationAmount);
+        RotateUsedCoords(rotationAmount);
+    }
+
+    #endregion
+}
+
+[Serializable]
+public class NeededSpace
+{
+    [SerializeField] private Vector3Int _usedCoordinate;
+    [SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland;
+
+    public NeededSpace(NeededSpace neededSpace, Vector3Int offset)
+    {
+        _usedCoordinate = new Vector3Int(neededSpace.UsedCoordinate.x + offset.x,
+            neededSpace.UsedCoordinate.y + offset.y, neededSpace.UsedCoordinate.z + offset.z);
+        _terrainType = neededSpace.TerrainType;
+    }
+
+    public Vector3Int UsedCoordinate
+    {
+        get => _usedCoordinate;
+        set => _usedCoordinate = value;
+    }
+
+    public TerrainGenerator.TerrainType TerrainType => _terrainType;
 }

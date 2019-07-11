@@ -226,11 +226,12 @@ public class OptionsMenue : AbstractUi
 	public new void Reset()
 	{}
 
-	protected new void OnVisibilityChange(bool visible)
+	public override void SetVisible(bool visible)
 	{
 		if (visible)
 		{
 			Load();
 		}
+		base.SetVisible(visible);
 	}
 }
