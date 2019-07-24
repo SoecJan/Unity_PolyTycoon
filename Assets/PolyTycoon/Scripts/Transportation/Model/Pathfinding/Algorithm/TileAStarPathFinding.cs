@@ -127,18 +127,19 @@ public class TileAStarPathFinding : AbstractPathFindingAlgorithm
     {
         Path path = new Path();
         TileNode currentNode = toNode as TileNode;
+        Vector3 offsetVector = (Vector3.forward + Vector3.right) / 2;
 
         Vector3 wayPointPosition;
         while (currentNode != null && !currentNode.Equals(fromNode as TileNode))
         {
-            wayPointPosition = new Vector3(currentNode.PositionVector2.x, 0f, currentNode.PositionVector2.y);
+            wayPointPosition = new Vector3(currentNode.PositionVector2.x, 0f, currentNode.PositionVector2.y) + offsetVector;
             path.WayPoints.Add(new WayPoint(wayPointPosition, wayPointPosition));
             currentNode = currentNode.Parent;
         }
 
         if (currentNode != null)
         {
-            wayPointPosition = new Vector3(currentNode.PositionVector2.x, 0f, currentNode.PositionVector2.y);
+            wayPointPosition = new Vector3(currentNode.PositionVector2.x, 0f, currentNode.PositionVector2.y) + offsetVector;
             path.WayPoints.Add(new WayPoint(wayPointPosition, wayPointPosition));
         }
         

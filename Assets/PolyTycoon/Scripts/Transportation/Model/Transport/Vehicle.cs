@@ -14,29 +14,26 @@ public class Vehicle : MonoBehaviour
 	[SerializeField] private PathType _pathType = PathType.Road;
 	[SerializeField] private VehicleMover _mover;
 	[SerializeField] private Sprite _sprite;
+	private Outline _outline;
 	#endregion
 
 	#region Getter & Setter
+
+	public Outline Outline
+	{
+		get => _outline;
+		set => _outline = value;
+	}
+
 	public VehicleMover Mover {
-		get {
-			return _mover;
-		}
-
-		set {
-			_mover = value;
-		}
+		get => _mover;
+		set => _mover = value;
 	}
 
-	public Sprite Sprite {
-		get {
-			return _sprite;
-		}
-	}
+	public Sprite Sprite => _sprite;
 
 	public List<Path> PathList {
-		get {
-			return _pathList;
-		}
+		get => _pathList;
 
 		set {
 			_pathList = value;
@@ -44,16 +41,12 @@ public class Vehicle : MonoBehaviour
 		}
 	}
 
-	public int RouteIndex {
-		get {
-			return _routeIndex;
-		}
-	}
+	public int RouteIndex => _routeIndex;
 
 	public PathType MoveType
 	{
-		get { return _pathType; }
-		set { _pathType = value; }
+		get => _pathType;
+		set => _pathType = value;
 	}
 
 	#endregion
@@ -66,6 +59,16 @@ public class Vehicle : MonoBehaviour
 		{
 			Mover = gameObject.AddComponent<VehicleMover>();
 		}
+
+		if (!Outline)
+		{
+			Outline = gameObject.AddComponent<Outline>();
+			Outline.OutlineMode = Outline.Mode.OutlineAll;
+			Outline.OutlineColor = Color.yellow;
+			Outline.OutlineWidth = 5f;
+			Outline.enabled = false;
+		}
+		
 		Mover.OnArrive += OnArrive;
 	}
 

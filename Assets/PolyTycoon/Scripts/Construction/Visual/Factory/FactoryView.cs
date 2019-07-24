@@ -45,13 +45,17 @@ public class FactoryView : AbstractUi
     {
         set
         {
+            if (value == null && _factory)
+            {
+                _factory.Outline.enabled = false;
+            }
             _factory = value;
             if (!_factory)
             {
                 _productSelector.OnProductSelectAction = null;
                 return;
             }
-
+            _factory.Outline.enabled = true;
             _productChangeButton.interactable = _factory.IsProductSelectable;
             OnProductChange(_factory.ProductData);
 //            LoadNeededProducts();

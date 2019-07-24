@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5420704077653663760}
   - component: {fileID: 3918469347814791718}
   - component: {fileID: 7304199191717881567}
+  - component: {fileID: 7156097974211134918}
   m_Layer: 0
   m_Name: LowPoly_Truck_Small
   m_TagString: Untagged
@@ -77,3 +78,21 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &7156097974211134918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9034621605612360195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0.9528302, g: 0.6210633, b: 0.03146139, a: 1}
+  outlineWidth: 5.12
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

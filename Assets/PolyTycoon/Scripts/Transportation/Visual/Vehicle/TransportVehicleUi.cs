@@ -29,6 +29,10 @@ public class TransportVehicleUi : AbstractUi
 		set
 		{
 			if (_displayedTransportVehicle == value) return;
+			if (value == null && _displayedTransportVehicle)
+			{
+				_displayedTransportVehicle.Outline.enabled = false;
+			}
 			_displayedTransportVehicle = value;
 			if (_displayedTransportVehicle == null)
 			{
@@ -36,6 +40,7 @@ public class TransportVehicleUi : AbstractUi
 			}
 			else
 			{
+				_displayedTransportVehicle.Outline.enabled = true;
 				foreach (ProductStorage productStorage in _displayedTransportVehicle.LoadedProducts.Values)
 				{
 					NeededProductView neededProductView = GameObject.Instantiate(_scrollViewElementPrefab, _scrollView);
@@ -60,7 +65,7 @@ public class TransportVehicleUi : AbstractUi
 	{
 		if (!_transportRouteCreateController) _transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
 		_vehicleRouteButton.onClick.AddListener(OnVehicleRouteButtonClick);
-		_exitButton.onClick.AddListener(delegate { SetVisible(false); Reset(); });
+		_exitButton.onClick.AddListener(delegate { DisplayedTransportVehicle = null; Reset(); });
 	}
 
 	void OnVehicleRouteButtonClick()
@@ -93,7 +98,6 @@ public class TransportVehicleUi : AbstractUi
 	public new void Reset()
 	{ 
 		_vehicleImage.sprite = null;
-		_displayedTransportVehicle = null;
 		for (int i = 0; i< _scrollView.childCount; i++)
 		{
 			GameObject.Destroy(_scrollView.GetChild(i).gameObject);

@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 
 /// <summary>
@@ -112,8 +116,9 @@ public class GroundPlacementController : MonoBehaviour
         float animationHeightOffset = ((1 + Mathf.Sin(Time.time * _animationSpeedMultiplier)) / 2) + 0.5f;
         Vector3 position = new Vector3(Mathf.Round(hitInfo.point.x), hitInfo.point.y + animationHeightOffset,
                                Mathf.Round(hitInfo.point.z)) + _offsetVec3;
-        if (Math.Abs(position.x - _currentPlaceableObject.transform.position.x) > 0.1f ||
-            Math.Abs(position.z - _currentPlaceableObject.transform.position.z) > 0.1f)
+        // Check position change
+        if (Math.Abs(position.x - _currentPlaceableObject.transform.position.x) > 0.5f ||
+            Math.Abs(position.z - _currentPlaceableObject.transform.position.z) > 0.5f)
         {
             SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
             if (mapPlaceable && mapPlaceable.IsDraggable && _isDragging)
@@ -122,6 +127,7 @@ public class GroundPlacementController : MonoBehaviour
                 Vector2 key = new Vector2(currentPlaceablePosition.x, currentPlaceablePosition.z);
                 if (!_draggedGameObjects.ContainsKey(key))
                 {
+                    // Add a new draggable to _draggedGameObject
                     Transform currentPlaceableTransform = _currentPlaceableObject.transform;
                     _draggedGameObjects.Add(key,
                         Instantiate(_currentPlaceableObject, currentPlaceableTransform.position,
