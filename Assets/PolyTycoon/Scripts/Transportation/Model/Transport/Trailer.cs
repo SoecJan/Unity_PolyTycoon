@@ -1,30 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Trailer : MonoBehaviour
 {
     [SerializeField] private Transform _moverAnchor;
     [SerializeField] private float moverDistance = 1f;
-    [SerializeField] private Transform _trailerAnchor;
     private Vector3 _oldAnchorPosition;
 
-    public Transform MoverAnchor
-    {
-        get { return _moverAnchor; }
-        set { _moverAnchor = value; }
-    }
-
-    public Transform TrailerAnchor
-    {
-        get { return _trailerAnchor; }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-//        _oldAnchorPosition = MoverAnchor.position;
-    }
+    private Transform MoverAnchor => _moverAnchor;
 
     // Update is called once per frame
     void LateUpdate()

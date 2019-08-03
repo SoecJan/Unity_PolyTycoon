@@ -4,24 +4,29 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
+public interface ISimpleMapPlaceable
+{
+    Vector3 ThreadsafePosition { get; }
+    List<NeededSpace> UsedCoordinates { get; }
+    float GetHeight();
+
+    /// <summary>
+    /// Is called by <see cref="BuildingManager"/> after successful placement of this MapPlaceable.
+    /// </summary>
+    void OnPlacement();
+}
+
 /// <summary>
 /// All objects that can be placed on the map need to have this or a derivative of this component. 
-/// Placement on the grid is then processed by <see cref="GroundPlacementController"/> and registered by <see cref="BuildingManager"/>.
+/// Placement on the grid is then processed by <see cref="PlacementManager"/> and registered by <see cref="BuildingManager"/>.
 /// </summary>
-public abstract class SimpleMapPlaceable : MapPlaceable
+public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 {
     #region Attributes
-
     protected bool _isClickable;
-    
-
     [SerializeField]
     private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
-
-    
-
     [SerializeField] private Vector3 _threadsafePosition;
-
     #endregion
 
     #region Default Methods
@@ -50,7 +55,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable
 
     /// <summary>
     /// Detects if a placeable was clicked on by the player.
-    /// Prevents any detection if the placeable was just placed by <see cref="GroundPlacementController"/>.
+    /// Prevents any detection if the placeable was just placed by <see cref="PlacementManager"/>.
     /// </summary>
     void OnMouseOver()
     {
@@ -60,7 +65,6 @@ public abstract class SimpleMapPlaceable : MapPlaceable
             OnClickAction(this);
         }
     }
-
     #endregion
 
     #region Getter & Setter
@@ -73,11 +77,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable
 
     public List<NeededSpace> UsedCoordinates => _usedCoordinates;
 
-    
-
     protected bool IsPlaced { get; private set; }
-
-    
 
     public static Action<SimpleMapPlaceable> OnClickAction { get; set; }
 
@@ -101,7 +101,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable
 
     /// <summary>
     /// Rotates the UsedCoordinates to align to the current Transform rotation. 
-    /// Called before Placement by <see cref="GroundPlacementController"/>.
+    /// Called before Placement by <see cref="PlacementManager"/>.
     /// </summary>
     protected void RotateUsedCoords(float rotationAmount)
     {

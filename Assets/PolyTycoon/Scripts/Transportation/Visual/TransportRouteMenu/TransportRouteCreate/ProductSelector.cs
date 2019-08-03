@@ -3,27 +3,15 @@ using UnityEngine;
 
 public class ProductSelector : MonoBehaviour
 {
-	private System.Action<ProductData> onProductSelectAction;
 	[Header("Navigation")]
 	[SerializeField] private GameObject _visibleGameObject;
 	[Header("ScrollView")]
 	[SerializeField] private Transform _scrollView;
 	[SerializeField] private ProductView _productUiSlotPrefab;
 
-	public GameObject VisibleGameObject {
-		get {
-			return _visibleGameObject;
-		}
+	public GameObject VisibleGameObject => _visibleGameObject;
 
-		set {
-			_visibleGameObject = value;
-		}
-	}
-
-	public Action<ProductData> OnProductSelectAction {
-		get { return onProductSelectAction; }
-		set { onProductSelectAction = value; }
-	}
+	public Action<ProductData> OnProductSelectAction { private get; set; }
 
 	private void PrintClick(ProductData productData)
 	{

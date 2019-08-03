@@ -8,13 +8,23 @@ using UnityEngine.EventSystems;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
+public interface IPlacementManager
+{
+    MapPlaceable PlaceableObjectPrefab { set; }
+    BuildingManager BuildingManager { get; }
+    TerrainGenerator TerrainGenerator { get; set; }
+    MapPlaceable[] Buildings { get; }
+    SimpleMapPlaceable GetBuilding(string buildingName);
+    bool PlaceObject(ComplexMapPlaceable complexMapPlaceable);
+    bool IsPlaceable(Vector3 position, List<NeededSpace> neededSpaces);
+}
 
 /// <summary>
 /// This class handles all user input to place a <see cref="SimpleMapPlaceable"/> inside the Map.
 /// Collisions are handled by <see cref="BuildingManager"/>.
 /// The Ground alignment is checked by <see cref="TerrainGenerator"/>.
 /// </summary>
-public class GroundPlacementController : MonoBehaviour
+public class PlacementManager : MonoBehaviour, IPlacementManager
 {
     #region Attributes
 

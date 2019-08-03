@@ -1,190 +1,198 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+public interface ITransport
+{
+    int CurrentCapacity { get; }
+    int TotalCapacity { get; set; }
 
+    float TransferTime { get; set; }
+    int TransferAmount { get; set; }
+
+    ProductStorage TransportStorage(ProductData productData);
+    List<ProductData> LoadedProducts { get; }
+
+    IEnumerator Load(TransportRouteElement element);
+
+    IEnumerator Unload(TransportRouteElement element);
+}
+
+[Serializable]
+public class TransportVehicleController : ITransport
+{
+    private Dictionary<ProductData, ProductStorage> _transporterStorage; // The Products that are loaded
+    public int CurrentCapacity { get; } = 0;
+    public int TotalCapacity { get; set; } = 4;
+    public float TransferTime { get; set; } = 1f;
+    public int TransferAmount { get; set; } = 1;
+    public List<ProductData> LoadedProducts => new List<ProductData>(_transporterStorage.Keys);
+
+    public TransportVehicleController()
+    {
+        _transporterStorage = new Dictionary<ProductData, ProductStorage>();
+    }
+
+    public ProductStorage TransportStorage(ProductData productData)
+    {
+        return _transporterStorage[productData];
+    }
+
+    public IEnumerator Load(TransportRouteElement element)
+    {
+        if (element.FromNode is IProductEmitter producer)
+        {
+            foreach (TransportRouteSetting setting in element.RouteSettings)
+            {
+                bool isUnload = !setting.IsLoad;
+                bool isEmitterProducingProduct =
+                    setting.ProductData.Equals(producer.EmitterStorage().StoredProductData);
+
+                if (!isUnload || !isEmitterProducingProduct) continue;
+
+                if (!_transporterStorage.ContainsKey(setting.ProductData))
+                {
+                    _transporterStorage.Add(setting.ProductData, new ProductStorage(setting.ProductData)
+                        {MaxAmount = TotalCapacity, Amount = 0});
+                }
+
+                ProductStorage emitterStorage = producer.EmitterStorage(setting.ProductData);
+                ProductStorage truckStorage = _transporterStorage[setting.ProductData];
+                int loadAmount = setting.Amount;
+                while (loadAmount > 0 && truckStorage.Amount != truckStorage.MaxAmount)
+                {
+                    while (producer.EmitterStorage().Amount == 0)
+                    {
+                        yield return new WaitForSeconds(0.1f);
+                    }
+
+                    loadAmount--;
+                    emitterStorage.Amount -= TransferAmount;
+                    truckStorage.Amount += TransferAmount;
+                    yield return new WaitForSeconds(TransferTime);
+                }
+            }
+        }
+    }
+
+    public IEnumerator Unload(TransportRouteElement element)
+    {
+        // Unload Products
+        if (element == null || !(element.ToNode is IProductReceiver consumer)) yield break;
+
+        foreach (TransportRouteSetting setting in element.RouteSettings)
+        {
+            bool isLoad = setting.IsLoad;
+            bool isLoadedProductReceiver = consumer.ReceiverStorage(setting.ProductData) != null;
+            bool hasProductLoaded = _transporterStorage.ContainsKey(setting.ProductData);
+            // if: setting is for loading, receiver not in need of the product or the truck has none of the product
+            if (isLoad || !isLoadedProductReceiver || !hasProductLoaded) continue;
+
+            ProductStorage receiverStorage = consumer.ReceiverStorage(setting.ProductData);
+            ProductStorage truckStorage = _transporterStorage[setting.ProductData];
+            int unloadAmount = setting.Amount; // The amount that is supposed to be transferred
+
+            // Handle actual unloading
+            while (unloadAmount > 0 && truckStorage.Amount > 0 &&
+                   receiverStorage.Amount < receiverStorage.MaxAmount)
+            {
+                unloadAmount--;
+                truckStorage.Amount -= TransferAmount;
+                receiverStorage.Amount += TransferAmount;
+                yield return new WaitForSeconds(TransferTime);
+            }
+        }
+    }
+}
+
+/// <summary>
+/// Vehicle that can transport products from one place to the other.
+/// </summary>
 public class TransportVehicle : Vehicle
 {
-	#region Attributes
-	private TransportRoute _transportRoute;
-	private int _totalCapacity = 4;
-	private static System.Action<TransportVehicle> _onClickAction;
-	[SerializeField] private Dictionary<ProductData, ProductStorage> _loadedProducts;
-	[SerializeField] private int _unloadSpeed;
-	#endregion
+    #region Attributes
 
-	#region Getter & Setter
-	public int TotalCapacity {
-		get { return _totalCapacity; }
-	}
+    [SerializeField] private TransportVehicleController _transportController;
+    private TransportRoute _transportRoute; // Route this vehicle drives on
 
-	public int UnloadSpeed {
-		get {
-			return _unloadSpeed;
-		}
+    #endregion
 
-		set {
-			_unloadSpeed = value;
-		}
-	}
+    #region Getter & Setter
 
-	public TransportRoute TransportRoute {
-		get {
-			return _transportRoute;
-		}
+    public int CurrentCapacity
+    {
+        get => _transportController.CurrentCapacity;
+    }
 
-		set {
-			_transportRoute = value;
-			List<Path> vehiclePathList = new List<Path>();
-			_loadedProducts = new Dictionary<ProductData, ProductStorage>();
-			foreach (TransportRouteElement element in _transportRoute.TransportRouteElements)
-			{
-				vehiclePathList.Add(element.Path);
-			}
-			base.PathList = vehiclePathList;
-		}
-	}
+    public int TotalCapacity
+    {
+        get => _transportController.TotalCapacity;
+        set => _transportController.TotalCapacity = value;
+    }
 
-	public Action<TransportVehicle> OnClickAction {
-		get {
-			return _onClickAction;
-		}
+    public float TransferTime
+    {
+        get => _transportController.TransferTime;
+        set => _transportController.TransferTime = value;
+    }
 
-		set {
-			_onClickAction = value;
-		}
-	}
+    public ProductStorage TransportStorage(ProductData productData)
+    {
+        return _transportController.TransportStorage(productData);
+    }
 
-	public Dictionary<ProductData, ProductStorage> LoadedProducts {
-		get {
-			return _loadedProducts;
-		}
-	}
-	#endregion
+    public List<ProductData> LoadedProducts
+    {
+        get => _transportController.LoadedProducts;
+    }
 
-	#region Methods
+    public static Action<TransportVehicle> OnClickAction { get; set; }
 
-	void OnMouseOver()
-	{
-		if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
-		{
-			OnClickAction(this);
-		}
-	}
+    public TransportRoute TransportRoute
+    {
+        get => _transportRoute;
 
-	protected override void OnArrive()
-	{
+        set
+        {
+            _transportRoute = value;
+            base.PathList = _transportRoute.PathList;
+        }
+    }
 
-		StartCoroutine(HandleLoad());
-	}
+    #endregion
 
-	private IEnumerator HandleLoad() // TODO: Missing: Maximum Amounts of Storage
-	{
-		// Unload Products
-		TransportRouteElement element = _transportRoute.TransportRouteElements[(RouteIndex + 1) % _transportRoute.TransportRouteElements.Count];
-		IConsumer consumer = element.FromNode as IConsumer;
-		if (consumer != null)
-		{
-			foreach (TransportRouteSetting setting in element.RouteSettings)
-			{
-				if (setting.IsLoad || !consumer.NeededProducts().ContainsKey(setting.ProductData) || !LoadedProducts.ContainsKey(setting.ProductData)) continue;
-				
-				int unloadAmount = setting.Amount;
-				while (unloadAmount > 0 
-				       && LoadedProducts[setting.ProductData].Amount > 0
-				       && consumer.NeededProducts()[setting.ProductData].Amount < consumer.NeededProducts()[setting.ProductData].MaxAmount)
-				{
-					unloadAmount--;
-					LoadedProducts[setting.ProductData].Amount -= 1;
-					consumer.NeededProducts()[setting.ProductData].Amount += 1;
-					yield return new WaitForSeconds(_unloadSpeed);
-				}
-			}
-		}
-		
-		// Load Products
-		IProducer producer = element.FromNode as IProducer;
-		if (producer != null)
-		{
-			foreach (TransportRouteSetting setting in element.RouteSettings)
-			{
-				if (!setting.IsLoad) continue;
-				if (!setting.ProductData.Equals(producer.ProducedProductStorage().StoredProductData)) continue;
-				
-				if (!LoadedProducts.ContainsKey(setting.ProductData))
-				{
-					LoadedProducts.Add(setting.ProductData, new ProductStorage(setting.ProductData) 
-						{ MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
-				}
-				
-				int loadAmount = setting.Amount;
-				while (loadAmount > 0 
-				       && LoadedProducts[setting.ProductData].Amount != LoadedProducts[setting.ProductData].MaxAmount)
-				{
-					loadAmount--;
-					while (producer.ProducedProductStorage().Amount == 0) 
-						{ yield return new WaitForSeconds(0.1f); }
-					producer.ProducedProductStorage().Amount -= 1;
-					LoadedProducts[setting.ProductData].Amount += 1;
-					yield return new WaitForSeconds(_unloadSpeed);
-				}
-			}
-		}
-		
-		// Storage loading/unloading
-		IStore storage = element.FromNode as IStore;
-		if (storage != null)
-		{
-			// Unload to storage
-			foreach (TransportRouteSetting setting in element.RouteSettings)
-			{
-				if (setting.IsLoad) continue;
-				if (!LoadedProducts.ContainsKey(setting.ProductData)) continue;
-				if (!(LoadedProducts[setting.ProductData].Amount > 0)) continue;
-				
-				if (!storage.StoredProducts().ContainsKey(setting.ProductData))
-				{
-					storage.StoredProducts().Add(setting.ProductData, new ProductStorage(setting.ProductData) 
-						{ MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
-				}
-				
-				int unloadAmount = setting.Amount;
-				while (unloadAmount > 0 && LoadedProducts[setting.ProductData].Amount > 0)
-				{
-					unloadAmount--;
-					LoadedProducts[setting.ProductData].Amount -= 1;
-					storage.StoredProducts()[setting.ProductData].Amount += 1;
-					yield return new WaitForSeconds(_unloadSpeed);
-				}
-			}
-			
-			// Load from storage
-			foreach (TransportRouteSetting setting in element.RouteSettings)
-			{
-				if (!setting.IsLoad) continue;
-				if (!storage.StoredProducts().ContainsKey(setting.ProductData)) continue;
-				if (!(storage.StoredProducts()[setting.ProductData].Amount > 0)) continue;
-				if (!LoadedProducts.ContainsKey(setting.ProductData))
-				{
-					LoadedProducts.Add(setting.ProductData, new ProductStorage(setting.ProductData) 
-						{ MaxAmount = TransportRoute.Vehicle.TotalCapacity, Amount = 0 });
-				}
-				
-				int loadAmount = setting.Amount;
-				while (loadAmount > 0 
-				       && storage.StoredProducts()[setting.ProductData].Amount > 0 
-				       && LoadedProducts[setting.ProductData].Amount != LoadedProducts[setting.ProductData].MaxAmount)
-				{
-					loadAmount--;
-					storage.StoredProducts()[setting.ProductData].Amount -= 1;
-					LoadedProducts[setting.ProductData].Amount += 1;
-					yield return new WaitForSeconds(_unloadSpeed);
-				}
-			}
-		}
-		base.OnArrive();
-	}
-	#endregion
+    #region Methods
+
+    void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        {
+            OnClickAction(this);
+        }
+    }
+
+    protected override void OnArrive()
+    {
+        StartCoroutine(HandleLoad());
+    }
+
+    private IEnumerator HandleLoad() // TODO: Missing: Maximum Amounts of Storage
+    {
+        // Unload Products
+        int routeIndex = (RouteIndex) % _transportRoute.TransportRouteElements.Count;
+        TransportRouteElement element = RouteIndex == -1 ? null : _transportRoute.TransportRouteElements[routeIndex];
+        yield return _transportController.Unload(element);
+
+        // Load Products
+        routeIndex = (RouteIndex + 1) % _transportRoute.TransportRouteElements.Count;
+        element = _transportRoute.TransportRouteElements[routeIndex];
+        yield return _transportController.Load(element);
+
+        base.OnArrive();
+    }
+
+    #endregion
 }

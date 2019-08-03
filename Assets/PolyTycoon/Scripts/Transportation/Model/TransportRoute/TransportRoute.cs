@@ -1,64 +1,54 @@
 ﻿using System.Collections.Generic;
 
 
-	public class TransportRoute
-	{
-		#region Attributes
+public class TransportRoute
+{
+    #region Attributes
 
-		public static int RouteIndex = 0;
-		private string _routeName;
-		private List<TransportRouteElement> _transportRouteElements;
-		private TransportVehicle _vehicle;
-		#endregion
+    public static int RouteIndex = 0;
 
-		#region Constructor
-		public TransportRoute()
-		{
-			RouteIndex += 1;
-			_transportRouteElements = new List<TransportRouteElement>();
-		}
-		#endregion
+    #endregion
 
-		#region Getter & Setter
+    #region Constructor
 
-		public TransportVehicle Vehicle {
-			get {
-				return _vehicle;
-			}
+    public TransportRoute()
+    {
+        RouteIndex += 1;
+        TransportRouteElements = new List<TransportRouteElement>();
+    }
 
-			set {
-				_vehicle = value;
-			}
-		}
+    #endregion
 
-		public List<TransportRouteElement> TransportRouteElements {
-			get {
-				return _transportRouteElements;
-			}
+    #region Getter & Setter
 
-			set {
-				_transportRouteElements = value;
-			}
-		}
+    public TransportVehicle Vehicle { get; set; }
 
-		public string RouteName {
-			get {
-				return _routeName;
-			}
+    public List<TransportRouteElement> TransportRouteElements { get; set; }
 
-			set {
-				_routeName = value;
-			}
-		}
+    public string RouteName { get; set; }
+    
+    public List<Path> PathList
+    {
+        get
+        {
+            List<Path> vehiclePathList = new List<Path>();
+            foreach (TransportRouteElement element in TransportRouteElements)
+            {
+                vehiclePathList.Add(element.Path);
+            }
+            return vehiclePathList;
+        }
+    }
 
-		public int Distance()
-		{
-			int sum = 0;
-			foreach (TransportRouteElement element in TransportRouteElements)
-			{
-				sum += element.Path.WayPoints.Count;
-			}
-			return sum;
-		}
-		#endregion
-	}
+//    public int Distance()
+//    {
+//        int sum = 0;
+//        foreach (TransportRouteElement element in TransportRouteElements)
+//        {
+//            sum += element.Path.WayPoints.Count;
+//        }
+//        return sum;
+//    }
+
+    #endregion
+}

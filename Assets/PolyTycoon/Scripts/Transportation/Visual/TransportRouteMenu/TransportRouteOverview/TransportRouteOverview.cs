@@ -1,7 +1,27 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class TransportRouteOverview : AbstractUi
+public interface ITransportRouteOverview
+{
+	/// <summary>
+	/// Adds a new entry to the overview
+	/// </summary>
+	/// <param name="transportRoute"></param>
+	/// <returns></returns>
+	TransportRouteOverviewElement Add(TransportRoute transportRoute);
+
+	/// <summary>
+	/// Removes an old entry from the overview
+	/// </summary>
+	/// <param name="transportRoute">the transport route to be removed</param>
+	/// <returns>true if the element was found. </returns>
+	bool Remove(TransportRoute transportRoute);
+}
+
+/// <summary>
+/// Overview of transportroutes that were created by the player using <see cref="TransportRouteManager"/>
+/// </summary>
+public class TransportRouteOverview : AbstractUi, ITransportRouteOverview
 {
 	[Header("Scroll View")]
 	[SerializeField] private TransportRouteOverviewElement _overviewElementPrefab;
@@ -22,6 +42,11 @@ public class TransportRouteOverview : AbstractUi
 		SetVisible(false);
 	}
 
+	/// <summary>
+	/// Adds a new entry to the overview
+	/// </summary>
+	/// <param name="transportRoute"></param>
+	/// <returns></returns>
 	public TransportRouteOverviewElement Add(TransportRoute transportRoute)
 	{
 		TransportRouteOverviewElement transportRouteOverviewView = GameObject.Instantiate(_overviewElementPrefab, _routeOverviewScrollView);
@@ -29,6 +54,11 @@ public class TransportRouteOverview : AbstractUi
 		return transportRouteOverviewView;
 	}
 
+	/// <summary>
+	/// Removes an old entry from the overview
+	/// </summary>
+	/// <param name="transportRoute">the transport route to be removed</param>
+	/// <returns>true if the element was found. </returns>
 	public bool Remove(TransportRoute transportRoute)
 	{
 		Debug.Log("Remove Overview Element");

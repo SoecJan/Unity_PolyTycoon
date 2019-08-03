@@ -87,7 +87,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _productImage: {fileID: 5240719111946915884}
-  _selectionButton: {fileID: 9162925643118673323}
+  _selectionButton: {fileID: 6052974934664289330}
+--- !u!114 &6052974934664289330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9162925643118673325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 9162925643056263364}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!1001 &6736167245229150178
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -210,12 +255,18 @@ PrefabInstance:
       propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2473298871253121809, guid: 0d85ec43e082df84f93ae929bb6a780f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2473704441560700313, guid: 0d85ec43e082df84f93ae929bb6a780f,
         type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2473298871898780233, guid: 0d85ec43e082df84f93ae929bb6a780f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 0d85ec43e082df84f93ae929bb6a780f, type: 3}
 --- !u!1 &9162925643118673325 stripped
 GameObject:
@@ -229,15 +280,15 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 6736167245229150178}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9162925643118673323 stripped
+--- !u!114 &9162925643056263364 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2473298871898780233, guid: 0d85ec43e082df84f93ae929bb6a780f,
+  m_CorrespondingSourceObject: {fileID: 2473298871953850150, guid: 0d85ec43e082df84f93ae929bb6a780f,
     type: 3}
   m_PrefabInstance: {fileID: 6736167245229150178}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9162925643118673325}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 2109663825, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

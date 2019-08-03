@@ -2,8 +2,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+public interface IUserInformationPopup
+{
+	string InformationText { set; }
+}
 
-public class UserInformationPopup : MonoBehaviour
+/// <summary>
+/// Displays information to the user.
+/// </summary>
+public class UserInformationPopup : MonoBehaviour, IUserInformationPopup
 {
 	#region Attributes
 	[SerializeField] private Text _informationText;
@@ -11,46 +18,40 @@ public class UserInformationPopup : MonoBehaviour
 	[SerializeField] private float _displayTime;
 	[SerializeField] private Button _exitButton;
 	private Coroutine _coroutine;
-	float _activeTime = 0f;
 	#endregion
 
 	#region Methods
 	private void Start()
 	{
-		_exitButton.onClick.AddListener(OnExitClick);
+		_exitButton.onClick.AddListener(Reset);
 	}
 
 	public string InformationText {
 		set {
 			_informationText.text = value;
-			if (_activeTime > _displayTime || _activeTime == 0f)
-			{
-				_coroutine = StartCoroutine(DisplayInformation());
-			}
-			_activeTime = 0f;
+			
+			if (_coroutine != null) StopCoroutine(_coroutine);
+			_coroutine = StartCoroutine(DisplayInformation());
 		}
 	}
 
 	private IEnumerator DisplayInformation()
 	{
 		_visibleGameObject.SetActive(true);
-		while (_activeTime < _displayTime)
-		{
-			_activeTime += Time.deltaTime;
-			yield return 1;
-		}
-		OnExitClick();
-		_coroutine = null;
-		yield return null;
+		yield return new WaitForSeconds(_displayTime);
+		Reset();
 	}
 
-	private void OnExitClick()
+	private void Reset()
 	{
 		if (_coroutine != null)
+		{
 			StopCoroutine(_coroutine);
+			_coroutine = null;
+		}
 		_visibleGameObject.SetActive(false);
 		_informationText.text = "";
-		_activeTime = 0f;
+		
 	}
 	#endregion
 }

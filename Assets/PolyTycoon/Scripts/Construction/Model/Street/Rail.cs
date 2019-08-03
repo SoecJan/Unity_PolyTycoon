@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Rail : PathFindingConnector
 {
-    protected override PathFindingNode AdjacentNodes(int i)
+    protected PathFindingNode AdjacentNodes(int i)
     {
 	    PathFindingNode pathFindingNode = base.AdjacentNodes(i);
 	    Trainstation trainstation = pathFindingNode as Trainstation;

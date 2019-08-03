@@ -3,18 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class AbstractUi : MonoBehaviour
+public interface IAbstractUi
+{
+	GameObject VisibleObject { get; set; }
+	void SetVisible(bool visible);
+	void OnShortCut();
+	void Reset();
+}
+
+public abstract class AbstractUi : MonoBehaviour, IAbstractUi
 {
 	[SerializeField] private GameObject _visibleObject;
 
 	public GameObject VisibleObject {
-		get {
-			return _visibleObject? _visibleObject : gameObject;
-		}
+		get => _visibleObject? _visibleObject : gameObject;
 
-		set {
-			_visibleObject = value;
-		}
+		set => _visibleObject = value;
 	}
 
 	public virtual void SetVisible(bool visible)
@@ -37,8 +41,6 @@ public abstract class AbstractUi : MonoBehaviour
 				VisibleObject.SetActive(false);
 			}
 		}
-
-		
 	}
 
 	private IEnumerator TransitionEndAwait(Animator animator)

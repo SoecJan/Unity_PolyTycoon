@@ -1,12 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class CityManager : MonoBehaviour
+
+public interface ICityManager
+{
+    CityPlaceable GetCity(string cityName);
+}
+
+public class CityManager : MonoBehaviour, ICityManager
 {
     [SerializeField] private CityWorldToScreenUi _cityWorldToScreenUi;
     [SerializeField] private List<CityPlaceable> _possibleCityPlaceables;
     private List<CityPlaceable> _placedCities;
-    private GroundPlacementController _groundPlacementController;
+    private PlacementManager _placementManager;
     private WorldToScreenUiManager _worldToScreenUiManager;
 
 
@@ -14,7 +20,7 @@ public class CityManager : MonoBehaviour
     void Start()
     {
         _placedCities = new List<CityPlaceable>();
-        _groundPlacementController = FindObjectOfType<GroundPlacementController>();
+        _placementManager = FindObjectOfType<PlacementManager>();
         _worldToScreenUiManager = FindObjectOfType<WorldToScreenUiManager>();
         AddRandomCity();
     }
@@ -62,7 +68,7 @@ public class CityManager : MonoBehaviour
         CityPlaceable city = Instantiate(cityToPlace.CityPlaceable);
         city.transform.position = cityToPlace.Position;
 
-        if (!_groundPlacementController.PlaceObject(city)) return;
+        if (!_placementManager.PlaceObject(city)) return;
         
         _placedCities.Add(city);
             
@@ -75,7 +81,7 @@ public class CityManager : MonoBehaviour
 
     CityToPlace PlacePendingCity(CityToPlace cityToPlace)
     {
-        while (!_groundPlacementController.TerrainGenerator.IsReady())
+        while (!_placementManager.TerrainGenerator.IsReady())
         {
 //            Debug.Log("Not Ready");
         }
@@ -92,7 +98,7 @@ public class CityManager : MonoBehaviour
         int direction = -1;
 
         // Moves the cityPlaceable in a growing square around the starting position until a suitable location is found
-        while (!_groundPlacementController.IsPlaceable(cityToPlace.Position, cityToPlace.CityPlaceableNeededSpaces))
+        while (!_placementManager.IsPlaceable(cityToPlace.Position, cityToPlace.CityPlaceableNeededSpaces))
         {
             // Move one step at a time
             if (currentXMove > 0)

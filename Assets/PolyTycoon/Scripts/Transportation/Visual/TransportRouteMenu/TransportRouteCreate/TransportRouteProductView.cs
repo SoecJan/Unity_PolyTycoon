@@ -7,11 +7,11 @@ public class TransportRouteProductView : PoolableObject
 	private TransportRouteSetting _setting;
 	private static Sprite _defaultSprite;
 	[SerializeField] private Image _productImage;
-	[SerializeField] private Toggle _selectionButton;
+	[SerializeField] private Button _selectionButton;
 
 	public ProductData Product
 	{
-		get { return productData; }
+		get => productData;
 		set
 		{
 			productData = value;
@@ -23,7 +23,7 @@ public class TransportRouteProductView : PoolableObject
 
 	public TransportRouteSetting Setting
 	{
-		get { return _setting ?? (_setting = new TransportRouteSetting()); }
+		get => _setting ?? (_setting = new TransportRouteSetting());
 		set
 		{
 			_setting = value;
@@ -31,11 +31,7 @@ public class TransportRouteProductView : PoolableObject
 		}
 	}
 
-	public Toggle SelectionButton
-	{
-		get { return _selectionButton; }
-		set { _selectionButton = value; }
-	}
+	public Button SelectionButton => _selectionButton;
 
 	void Start()
     {
@@ -50,10 +46,5 @@ public class TransportRouteProductView : PoolableObject
 		base.Hide();
 		_productImage.sprite = _defaultSprite;
 		productData = null;
-	}
-
-	public override void Show()
-	{
-		base.Show();
 	}
 }

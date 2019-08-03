@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
 [Serializable]
 public class VehicleOptionView : MonoBehaviour
 {
@@ -14,9 +13,7 @@ public class VehicleOptionView : MonoBehaviour
 
 	#region Getter & Setter
 	public Vehicle Vehicle {
-		get {
-			return _vehicle;
-		}
+		get => _vehicle;
 
 		set {
 			_vehicle = value;
@@ -24,12 +21,7 @@ public class VehicleOptionView : MonoBehaviour
 		}
 	}
 
-	public Toggle SelectToggle
-	{
-		get { return _selectToggle; }
-		set { _selectToggle = value; }
-	}
-
+	public Toggle SelectToggle => _selectToggle;
 	#endregion
 }
 

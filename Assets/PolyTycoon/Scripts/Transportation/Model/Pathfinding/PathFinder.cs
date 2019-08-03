@@ -2,17 +2,27 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PathFinder : MonoBehaviour
+public interface IPathFinder
+{
+    TransportRoute FindPath(TransportRoute transportRoute);
+}
+
+public class PathFinder : IPathFinder
 {
     private Dictionary<Vehicle.PathType, AbstractPathFindingAlgorithm> _pathFindingAlgorithms;
 
-    private void Start()
+    public PathFinder(TerrainGenerator terrainGenerator)
     {
-        _pathFindingAlgorithms = new Dictionary<Vehicle.PathType, AbstractPathFindingAlgorithm>();
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Road, new NetworkAStarPathFinding());
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Rail, new RailAStarPathFinding());
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Water, new TileAStarPathFinding(FindObjectOfType<TerrainGenerator>(),TerrainGenerator.TerrainType.Ocean));
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Air, new AirPathFinding());
+        _pathFindingAlgorithms = new Dictionary<Vehicle.PathType, AbstractPathFindingAlgorithm>
+        {
+            {Vehicle.PathType.Road, new NetworkAStarPathFinding()},
+            {Vehicle.PathType.Rail, new RailAStarPathFinding()},
+            {
+                Vehicle.PathType.Water,
+                new TileAStarPathFinding(terrainGenerator, TerrainGenerator.TerrainType.Ocean)
+            },
+            {Vehicle.PathType.Air, new AirPathFinding()}
+        };
     }
 
     public TransportRoute FindPath(TransportRoute transportRoute)

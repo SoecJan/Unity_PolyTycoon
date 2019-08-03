@@ -1,55 +1,60 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-	public class ProductManager : MonoBehaviour {
+public interface IProductManager
+{
+    ProductData GetRandomProduct();
+    ProductData GetProduct(string productName);
+    ProductStorage GetProductStorage(string productName, int maxAmount);
+}
 
-		#region Attributes
-		[SerializeField] private List<ProductData> products;
-		#endregion
+public class ProductManager : MonoBehaviour, IProductManager
+{
+    #region Attributes
 
-		#region Getter & Setter
-		public List<ProductData> Products {
-			get {
-				return products;
-			}
+    [SerializeField] private List<ProductData> products;
 
-			set {
-				products = value;
-			}
-		}
+    #endregion
 
-		public ProductData GetRandomProduct()
-		{
-			return products[Random.Range(0, products.Count - 1)];
-		}
+    #region Getter & Setter
 
-		public ProductData GetProduct(string productName)
-		{
-			foreach (ProductData product in products)
-			{
-				if (product.ProductName.Equals(productName))
-				{
-					return product;
-				}
-			}
-			return null;
-		}
+    public List<ProductData> Products => products;
 
-		public ProductStorage GetProductStorage(string productName, int maxAmount)
-		{
-			foreach(ProductData product in products)
-			{
-				if (product.ProductName.Equals(productName))
-				{
-					return new ProductStorage
-					{
-						StoredProductData = product,
-						MaxAmount = maxAmount,
-						Amount = 0
-					};
-				}
-			}
-			return null;
-		}
-		#endregion
-	}
+    public ProductData GetRandomProduct()
+    {
+        return products[Random.Range(0, products.Count - 1)];
+    }
+
+    public ProductData GetProduct(string productName)
+    {
+        foreach (ProductData product in products)
+        {
+            if (product.ProductName.Equals(productName))
+            {
+                return product;
+            }
+        }
+
+        return null;
+    }
+
+    public ProductStorage GetProductStorage(string productName, int maxAmount)
+    {
+        foreach (ProductData product in products)
+        {
+            if (product.ProductName.Equals(productName))
+            {
+                return new ProductStorage
+                {
+                    StoredProductData = product,
+                    MaxAmount = maxAmount,
+                    Amount = 0
+                };
+            }
+        }
+
+        return null;
+    }
+
+    #endregion
+}

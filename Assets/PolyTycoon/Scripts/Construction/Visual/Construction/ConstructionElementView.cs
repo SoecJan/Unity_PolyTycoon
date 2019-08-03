@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class ConstructionElementView : MonoBehaviour
 {
 	#region Attributes
-	private static GroundPlacementController _groundPlacementController;
+	private static PlacementManager placementManager;
 	private MapPlaceable _mapPlaceable;
 	[Header("Visuals")]
 	[SerializeField] private Button _buildingSelectButton;
@@ -15,14 +15,12 @@ public class ConstructionElementView : MonoBehaviour
 	#region Methods
 	private void Start()
 	{
-		if (!_groundPlacementController) _groundPlacementController = FindObjectOfType<GroundPlacementController>();
+		if (!placementManager) placementManager = FindObjectOfType<PlacementManager>();
 		_buildingSelectButton.onClick.AddListener(OnClick);
 	}
 
 	public MapPlaceable MapPlaceable {
-		get {
-			return _mapPlaceable;
-		}
+		get => _mapPlaceable;
 
 		set {
 			_mapPlaceable = value;
@@ -33,7 +31,7 @@ public class ConstructionElementView : MonoBehaviour
 
 	private void OnClick()
 	{
-		_groundPlacementController.PlaceableObjectPrefab = _mapPlaceable;
+		placementManager.PlaceableObjectPrefab = _mapPlaceable;
 	}
 	#endregion
 }

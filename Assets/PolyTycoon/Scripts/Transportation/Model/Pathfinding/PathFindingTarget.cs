@@ -1,10 +1,23 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class PathFindingTarget : PathFindingNode
+public interface IPathNode
 {
+	Path PathTo(PathFindingNode targetNode);
+
+	void AddPath(PathFindingNode targetNode, Path path);
+
+	void RemovePath(PathFindingNode targetNode);
+}
+
+public abstract class PathFindingTarget : PathFindingNode, IPathNode
+{
+	private Dictionary<PathFindingNode, Path> _paths;
+	
 	protected override void Initialize()
     {
 	    base.Initialize();
+	    _paths = new Dictionary<PathFindingNode, Path>();
 	    _isClickable = true;
     }
     
@@ -16,6 +29,28 @@ public abstract class PathFindingTarget : PathFindingNode
     protected override bool IsNode()
     {
 	    return true;
+    }
+    
+    public Path PathTo(PathFindingNode targetNode)
+    {
+	    return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
+    }
+
+    public void AddPath(PathFindingNode targetNode, Path path)
+    {
+	    if (_paths.ContainsKey(targetNode))
+	    {
+		    _paths[targetNode] = path;
+	    }
+	    else
+	    {
+		    _paths.Add(targetNode, path);
+	    }
+    }
+
+    public void RemovePath(PathFindingNode targetNode)
+    {
+	    _paths.Remove(targetNode);
     }
     
     public override WayPoint GetTraversalVectors(int fromDirection, int toDirection)

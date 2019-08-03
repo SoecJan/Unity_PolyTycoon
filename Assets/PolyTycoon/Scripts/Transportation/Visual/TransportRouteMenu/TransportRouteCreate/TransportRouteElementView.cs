@@ -5,14 +5,12 @@ using UnityEngine.UI;
 public class TransportRouteElementView : MonoBehaviour
 {
 	private TransportRouteElement _transportRouteElement;
-
 	[SerializeField] private Text _fromText;
 	[SerializeField] private Button _selectButton;
 
-
 	public PathFindingNode FromNode
 	{
-		get { return _transportRouteElement.FromNode; }
+		get => _transportRouteElement.FromNode;
 		set
 		{
 			if (_transportRouteElement == null) _transportRouteElement = new TransportRouteElement();
@@ -23,16 +21,13 @@ public class TransportRouteElementView : MonoBehaviour
 
 	public PathFindingNode ToNode
 	{
-		get { return _transportRouteElement.ToNode; }
-		set
-		{
-			_transportRouteElement.ToNode = value;
-		}
+		get => _transportRouteElement.ToNode;
+		set => _transportRouteElement.ToNode = value;
 	}
 
 	public TransportRouteElement RouteElement
 	{
-		get { return _transportRouteElement; }
+		get => _transportRouteElement;
 		set
 		{
 			_transportRouteElement = value;
@@ -41,11 +36,7 @@ public class TransportRouteElementView : MonoBehaviour
 		}
 	}
 
-	public Button SelectButton
-	{
-		get { return _selectButton; }
-		set { _selectButton = value; }
-	}
+	public Button SelectButton => _selectButton;
 
 	void Awake()
 	{

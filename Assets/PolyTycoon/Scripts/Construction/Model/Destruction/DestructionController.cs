@@ -3,7 +3,7 @@
 public class DestructionController : MonoBehaviour
 {
     private Camera _mainCamera;
-    private BuildingManager _buildingManager;
+    private IBuildingManager _buildingManager;
     [SerializeField] private LayerMask _buildingMask;
 
     public static bool DestructionActive { get; set; }
@@ -11,7 +11,7 @@ public class DestructionController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        _buildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
+        _buildingManager = FindObjectOfType<PlacementManager>().BuildingManager;
         _mainCamera = Camera.main;
     }
 

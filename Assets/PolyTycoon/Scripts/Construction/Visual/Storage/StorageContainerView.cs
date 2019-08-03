@@ -13,7 +13,6 @@ public class StorageContainerView : AbstractUi
     
     public AbstractStorageContainer StorageContainer
     {
-        get { return _storageContainer; }
         set
         {
             _storageContainer = value;
@@ -27,7 +26,7 @@ public class StorageContainerView : AbstractUi
             {
                 NeededProductView neededProductView = Instantiate(_storedProductView, _scrollView);
                 neededProductView.ProductData = productStorage.StoredProductData;
-                neededProductView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+                neededProductView.Text(productStorage);
             }
             
             SetVisible(true);
@@ -45,12 +44,6 @@ public class StorageContainerView : AbstractUi
         });
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     IEnumerator UpdateUi()
     {
         while (VisibleObject.activeSelf)
@@ -58,15 +51,12 @@ public class StorageContainerView : AbstractUi
             for (int i = 0; i < _scrollView.childCount; i++)
             {
                 NeededProductView neededProductView = _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
-                neededProductView.NeededAmountText.text = _storageContainer.StoredProducts()[neededProductView.ProductData].Amount + "/" +
-                                                          _storageContainer.StoredProducts()[neededProductView.ProductData].MaxAmount;
+                neededProductView.Text(_storageContainer.StoredProducts()[neededProductView.ProductData]);
             }
             yield return new WaitForSeconds(0.1f);
         }
         _updateUiCoroutine = null;
     }
-    
-    
 
     public override void Reset()
     {

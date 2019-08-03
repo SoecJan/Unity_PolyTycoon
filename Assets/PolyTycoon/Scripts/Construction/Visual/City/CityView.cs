@@ -19,9 +19,7 @@ public class CityView : AbstractUi
 
 	#region Getter & Setter
 	public ICityBuilding CityBuilding {
-		get {
-			return _cityBuilding;
-		}
+		private get => _cityBuilding;
 
 		set {
 			if (_cityBuilding == value) return;
@@ -33,17 +31,18 @@ public class CityView : AbstractUi
 				return;
 			}
 			Debug.Log("New City selected");
-			foreach (ProductStorage neededProductStorage in ((IConsumer)CityBuilding.CityPlaceable()).NeededProducts().Values)
+			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable());
+			foreach (ProductData neededProduct in cityPlaceable.ReceivedProductList())
 			{
 				NeededProductView neededProductView = GameObject.Instantiate(_productUiPrefab, _neededProductScrollView);
-				neededProductView.ProductData = neededProductStorage.StoredProductData;
-				neededProductView.NeededAmountText.text = neededProductStorage.Amount + "/" + neededProductStorage.MaxAmount;
+				neededProductView.ProductData = neededProduct;
+				neededProductView.Text(cityPlaceable.ReceiverStorage(neededProduct));
 			}
 
-			ProductStorage producedProductStorage = ((IProducer) CityBuilding.CityPlaceable()).ProducedProductStorage();
+			ProductStorage producedProductStorage = ((IProductEmitter) CityBuilding.CityPlaceable()).EmitterStorage();
 			NeededProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
 			producedProductView.ProductData = producedProductStorage.StoredProductData;
-			producedProductView.NeededAmountText.text = producedProductStorage.Amount + "/" + producedProductStorage.MaxAmount;
+			producedProductView.Text(producedProductStorage);
 			
 			StartCoroutine(UpdateUi());
 			SetVisible(true);
@@ -70,14 +69,14 @@ public class CityView : AbstractUi
 			for (int i = 0; i < _neededProductScrollView.childCount; i++)
 			{
 				NeededProductView productView = _neededProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
-				ProductStorage productStorage = ((IConsumer)_cityBuilding.CityPlaceable()).NeededProducts()[productView.ProductData];
-				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+				ProductStorage productStorage = ((IProductReceiver)_cityBuilding.CityPlaceable()).ReceiverStorage(productView.ProductData);
+				productView.Text(productStorage);
 			}
 			for (int i = 0; i < _producedProductScrollView.childCount; i++)
 			{
 				NeededProductView productView = _producedProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
-				ProductStorage productStorage = ((IProducer)_cityBuilding.CityPlaceable()).ProducedProductStorage();
-				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+				ProductStorage productStorage = ((IProductEmitter)_cityBuilding.CityPlaceable()).EmitterStorage();
+				productView.Text(productStorage);
 			}
 			yield return new WaitForSeconds(1);
 		}

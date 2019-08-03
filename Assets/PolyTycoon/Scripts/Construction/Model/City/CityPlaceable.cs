@@ -1,40 +1,85 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
+
+public interface ICityPlaceable
+{
+	CityMainBuilding MainBuilding { get; set; }
+
+	/// <summary>
+	/// Count of people living in this cityPlaceable.
+	/// </summary>
+	/// <returns></returns>
+	int CurrentInhabitantCount();
+
+	Path PathTo(PathFindingNode targetNode);
+	void AddPath(PathFindingNode targetNode, Path path);
+	void RemovePath(PathFindingNode targetNode);
+	void Rotate(Vector3 axis, float rotationAmount);
+}
 
 /// <summary>
 ///  Holds a reference to all buildings contained in this cityPlaceable. 
 /// </summary>
-public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNode
+public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmitter, IPathNode, ICityPlaceable
 {
 	#region Attributes
-	private Dictionary<ProductData, ProductStorage> _neededProductStorages;
-	private Vector2 _centerPosition; // Center Position of this CityPlaceable
-
+	private Dictionary<ProductData, ProductStorage> _receivedProducts;
+	private List<ProductStorage> _emittedProducts;
+	
 	[SerializeField] private CityMainBuilding _mainBuilding;
-	[SerializeField] private ProductData _producedProduct;
-	private ProductStorage _productStorage;
+	[SerializeField] private List<ProductData> _producedProducts;
+	
 	private Dictionary<PathFindingNode, Path> _paths;
 	#endregion
 
 	#region Getter & Setter
-	Dictionary<ProductData, ProductStorage> IConsumer.NeededProducts()
+	public ProductStorage ReceiverStorage(ProductData productData = null)
 	{
-		return _neededProductStorages;
+		if (_receivedProducts.Count == 0) return null;
+		if (productData == null && _receivedProducts.Count == 1) return _receivedProducts.Values.GetEnumerator().Current;
+		return productData != null ? _receivedProducts[productData] : null;
 	}
+
+	public List<ProductData> ReceivedProductList()
+	{
+		return new List<ProductData> (_receivedProducts.Keys);
+	}
+
+	#region ProductEmitter
+	public ProductStorage EmitterStorage(ProductData productData = null)
+	{
+		if (productData != null) return _emittedProducts.Find(x => x.StoredProductData.Equals(productData));
+		switch (_emittedProducts.Count)
+		{
+			case 1:
+				return _emittedProducts.ToArray()[0];
+			default:
+				return null;
+		}
+	}
+
+	public bool IsEmitting(ProductData productData)
+	{
+		return _emittedProducts.Find(x => x.StoredProductData.Equals(productData)) != null;
+	}
+
+	public List<ProductData> EmittedProductList()
+	{
+		return _producedProducts;
+	}
+	#endregion
 	
-	public ProductStorage ProducedProductStorage()
+	
+	/// <summary>
+	/// Count of people living in this cityPlaceable.
+	/// </summary>
+	/// <returns></returns>
+	public int CurrentInhabitantCount()
 	{
-		return _productStorage;
+		return ChildMapPlaceables.Count * 3;
 	}
-
-	public Vector2 CenterPosition {
-		get => _centerPosition;
-
-		set => _centerPosition = value;
-	}
-
-	public int Size { get; set; }
 
 	public CityMainBuilding MainBuilding {
 		get => _mainBuilding;
@@ -53,58 +98,43 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNod
 			{
 				SimpleMapPlaceable simpleMapPlaceable = transform.GetChild(i).gameObject.GetComponent<SimpleMapPlaceable>();
 				if (simpleMapPlaceable) ChildMapPlaceables.Add(simpleMapPlaceable);
-				if (simpleMapPlaceable is CityMainBuilding && !_mainBuilding) _mainBuilding = (CityMainBuilding)simpleMapPlaceable;
+				if (simpleMapPlaceable is CityMainBuilding building && !_mainBuilding) _mainBuilding = building;
 			}
 		}
 		_paths = new Dictionary<PathFindingNode, Path>();
-		_neededProductStorages = new Dictionary<ProductData, ProductStorage>();
-		_productStorage = new ProductStorage(_producedProduct, Random.Range(0, 4) + 3);
+		_receivedProducts = new Dictionary<ProductData, ProductStorage>();
+		_emittedProducts = new List<ProductStorage>(); 
+		FillEmittedProducts();
+		FillReceivedProducts();
+	}
+
+	private void FillEmittedProducts()
+	{
+		foreach (ProductData product in _producedProducts)
+		{
+			_emittedProducts.Add(new ProductStorage(product, Random.Range(3, 7)));
+		}
+	}
+	
+	private void FillReceivedProducts()
+	{
 		foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
 		{
 			if (!(simpleMapPlaceable is CityBuilding)) continue;
-			CityBuilding cityBuilding = ((CityBuilding)simpleMapPlaceable);
+			CityBuilding cityBuilding = ((CityBuilding) simpleMapPlaceable);
 			foreach (NeededProduct neededProduct in cityBuilding.ConsumedProducts)
 			{
-				if (_neededProductStorages.ContainsKey(neededProduct.Product))
+				if (_receivedProducts.ContainsKey(neededProduct.Product))
 				{
-					_neededProductStorages[neededProduct.Product].MaxAmount += neededProduct.Amount;
+					_receivedProducts[neededProduct.Product].MaxAmount += neededProduct.Amount;
 				}
 				else
 				{
-					_neededProductStorages.Add(neededProduct.Product, new ProductStorage(neededProduct.Product, neededProduct.Amount));
+					_receivedProducts.Add(neededProduct.Product, new ProductStorage(neededProduct.Product, neededProduct.Amount));
 				}
 			}
 		}
 	}
-
-	/// <summary>
-	/// Moves the CityPlaceable by given value
-	/// </summary>
-	/// <param name="x">x offset</param>
-	/// <param name="y">y offset</param>
-	/// <param name="z">z offset</param>
-	public void Translate(int x, float y, int z)
-	{
-		_centerPosition.x += x;
-		_centerPosition.y += z;
-		transform.Translate(x, y, z);
-	}
-
-	/// <summary>
-	/// Count of people living in this cityPlaceable.
-	/// </summary>
-	/// <returns></returns>
-	public int CurrentInhabitantCount()
-	{
-		int result = 0;
-		foreach (SimpleMapPlaceable mapPlaceable in ChildMapPlaceables)
-		{
-			if (!(mapPlaceable is CityBuilding)) continue;
-			result += ((CityBuilding)mapPlaceable).CurrentResidentCount;
-		}
-		return result;
-	}
-	#endregion
 
 	public Path PathTo(PathFindingNode targetNode)
 	{
@@ -127,4 +157,6 @@ public class CityPlaceable : ComplexMapPlaceable, IConsumer, IProducer, IPathNod
 	{
 		_paths.Remove(targetNode);
 	}
+	
+	#endregion
 }

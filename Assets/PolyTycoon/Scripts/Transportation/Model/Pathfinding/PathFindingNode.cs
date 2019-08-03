@@ -2,12 +2,18 @@
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
+public interface IPathFindingNode
+{
+    PathFindingNode[] NeighborNodes { get; }
+    bool IsTraversable();
+}
+
 /// <summary>
 /// All objects that are supposed to be reached by a vehicle need to have this component.
 /// After successful registration at BuildingManager <see cref="BuildingManager"/> this component searches for connected Node, using <see cref="PathFindingNode.OnPlacement"/> in adjacent tiles.
 /// <see cref="PathFindingNode.OnDestroy"/> handles the cleanup after a street is destroyed.
 /// </summary>
-public abstract class PathFindingNode : SimpleMapPlaceable
+public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 {
     #region Attributes
 
@@ -80,7 +86,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
     protected override void Initialize()
     {
-        if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
+        if (BuildingManager == null) BuildingManager = FindObjectOfType<PlacementManager>().BuildingManager;
     }
 
     void OnDrawGizmos()
@@ -142,7 +148,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
     public override void OnPlacement()
     {
         base.OnPlacement();
-        if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
+        if (BuildingManager == null) BuildingManager = FindObjectOfType<PlacementManager>().BuildingManager;
         TraversalOffset = transform.position;
         NeighborNodes = new PathFindingNode[NeighborCount];
         TotalNodeCount += 1;

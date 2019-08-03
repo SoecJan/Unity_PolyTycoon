@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Airport : Warehouse
+public class Airport : AbstractStorageContainer
 {
     public const int LANDING = 0;
     public const int TAKEOFF = 1;

@@ -5,77 +5,85 @@ using UnityEngine;
 [RequireComponent(typeof(VehicleMover))]
 public class Vehicle : MonoBehaviour
 {
-	#region Attributes
+    #region Attributes
 
-	public enum PathType { Water, Road, Rail, Air };
-	
-	private int _routeIndex = -1;
-	private List<Path> _pathList;
-	[SerializeField] private PathType _pathType = PathType.Road;
-	[SerializeField] private VehicleMover _mover;
-	[SerializeField] private Sprite _sprite;
-	private Outline _outline;
-	#endregion
+    public enum PathType
+    {
+        Water,
+        Road,
+        Rail,
+        Air
+    };
 
-	#region Getter & Setter
+    private int _routeIndex = -1;
+    private List<Path> _pathList;
+    [SerializeField] private PathType _pathType = PathType.Road;
+    [SerializeField] private VehicleMover _mover;
+    [SerializeField] private Sprite _sprite;
 
-	public Outline Outline
-	{
-		get => _outline;
-		set => _outline = value;
-	}
+    #endregion
 
-	public VehicleMover Mover {
-		get => _mover;
-		set => _mover = value;
-	}
+    #region Getter & Setter
 
-	public Sprite Sprite => _sprite;
+    public Outline Outline { get; private set; }
 
-	public List<Path> PathList {
-		get => _pathList;
+    public VehicleMover Mover
+    {
+        get => _mover;
+        private set => _mover = value;
+    }
 
-		set {
-			_pathList = value;
-			_routeIndex = -1;
-		}
-	}
+    public Sprite Sprite => _sprite;
 
-	public int RouteIndex => _routeIndex;
+    protected List<Path> PathList
+    {
+        get => _pathList;
 
-	public PathType MoveType
-	{
-		get => _pathType;
-		set => _pathType = value;
-	}
+        set
+        {
+            _pathList = value;
+            _routeIndex = -1;
+        }
+    }
 
-	#endregion
+    protected int RouteIndex => _routeIndex;
 
-	#region Methods
-	// Use this for initialization
-	private void Start()
-	{
-		if (!Mover)
-		{
-			Mover = gameObject.AddComponent<VehicleMover>();
-		}
+    public PathType MoveType
+    {
+        get => _pathType;
+        set => _pathType = value;
+    }
 
-		if (!Outline)
-		{
-			Outline = gameObject.AddComponent<Outline>();
-			Outline.OutlineMode = Outline.Mode.OutlineAll;
-			Outline.OutlineColor = Color.yellow;
-			Outline.OutlineWidth = 5f;
-			Outline.enabled = false;
-		}
-		
-		Mover.OnArrive += OnArrive;
-	}
+    #endregion
 
-	protected virtual void OnArrive()
-	{
-		_routeIndex = (RouteIndex + 1) % _pathList.Count;
-		_mover.WayPointList = _pathList[RouteIndex].WayPoints;
-	}
-	#endregion
+    #region Methods
+
+    // Use this for initialization
+    private void Start()
+    {
+        if (!Mover)
+        {
+            Mover = gameObject.AddComponent<VehicleMover>();
+        }
+
+        if (!Outline)
+        {
+            Outline = gameObject.AddComponent<Outline>();
+            Outline.OutlineMode = Outline.Mode.OutlineAll;
+            Outline.OutlineColor = Color.yellow;
+            Outline.OutlineWidth = 5f;
+            Outline.enabled = false;
+        }
+
+        Mover.OnArrive += OnArrive;
+    }
+
+    protected virtual void OnArrive()
+    {
+        Debug.Log("PathList" + _pathList);
+        _routeIndex = (RouteIndex + 1) % _pathList.Count;
+        _mover.WayPointList = _pathList[RouteIndex].WayPoints;
+    }
+
+    #endregion
 }
