@@ -1,64 +1,58 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
-public class MoverController
+public class WaypointMoverController
 {
     private float _currentSpeed = 2f;
     private float _maxSpeed = 2f;
 
     private Transform _moverTransform;
 
-    private List<WayPoint> _wayPointList;
-    private int _wayPointIndex;
+    private List<WayPoint> _waypointList;
+    private int _currentWaypointIndex;
 
     private bool _waiting = true;
     private Coroutine _cornerCoroutine;
 
-    public MoverController()
+    public WaypointMoverController()
     {
     }
+    
+    public float CurrentSpeed
+    {
+        get => _currentSpeed;
+        set => _currentSpeed = value;
+    }
 
-    public bool IsWaiting
+    public float MaxSpeed
+    {
+        get => _maxSpeed;
+        set => _maxSpeed = value;
+    }
+
+    public bool Waiting
     {
         get => _waiting;
+        set => _waiting = value;
     }
 
-    public float MaxSpeed => _maxSpeed;
-
-    public List<WayPoint> WayPointList
+    public List<WayPoint> WaypointList
     {
         set
         {
-            _wayPointList = value;
-            _wayPointIndex = 0;
+            _waypointList = value;
+            _currentWaypointIndex = 0;
             _waiting = false;
         }
     }
 
     public Action OnArrive { get; set; }
 
-    public MoverController(Transform moverTransform)
+    public WaypointMoverController(Transform moverTransform)
     {
         _moverTransform = moverTransform;
-    }
-
-    private bool IsBetweenPoints(Vector2 pointA, Vector2 pointB, Vector2 pointChecked)
-    {
-        return Math.Abs(Distance(pointA, pointChecked) + Distance(pointB, pointChecked) - Distance(pointA, pointB)) <
-               0.1f;
-    }
-
-    private float Distance(Vector2 pointA, Vector2 pointB)
-    {
-        return (pointA - pointB).sqrMagnitude;
-    }
-
-    private Vector2 Vec2(Vector3 inputVector)
-    {
-        return new Vector2(inputVector.x, inputVector.z);
     }
 
     private float GetAngle(float radius, float distance)
@@ -82,25 +76,24 @@ public class MoverController
 
     public IEnumerator Move()
     {
-        while (_wayPointList == null || IsWaiting)
+        while (_waypointList == null || Waiting)
         {
             yield return 0;
         }
-        while (_wayPointIndex != _wayPointList.Count)
+        while (_currentWaypointIndex != _waypointList.Count)
         {
-            WayPoint currentWayPoint = _wayPointList[_wayPointIndex];
+            WayPoint currentWayPoint = _waypointList[_currentWaypointIndex];
             switch (currentWayPoint.TraversalVectors.Length)
             {
                 case 2:
                     yield return MoveStraight(currentWayPoint);
-                    
                     break;
                 case 3:
                     yield return MoveCurve(currentWayPoint);
                     break;
             }
         
-            _wayPointIndex = (_wayPointIndex + 1);
+            _currentWaypointIndex = (_currentWaypointIndex + 1);
         }
         _waiting = true;
         OnArrive();
@@ -112,7 +105,7 @@ public class MoverController
         Vector3 firstTraversalVector = currentWayPoint.TraversalVectors[0];
         Vector3 secondTraversalVector = currentWayPoint.TraversalVectors[1];
 
-        yield return MoveStraight(_wayPointIndex == 0 ? firstTraversalVector : secondTraversalVector);
+        yield return MoveStraight(_currentWaypointIndex == 0 ? firstTraversalVector : secondTraversalVector);
     }
 
     private IEnumerator MoveStraight(Vector3 targetPosition)
@@ -133,7 +126,6 @@ public class MoverController
             currentPosition = currentPosition + (direction * _currentSpeed * Time.deltaTime); // Next Position
             futureDifference = targetPosition - currentPosition; // Difference Next To Target
             _moverTransform.position = currentPosition; // Set Mover Position
-            Debug.Log("Move Straight");
             yield return null;
         }
 
@@ -163,7 +155,6 @@ public class MoverController
         {
             // Get Angle on a circle with given radius and distance driven
             float circumferenceDistanceToAngle = GetAngle(currentWayPoint.Radius, Time.deltaTime * _currentSpeed);
-            Debug.Log("Move Corner" + progress + ", " + circumferenceDistanceToAngle + ", r: " + currentWayPoint.Radius + ", s:" + _currentSpeed + ", t: " + Time.deltaTime);
             // Add to the progress that was already made
             progress += circumferenceDistanceToAngle / 90f; // 90 Degree Turn at each corner
             // Set the vehicle position to the one on the circle
@@ -183,13 +174,13 @@ public class MoverController
     }
 }
 
-public class VehicleMover : MonoBehaviour
+public class WaypointMover : MonoBehaviour
 {
-    private MoverController _moverController;
+    private WaypointMoverController _waypointMoverController;
 
     void Awake()
     {
-        _moverController = new MoverController(transform);
+        _waypointMoverController = new WaypointMoverController(transform);
     }
 
     private void Start()
@@ -197,20 +188,37 @@ public class VehicleMover : MonoBehaviour
         OnArrive.Invoke();
     }
 
-    public float MaxSpeed => _moverController.MaxSpeed;
+    public float CurrentSpeed
+    {
+        get => _waypointMoverController.CurrentSpeed;
+        set => _waypointMoverController.CurrentSpeed = value;
+    }
+
+    public float MaxSpeed
+    {
+        get => _waypointMoverController.MaxSpeed;
+        set => _waypointMoverController.MaxSpeed = value;
+    }
+
+    public bool Waiting
+    {
+        get => _waypointMoverController.Waiting;
+        set => _waypointMoverController.Waiting = value;
+    }
 
     public Action OnArrive
     {
-        get => _moverController.OnArrive;
-        set => _moverController.OnArrive = value;
+        get => _waypointMoverController.OnArrive;
+        set => _waypointMoverController.OnArrive = value;
     }
 
-    public List<WayPoint> WayPointList
+    protected List<WayPoint> WaypointList
     {
         set
         {
-            _moverController.WayPointList = value;
-            StartCoroutine(_moverController.Move());
+            Debug.Log("Set waypoint list and now moving");
+            _waypointMoverController.WaypointList = value;
+            StartCoroutine(_waypointMoverController.Move());
         }
     }
 }

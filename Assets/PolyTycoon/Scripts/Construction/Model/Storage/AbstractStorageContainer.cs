@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 
 public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmitter, IProductReceiver
 {
     private static ProductManager _productManager;
     private Dictionary<ProductData, ProductStorage> _storedProducts;
-    
+
     protected override void Initialize()
     {
         base.Initialize();
@@ -15,15 +16,10 @@ public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmit
         _storedProducts = new Dictionary<ProductData, ProductStorage>();
     }
 
-    public Dictionary<ProductData, ProductStorage> StoredProducts()
-    {
-        return _storedProducts;
-    }
-
     public ProductStorage EmitterStorage(ProductData productData = null)
     {
         if (_storedProducts.Count == 0) return null;
-        if (productData == null && _storedProducts.Count == 1) return _storedProducts.Values.GetEnumerator().Current;
+        if (productData == null && _storedProducts.Count == 1) return _storedProducts.Values.ToArray()[0];
         return productData != null ? _storedProducts[productData] : null;
     }
 
@@ -34,22 +30,18 @@ public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmit
 
     public List<ProductData> EmittedProductList()
     {
-        return new List<ProductData> (_storedProducts.Keys);
+        return new List<ProductData>(_storedProducts.Keys);
     }
 
     public ProductStorage ReceiverStorage(ProductData productData = null)
     {
-        if (productData == null && _storedProducts.Count == 1) return _storedProducts.Values.GetEnumerator().Current;
+        if (productData == null && _storedProducts.Count == 1) return _storedProducts.Values.ToArray()[0];
         if (productData == null) return null;
-        if (_storedProducts.ContainsKey(productData))
+        if (!_storedProducts.ContainsKey(productData))
         {
-            return _storedProducts[productData];
+            _storedProducts.Add(productData, new ProductStorage(productData, 99));
         }
-        else
-        {
-            _storedProducts.Add(productData, new ProductStorage(productData));
-            return _storedProducts[productData];
-        }
+        return _storedProducts[productData];
     }
 
     public List<ProductData> ReceivedProductList()

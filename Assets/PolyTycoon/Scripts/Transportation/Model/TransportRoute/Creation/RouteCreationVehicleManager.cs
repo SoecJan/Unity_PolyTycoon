@@ -6,12 +6,12 @@ using Object = UnityEngine.Object;
 [Serializable]
 public class RouteCreationVehicleManager
 {
-     #region Attributes
+    #region Attributes
 
     private TransportRouteCreateController _routeCreateController;
-    private TransportVehicle _selectedVehicle;
-    public System.Action<TransportVehicle> OnVehicleSelect;
-    
+    private TransportVehicleData _selectedTransportVehicleData;
+    public System.Action<TransportVehicleData> OnVehicleSelect;
+
     [SerializeField] private Text _vehicleChoiceTitleText;
     [SerializeField] private GameObject _vehicleChoiceVisibleGameObject;
     [SerializeField] private VehicleOptionView _vehicleOptionViewPrefab;
@@ -28,15 +28,15 @@ public class RouteCreationVehicleManager
     {
         FillVehicleView();
     }
-    
-    public TransportVehicle SelectedVehicle
+
+    public TransportVehicleData SelectedTransportVehicleData
     {
-        get { return _selectedVehicle; }
+        get { return _selectedTransportVehicleData; }
 
         set
         {
-            _selectedVehicle = value;
-            UpdateUi(SelectedVehicle);
+            _selectedTransportVehicleData = value;
+            UpdateUi(SelectedTransportVehicleData);
         }
     }
 
@@ -47,8 +47,6 @@ public class RouteCreationVehicleManager
         set { _vehicleChoiceVisibleGameObject = value; }
     }
 
-    
-
     #endregion
 
     #region Standard Methods
@@ -57,7 +55,7 @@ public class RouteCreationVehicleManager
     {
         VehicleChoiceVisibleGameObject.SetActive(true);
 
-        SelectedVehicle = null;
+        SelectedTransportVehicleData = null;
         _vehicleChoiceTitleText.text = "Vehicle Amount";
         _speedText.text = "-";
         _strengthText.text = "-";
@@ -69,39 +67,36 @@ public class RouteCreationVehicleManager
 
     #endregion
 
-    private void OnVehicleSelectClick(Vehicle vehicle)
+    private void OnVehicleSelectClick(TransportVehicleData transportVehicleData)
     {
-        Debug.Log("Vehicle selected: " + vehicle.name);
-        if (vehicle is TransportVehicle)
-        {
-            SelectedVehicle = (TransportVehicle) vehicle;
-            OnVehicleSelect(SelectedVehicle);
-        }
+        Debug.Log("Vehicle selected: " + transportVehicleData.VehicleName);
+        SelectedTransportVehicleData = transportVehicleData;
+        OnVehicleSelect(SelectedTransportVehicleData);
     }
 
     private void FillVehicleView()
     {
         VehicleManager vehicleManager = Object.FindObjectOfType<VehicleManager>();
-        foreach (Vehicle vehicle in vehicleManager.VehicleList)
+        foreach (TransportVehicleData transportVehicleData in vehicleManager.VehicleList)
         {
             VehicleOptionView vehicleOptionObject =
                 GameObject.Instantiate(_vehicleOptionViewPrefab, _vehicleChoiceScrollViewTransform);
-            vehicleOptionObject.Vehicle = vehicle;
+            vehicleOptionObject.TransportVehicle = transportVehicleData;
             vehicleOptionObject.SelectToggle.onValueChanged.AddListener(delegate(bool isActive)
             {
                 if (isActive)
                 {
-                    OnVehicleSelectClick(vehicleOptionObject.Vehicle);
+                    OnVehicleSelectClick(vehicleOptionObject.TransportVehicle);
                 }
             });
             vehicleOptionObject.SelectToggle.group = _vehicleChoiceToggleGroup;
         }
     }
 
-    private void UpdateUi(TransportVehicle vehicle)
+    private void UpdateUi(TransportVehicleData transportVehicleData)
     {
-        if (!vehicle) return;
-        _vehicleChoiceTitleText.text = vehicle.name + " Amount";
+        if (!transportVehicleData) return;
+        _vehicleChoiceTitleText.text = transportVehicleData.VehicleName + " Amount";
         _speedText.text = "-";
         _strengthText.text = "-";
         _capacityText.text = "-";

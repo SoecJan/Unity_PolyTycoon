@@ -21,7 +21,7 @@ public class TransportRoute
 
     #region Getter & Setter
 
-    public TransportVehicle Vehicle { get; set; }
+    public TransportVehicle TransportVehicle { get; set; }
 
     public List<TransportRouteElement> TransportRouteElements { get; set; }
 

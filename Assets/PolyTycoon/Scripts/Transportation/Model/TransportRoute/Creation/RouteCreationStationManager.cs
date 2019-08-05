@@ -96,7 +96,7 @@ public class RouteCreationStationManager
     public void OnTransportStationClick(PathFindingNode pathFindingNode)
     {
         if (!RouteElementVisibleGameObject.activeSelf) return;
-        if (_routeVehicleChooser.SelectedVehicle == null)
+        if (_routeVehicleChooser.SelectedTransportVehicleData == null)
         {
             _routeElementUserInformationPopup.InformationText = "Vehicle needs to be set first.";
             return;

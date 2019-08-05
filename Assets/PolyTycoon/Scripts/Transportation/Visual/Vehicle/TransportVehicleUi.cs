@@ -11,7 +11,7 @@ public class TransportVehicleUi : AbstractUi
 {
     // dependencies
     private TransportRouteCreateController _transportRouteCreateController;
-    private TransportVehicle _displayedTransportVehicle;
+    private TransportVehicle _transportVehicle;
     private Coroutine _coroutine;
 
     // Ui navigation
@@ -27,7 +27,7 @@ public class TransportVehicleUi : AbstractUi
     [SerializeField] private Text _strengthText;
     [SerializeField] private Text _topSpeedText;
     [SerializeField] private Text _capacityText;
-    [SerializeField] private Text _loadSpeedText;
+    [SerializeField] private Text _transferTimeText;
 
     // Loaded product display
     [SerializeField] private RectTransform _scrollView;
@@ -42,13 +42,13 @@ public class TransportVehicleUi : AbstractUi
     {
         set
         {
-            if (_displayedTransportVehicle == value) return; // Don't update the selected object
-            if (_displayedTransportVehicle) _displayedTransportVehicle.Outline.enabled = false; // remove outline
-            _displayedTransportVehicle = value; 
-            if (_displayedTransportVehicle) _displayedTransportVehicle.Outline.enabled = true; // add outline
+            if (_transportVehicle == value) return; // Don't update the selected object
+            if (_transportVehicle) _transportVehicle.Outline.enabled = false; // remove outline
+            _transportVehicle = value; 
+            if (_transportVehicle) _transportVehicle.Outline.enabled = true; // add outline
 
-            ShowVehicleInformation(_displayedTransportVehicle); // Update information display
-            SetVisible(_displayedTransportVehicle != null); // Show Ui, if a vehicle is selected
+            ShowVehicleInformation(_transportVehicle); // Update information display
+            SetVisible(_transportVehicle != null); // Show Ui, if a vehicle is selected
             
             if (_coroutine == null) _coroutine = StartCoroutine(UpdateUi());
         }
@@ -68,9 +68,9 @@ public class TransportVehicleUi : AbstractUi
 
     private void OnVehicleRouteButtonClick()
     {
-        if (_displayedTransportVehicle != null)
+        if (_transportVehicle != null)
         {
-            _transportRouteCreateController.LoadRoute(_displayedTransportVehicle.TransportRoute);
+            _transportRouteCreateController.LoadRoute(_transportVehicle.TransportRoute);
         }
     }
 
@@ -81,9 +81,9 @@ public class TransportVehicleUi : AbstractUi
         _initialCostText.text = transportVehicle != null ? "-" : "/";
         _dailyCostText.text = transportVehicle != null ? "-" : "/";
         _strengthText.text = transportVehicle != null ? "-" : "/";
-        _topSpeedText.text = transportVehicle != null ? transportVehicle.TransferTime.ToString() : "-";
-        _capacityText.text = transportVehicle != null ? transportVehicle.TotalCapacity.ToString() : "-";
-        _loadSpeedText.text = transportVehicle != null ? transportVehicle.TransferTime.ToString() : "-";
+        _topSpeedText.text = transportVehicle != null ? transportVehicle.MaxSpeed.ToString() : "-";
+        _capacityText.text = transportVehicle != null ? transportVehicle.MaxCapacity.ToString() : "-";
+        _transferTimeText.text = transportVehicle != null ? transportVehicle.TransferTime.ToString() : "-";
         
         // Set loaded products view
         if (transportVehicle != null)
@@ -106,12 +106,12 @@ public class TransportVehicleUi : AbstractUi
 
     private IEnumerator UpdateUi()
     {
-        while (_displayedTransportVehicle != null)
+        while (_transportVehicle != null)
         {
             for (int i = 0; i < _scrollView.childCount; i++)
             {
                 NeededProductView productView = _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
-                ProductStorage productStorage = _displayedTransportVehicle.TransportStorage(productView.ProductData);
+                ProductStorage productStorage = _transportVehicle.TransportStorage(productView.ProductData);
                 productView.Text(productStorage);
             }
             yield return new WaitForSeconds(1);

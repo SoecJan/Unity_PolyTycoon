@@ -134,7 +134,6 @@ public class FactoryView : AbstractUi
         {
             if (_factory.ProductData != null)
             {
-                
                 _amountLabel.text = _factory.EmitterStorage().Amount.ToString() + "/" +
                                     _factory.EmitterStorage().MaxAmount.ToString();
                 _productionTimeSlider.value = _factory.ProductionProgress;

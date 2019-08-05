@@ -2,22 +2,21 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[Serializable]
 public class VehicleOptionView : MonoBehaviour
 {
 	#region Attributes
-	private Vehicle _vehicle;
+	private TransportVehicleData _transportVehicleData;
 	[SerializeField] private Toggle _selectToggle;
 	[SerializeField] private Image _image;
 	#endregion
 
 	#region Getter & Setter
-	public Vehicle Vehicle {
-		get => _vehicle;
+	public TransportVehicleData TransportVehicle {
+		get => _transportVehicleData;
 
 		set {
-			_vehicle = value;
-			_image.sprite = _vehicle.Sprite;
+			_transportVehicleData = value;
+			_image.sprite = value.Sprite;
 		}
 	}
 

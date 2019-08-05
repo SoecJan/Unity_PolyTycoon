@@ -38,7 +38,7 @@ public class TransportRouteCreateController : AbstractUi
     {
         _userInformationPopup = FindObjectOfType<UserInformationPopup>();
         _vehicleManager.Initialize();
-        _vehicleManager.OnVehicleSelect += vehicle => _routeToggle.interactable = vehicle;
+        _vehicleManager.OnVehicleSelect += transportVehicleData => _routeToggle.interactable = transportVehicleData;
         SettingController.Initialize();
         _stationManager.RouteCreateController = this;
 
@@ -55,7 +55,7 @@ public class TransportRouteCreateController : AbstractUi
             _stationManager.RouteElementVisibleGameObject.SetActive(value);
             if (value)
             {
-                SettingController.OnShow(_vehicleManager.SelectedVehicle);
+                SettingController.OnShow(_vehicleManager.SelectedTransportVehicleData);
             }
             else
             {
@@ -84,28 +84,33 @@ public class TransportRouteCreateController : AbstractUi
     {
         SetVisible(true);
     }
+    
+    public string RouteName { get => _stationManager.RouteName; }
+    
+    public TransportVehicleData TransportVehicleData { get => _vehicleManager.SelectedTransportVehicleData;}
+    
+    
 
     #endregion
 
     public void IsReady()
     {
-        if (!_vehicleManager.SelectedVehicle) return;
+        if (!_vehicleManager.SelectedTransportVehicleData) return;
         if (_stationManager.TransportRouteElementViews.Count <= 1) return;
         _createButton.interactable = true;
     }
 
     public void CreateRoute()
     {
-        if (!_vehicleManager.SelectedVehicle)
+        if (!TransportVehicleData)
             _userInformationPopup.InformationText = "Vehicle needs to be set first!";
         if (_stationManager.TransportRouteElementViews.Count <= 1)
             _userInformationPopup.InformationText = "A route needs more than 1 station!";
 
-        string routeName = _stationManager.RouteName;
-        TransportVehicle transportVehicle = _vehicleManager.SelectedVehicle;
+        TransportVehicleData transportVehicleData = _vehicleManager.SelectedTransportVehicleData;
         List<TransportRouteElement> routeElements = _stationManager.TransportRouteElements;
             
-        _transportRouteManager.CreateTransportRoute(routeName, transportVehicle, routeElements);
+        _transportRouteManager.CreateTransportRoute(transportVehicleData, routeElements);
     }
     
     public void LoadRoute(TransportRoute transportRoute)
@@ -114,18 +119,16 @@ public class TransportRouteCreateController : AbstractUi
         _createButton.gameObject.SetActive(false);
         _applyButton.gameObject.SetActive(true);
         SetVisible(true);
-        VehicleManager.SelectedVehicle = _selectedTransportRoute.Vehicle;
         StationManager.LoadTransportRoute(_selectedTransportRoute);
     }
 
     public void SaveRouteChanges()
     {
-        if (!_vehicleManager.SelectedVehicle)
+        if (!_vehicleManager.SelectedTransportVehicleData)
             _userInformationPopup.InformationText = "Vehicle needs to be set first!";
         if (_stationManager.TransportRouteElementViews.Count <= 1)
             _userInformationPopup.InformationText = "A route needs more than 1 station!";
 
-        _selectedTransportRoute.Vehicle = _vehicleManager.SelectedVehicle;
         _selectedTransportRoute.RouteName = _stationManager.RouteName;
         _selectedTransportRoute.TransportRouteElements = _stationManager.TransportRouteElements;
         _transportRouteManager.OnTransportRouteChange(_selectedTransportRoute);

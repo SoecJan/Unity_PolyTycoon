@@ -1,34 +1,35 @@
-using System;
+
 using System.Collections.Generic;
-using UnityEngine;
 
 public interface IPathFinder
 {
-    TransportRoute FindPath(TransportRoute transportRoute);
+    List<TransportRouteElement> FindPath(TransportVehicleData transportVehicleData,
+        List<TransportRouteElement> transportRouteElements);
 }
 
 public class PathFinder : IPathFinder
 {
-    private Dictionary<Vehicle.PathType, AbstractPathFindingAlgorithm> _pathFindingAlgorithms;
+    private Dictionary<PathType, AbstractPathFindingAlgorithm> _pathFindingAlgorithms;
 
     public PathFinder(TerrainGenerator terrainGenerator)
     {
-        _pathFindingAlgorithms = new Dictionary<Vehicle.PathType, AbstractPathFindingAlgorithm>
+        _pathFindingAlgorithms = new Dictionary<PathType, AbstractPathFindingAlgorithm>
         {
-            {Vehicle.PathType.Road, new NetworkAStarPathFinding()},
-            {Vehicle.PathType.Rail, new RailAStarPathFinding()},
+            {PathType.Road, new NetworkAStarPathFinding()},
+            {PathType.Rail, new RailAStarPathFinding()},
             {
-                Vehicle.PathType.Water,
+                PathType.Water,
                 new TileAStarPathFinding(terrainGenerator, TerrainGenerator.TerrainType.Ocean)
             },
-            {Vehicle.PathType.Air, new AirPathFinding()}
+            {PathType.Air, new AirPathFinding()}
         };
     }
 
-    public TransportRoute FindPath(TransportRoute transportRoute)
+    public List<TransportRouteElement> FindPath(TransportVehicleData transportVehicleData,
+        List<TransportRouteElement> transportRouteElements)
     {
-        AbstractPathFindingAlgorithm _pathFinder = _pathFindingAlgorithms[transportRoute.Vehicle.MoveType];
-        foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
+        AbstractPathFindingAlgorithm _pathFinder = _pathFindingAlgorithms[transportVehicleData.PathType];
+        foreach (TransportRouteElement transportRouteElement in transportRouteElements)
         {
             IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
             Path path;
@@ -45,9 +46,8 @@ public class PathFinder : IPathFinder
             {
                 path = _pathFinder.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
             }
-
             transportRouteElement.Path = path;
         }
-        return transportRoute;
+        return transportRouteElements;
     }
 }
