@@ -214,11 +214,9 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
             {
                 Destroy(_draggedGameObjects.Values.ElementAt(i).gameObject);
             }
-
             _draggedGameObjects.Clear();
-            Destroy(_currentPlaceableObject.gameObject);
         }
-
+        Destroy(_currentPlaceableObject.gameObject);
         _currentPlaceableObject = null;
         _isDragging = false;
     }

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
@@ -10,28 +11,26 @@ using Image = UnityEngine.UI.Image;
 public class TransportVehicleUi : AbstractUi
 {
     // dependencies
-    private TransportRouteCreateController _transportRouteCreateController;
     private TransportVehicle _transportVehicle;
     private Coroutine _coroutine;
 
     // Ui navigation
-    [SerializeField] private Button _vehicleRouteButton;
     [SerializeField] private Button _exitButton;
 
     // Vehicle display
     [SerializeField] private Image _vehicleImage;
 
     // Vehicle information display
-    [SerializeField] private Text _initialCostText;
-    [SerializeField] private Text _dailyCostText;
-    [SerializeField] private Text _strengthText;
-    [SerializeField] private Text _topSpeedText;
-    [SerializeField] private Text _capacityText;
-    [SerializeField] private Text _transferTimeText;
+    [SerializeField] private TextMeshProUGUI _initialCostText;
+    [SerializeField] private TextMeshProUGUI _dailyCostText;
+    [SerializeField] private TextMeshProUGUI _strengthText;
+    [SerializeField] private TextMeshProUGUI _topSpeedText;
+    [SerializeField] private TextMeshProUGUI _capacityText;
+    [SerializeField] private TextMeshProUGUI _transferTimeText;
 
     // Loaded product display
     [SerializeField] private RectTransform _scrollView;
-    [SerializeField] private NeededProductView _scrollViewElementPrefab;
+    [SerializeField] private AmountProductView _scrollViewElementPrefab;
 
     /// <summary>
     /// Null value: Removes displayed outline, resets the ui and makes it invisible
@@ -56,22 +55,11 @@ public class TransportVehicleUi : AbstractUi
 
     void Start()
     {
-        if (!_transportRouteCreateController)
-            _transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
-        _vehicleRouteButton.onClick.AddListener(OnVehicleRouteButtonClick);
         _exitButton.onClick.AddListener(delegate
         {
             DisplayedTransportVehicle = null;
             Reset();
         });
-    }
-
-    private void OnVehicleRouteButtonClick()
-    {
-        if (_transportVehicle != null)
-        {
-            _transportRouteCreateController.LoadRoute(_transportVehicle.TransportRoute);
-        }
     }
 
     private void ShowVehicleInformation(TransportVehicle transportVehicle)
@@ -90,9 +78,9 @@ public class TransportVehicleUi : AbstractUi
         {
             foreach (ProductData productData in transportVehicle.LoadedProducts)
             {
-                NeededProductView neededProductView = Object.Instantiate(_scrollViewElementPrefab, _scrollView);
-                neededProductView.ProductData = productData;
-                neededProductView.Text(transportVehicle.TransportStorage(productData));
+                AmountProductView amountProductView = Object.Instantiate(_scrollViewElementPrefab, _scrollView);
+                amountProductView.ProductData = productData;
+                amountProductView.Text(transportVehicle.TransportStorage(productData));
             }
         }
         else
@@ -110,7 +98,7 @@ public class TransportVehicleUi : AbstractUi
         {
             for (int i = 0; i < _scrollView.childCount; i++)
             {
-                NeededProductView productView = _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
+                AmountProductView productView = _scrollView.GetChild(i).gameObject.GetComponent<AmountProductView>();
                 ProductStorage productStorage = _transportVehicle.TransportStorage(productView.ProductData);
                 productView.Text(productStorage);
             }

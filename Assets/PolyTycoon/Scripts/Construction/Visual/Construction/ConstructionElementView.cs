@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class ConstructionElementView : MonoBehaviour
@@ -9,7 +10,7 @@ public class ConstructionElementView : MonoBehaviour
 	[Header("Visuals")]
 	[SerializeField] private Button _buildingSelectButton;
 	[SerializeField] private Image _buildingImage;
-	[SerializeField] private Text _buildingNameText;
+	[SerializeField] private TextMeshProUGUI _buildingNameText;
 	#endregion
 
 	#region Methods

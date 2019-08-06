@@ -185,11 +185,6 @@ public class Factory : PathFindingTarget, IFactory
         return productData.Equals(_producedProduct.StoredProductData) ? _producedProduct : null;
     }
 
-    public bool IsEmitting(ProductData productData)
-    {
-        return productData.Equals(_producedProduct.StoredProductData);
-    }
-
     public List<ProductData> EmittedProductList()
     {
         return new List<ProductData> {_producedProduct.StoredProductData};

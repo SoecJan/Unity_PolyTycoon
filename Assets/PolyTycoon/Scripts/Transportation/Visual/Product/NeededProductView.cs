@@ -1,12 +1,14 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class NeededProductView : ProductView
+public class NeededProductView : AmountProductView
 {
-	[SerializeField] private Text _neededAmountText;
+	[FormerlySerializedAs("_storedProductAmountText")] [SerializeField] private TextMeshProUGUI _neededProductText;
 
-	public void Text(ProductStorage productStorage)
-	{
-		_neededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
-	}
+	public string StoredProductAmountText {
+		get { return _neededProductText.text; }
+		set { _neededProductText.text = value; }
+	} 
 }

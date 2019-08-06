@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,9 +14,9 @@ public interface IUserInformationPopup
 public class UserInformationPopup : MonoBehaviour, IUserInformationPopup
 {
 	#region Attributes
-	[SerializeField] private Text _informationText;
 	[SerializeField] private GameObject _visibleGameObject;
 	[SerializeField] private float _displayTime;
+	[SerializeField] private TextMeshProUGUI _informationText;
 	[SerializeField] private Button _exitButton;
 	private Coroutine _coroutine;
 	#endregion

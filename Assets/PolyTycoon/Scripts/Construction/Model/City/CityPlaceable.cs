@@ -60,11 +60,6 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
 		}
 	}
 
-	public bool IsEmitting(ProductData productData)
-	{
-		return _emittedProducts.Find(x => x.StoredProductData.Equals(productData)) != null;
-	}
-
 	public List<ProductData> EmittedProductList()
 	{
 		return _producedProducts;

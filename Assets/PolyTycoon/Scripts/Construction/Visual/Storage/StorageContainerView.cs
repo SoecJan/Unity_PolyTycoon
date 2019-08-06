@@ -8,7 +8,7 @@ public class StorageContainerView : AbstractUi
     private AbstractStorageContainer _storageContainer;
     private Coroutine _updateUiCoroutine;
     [SerializeField] private Button _exitButton;
-    [SerializeField] private NeededProductView _storedProductView;
+    [SerializeField] private AmountProductView _storedProductView;
     [SerializeField] private RectTransform _scrollView;
     
     public AbstractStorageContainer StorageContainer
@@ -48,24 +48,24 @@ public class StorageContainerView : AbstractUi
                 // Remove entries from the copy
                 for (int i = 0; i < _scrollView.childCount; i++)
                 {
-                    NeededProductView neededProductView =
-                        _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
-                    copy.Remove(neededProductView.ProductData);
+                    AmountProductView amountProductView =
+                        _scrollView.GetChild(i).gameObject.GetComponent<AmountProductView>();
+                    copy.Remove(amountProductView.ProductData);
                 }
                 // Instantiate all entries of the copy
                 foreach (ProductData productData in copy)
                 {
-                    NeededProductView neededProductView = Instantiate(_storedProductView, _scrollView);
-                    neededProductView.ProductData = productData;
-                    neededProductView.Text(_storageContainer.EmitterStorage(productData));
+                    AmountProductView amountProductView = Instantiate(_storedProductView, _scrollView);
+                    amountProductView.ProductData = productData;
+                    amountProductView.Text(_storageContainer.EmitterStorage(productData));
                 }
             }
             
             // Update existing views
             for (int i = 0; i < _scrollView.childCount; i++)
             {
-                NeededProductView neededProductView = _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
-                neededProductView.Text(_storageContainer.EmitterStorage(neededProductView.ProductData));
+                AmountProductView amountProductView = _scrollView.GetChild(i).gameObject.GetComponent<AmountProductView>();
+                amountProductView.Text(_storageContainer.EmitterStorage(amountProductView.ProductData));
             }
             yield return new WaitForSeconds(0.1f);
         }

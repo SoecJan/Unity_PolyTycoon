@@ -133,7 +133,7 @@ public class TerrainChunk
 		ThreadedDataRequester.RequestData(() => HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine,
 			heightMapSettings, sampleCentre), OnHeightMapReceived);
 
-		ThreadedDataRequester.RequestData(() => BiomeGenerator.GenerateBiomeData(biomeSettings, meshSettings.numVertsPerLine -3, meshSettings.numVertsPerLine -3, sampleCentre + new Vector2(22.5f, 22.5f)), OnBiomeDataReceived);
+//		ThreadedDataRequester.RequestData(() => BiomeGenerator.GenerateBiomeData(biomeSettings, meshSettings.numVertsPerLine -3, meshSettings.numVertsPerLine -3, sampleCentre + new Vector2(22.5f, 22.5f)), OnBiomeDataReceived);
 	}
 
 	// Callback function on ThreadedDataRequester invoked by this.Load();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ public class RouteCreationStationManager
     private RouteCreationVehicleManager _routeVehicleChooser;
     private RouteCreationSettingsManager _settingController;
 
-    [SerializeField] private InputField _routeNameField;
+    [SerializeField] private TMP_InputField _routeNameField;
     [SerializeField] private GameObject _routeElementVisibleGameObject;
     [SerializeField] private Transform _routeElementScrollView;
     [SerializeField] private TransportRouteElementView _routeElementPrefab;

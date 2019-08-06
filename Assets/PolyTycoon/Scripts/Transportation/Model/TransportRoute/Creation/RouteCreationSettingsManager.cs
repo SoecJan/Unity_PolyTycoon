@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -20,7 +21,7 @@ public class RouteCreationSettingsManager
     [SerializeField] private Transform _unloadSettingScrollView;
     [SerializeField] private Transform _loadSettingScrollView;
     [SerializeField] private TransportRouteProductView _routeProductElementPrefab;
-    [SerializeField] private Text _fromToText;
+    [SerializeField] private TextMeshProUGUI _fromToText;
     [SerializeField] private ToggleGroup _routeSettingToggleGroup;
     [SerializeField] private RectTransform _productSelectorAnchor;
 

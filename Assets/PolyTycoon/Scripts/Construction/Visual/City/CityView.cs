@@ -13,8 +13,7 @@ public class CityView : AbstractUi
 	[Header("UI")]
 	[SerializeField] private RectTransform _neededProductScrollView;
 	[SerializeField] private RectTransform _producedProductScrollView;
-	[SerializeField] private NeededProductView _productUiPrefab;
-	[SerializeField] private Text _cityGeneralText;
+	[SerializeField] private AmountProductView _productUiPrefab;
 	#endregion
 
 	#region Getter & Setter
@@ -34,13 +33,13 @@ public class CityView : AbstractUi
 			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable());
 			foreach (ProductData neededProduct in cityPlaceable.ReceivedProductList())
 			{
-				NeededProductView neededProductView = GameObject.Instantiate(_productUiPrefab, _neededProductScrollView);
-				neededProductView.ProductData = neededProduct;
-				neededProductView.Text(cityPlaceable.ReceiverStorage(neededProduct));
+				AmountProductView amountProductView = GameObject.Instantiate(_productUiPrefab, _neededProductScrollView);
+				amountProductView.ProductData = neededProduct;
+				amountProductView.Text(cityPlaceable.ReceiverStorage(neededProduct));
 			}
 
 			ProductStorage producedProductStorage = ((IProductEmitter) CityBuilding.CityPlaceable()).EmitterStorage();
-			NeededProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
+			AmountProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
 			producedProductView.ProductData = producedProductStorage.StoredProductData;
 			producedProductView.Text(producedProductStorage);
 			
@@ -64,17 +63,15 @@ public class CityView : AbstractUi
 	{
 		while (_cityBuilding != null)
 		{
-			_cityGeneralText.text = "Name: " + CityBuilding.CityPlaceable().transform.name + 
-			                        "\nPeople: " + CityBuilding.CityPlaceable().CurrentInhabitantCount();
 			for (int i = 0; i < _neededProductScrollView.childCount; i++)
 			{
-				NeededProductView productView = _neededProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
+				AmountProductView productView = _neededProductScrollView.transform.GetChild(i).GetComponent<AmountProductView>();
 				ProductStorage productStorage = ((IProductReceiver)_cityBuilding.CityPlaceable()).ReceiverStorage(productView.ProductData);
 				productView.Text(productStorage);
 			}
 			for (int i = 0; i < _producedProductScrollView.childCount; i++)
 			{
-				NeededProductView productView = _producedProductScrollView.transform.GetChild(i).GetComponent<NeededProductView>();
+				AmountProductView productView = _producedProductScrollView.transform.GetChild(i).GetComponent<AmountProductView>();
 				ProductStorage productStorage = ((IProductEmitter)_cityBuilding.CityPlaceable()).EmitterStorage();
 				productView.Text(productStorage);
 			}

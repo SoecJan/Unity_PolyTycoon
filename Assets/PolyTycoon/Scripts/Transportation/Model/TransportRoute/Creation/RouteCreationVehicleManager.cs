@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -12,17 +13,17 @@ public class RouteCreationVehicleManager
     private TransportVehicleData _selectedTransportVehicleData;
     public System.Action<TransportVehicleData> OnVehicleSelect;
 
-    [SerializeField] private Text _vehicleChoiceTitleText;
+    [SerializeField] private TextMeshProUGUI _vehicleChoiceTitleText;
     [SerializeField] private GameObject _vehicleChoiceVisibleGameObject;
     [SerializeField] private VehicleOptionView _vehicleOptionViewPrefab;
     [SerializeField] private Transform _vehicleChoiceScrollViewTransform;
     [SerializeField] private ToggleGroup _vehicleChoiceToggleGroup;
-    [SerializeField] private Text _speedText;
-    [SerializeField] private Text _strengthText;
-    [SerializeField] private Text _capacityText;
-    [SerializeField] private Text _unloadSpeedText;
-    [SerializeField] private Text _costText;
-    [SerializeField] private Text _dailyCostText;
+    [SerializeField] private TextMeshProUGUI _speedText;
+    [SerializeField] private TextMeshProUGUI _strengthText;
+    [SerializeField] private TextMeshProUGUI _capacityText;
+    [SerializeField] private TextMeshProUGUI _unloadSpeedText;
+    [SerializeField] private TextMeshProUGUI _costText;
+    [SerializeField] private TextMeshProUGUI _dailyCostText;
 
     public void Initialize()
     {
@@ -56,7 +57,7 @@ public class RouteCreationVehicleManager
         VehicleChoiceVisibleGameObject.SetActive(true);
 
         SelectedTransportVehicleData = null;
-        _vehicleChoiceTitleText.text = "Vehicle Amount";
+        _vehicleChoiceTitleText.text = "Vehicle Choice";
         _speedText.text = "-";
         _strengthText.text = "-";
         _capacityText.text = "-";
@@ -96,10 +97,10 @@ public class RouteCreationVehicleManager
     private void UpdateUi(TransportVehicleData transportVehicleData)
     {
         if (!transportVehicleData) return;
-        _vehicleChoiceTitleText.text = transportVehicleData.VehicleName + " Amount";
-        _speedText.text = "-";
+        _vehicleChoiceTitleText.text = transportVehicleData.VehicleName;
+        _speedText.text = transportVehicleData.MaxSpeed.ToString();
         _strengthText.text = "-";
-        _capacityText.text = "-";
+        _capacityText.text = transportVehicleData.MaxCapacity.ToString();
         _unloadSpeedText.text = "-";
         _costText.text = "-";
         _dailyCostText.text = "-";

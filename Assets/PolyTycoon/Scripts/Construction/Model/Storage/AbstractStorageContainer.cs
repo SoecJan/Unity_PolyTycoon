@@ -23,11 +23,6 @@ public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmit
         return productData != null ? _storedProducts[productData] : null;
     }
 
-    public bool IsEmitting(ProductData productData)
-    {
-        return _storedProducts.ContainsKey(productData);
-    }
-
     public List<ProductData> EmittedProductList()
     {
         return new List<ProductData>(_storedProducts.Keys);
