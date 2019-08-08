@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using UnityEngine.UI;
 
 
@@ -10,7 +12,11 @@ public class CityView : AbstractUi
 	private ICityBuilding _cityBuilding;
 	[Header("Navigation")]
 	[SerializeField] private Button _exitButton;
-	[Header("UI")]
+
+	[Header("UI")] 
+	[SerializeField] private TextMeshProUGUI _titleText;
+
+	private string _defaultTitleText;
 	[SerializeField] private RectTransform _neededProductScrollView;
 	[SerializeField] private RectTransform _producedProductScrollView;
 	[SerializeField] private AmountProductView _productUiPrefab;
@@ -22,6 +28,7 @@ public class CityView : AbstractUi
 
 		set {
 			if (_cityBuilding == value) return;
+			if (_cityBuilding != null) CityBuilding.CityPlaceable().Outline.enabled = false;
 			_cityBuilding = value;
 			Reset();
 			if (_cityBuilding == null)
@@ -29,7 +36,9 @@ public class CityView : AbstractUi
 				SetVisible(false);
 				return;
 			}
-			Debug.Log("New City selected");
+
+			CityBuilding.CityPlaceable().Outline.enabled = true;
+			_titleText.text = CityBuilding.CityPlaceable().BuildingName;
 			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable());
 			foreach (ProductData neededProduct in cityPlaceable.ReceivedProductList())
 			{
@@ -53,6 +62,7 @@ public class CityView : AbstractUi
 	private void Start()
 	{
 		_exitButton.onClick.AddListener(delegate { CityBuilding = null; });
+		_defaultTitleText = _titleText.text;
 	}
 
 	/// <summary>
@@ -90,6 +100,8 @@ public class CityView : AbstractUi
 		{
 			Destroy(_producedProductScrollView.transform.GetChild(i).gameObject);
 		}
+
+		_titleText.text = _defaultTitleText;
 	}
 	#endregion
 }

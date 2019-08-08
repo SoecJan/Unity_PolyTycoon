@@ -1,4 +1,5 @@
 ﻿
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +15,7 @@ public class TransportRouteOverviewElement : PoolableObject
 	[SerializeField] private Button _removeButton;
 
 	[Header("Information")]
-	[SerializeField] private Text _routeNameText;
+	[SerializeField] private TextMeshProUGUI _routeNameText;
 
 	public TransportRoute TransportRoute {
 		get => _transportRoute;

@@ -43,6 +43,7 @@ public class TransportVehicleUi : AbstractUi
         {
             if (_transportVehicle == value) return; // Don't update the selected object
             if (_transportVehicle) _transportVehicle.Outline.enabled = false; // remove outline
+            ShowVehicleInformation(null);
             _transportVehicle = value; 
             if (_transportVehicle) _transportVehicle.Outline.enabled = true; // add outline
 

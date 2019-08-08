@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class RouteCreationStationManager
 {
     #region Attributes
-    
+
     private TransportRouteCreateController _routeCreateController;
     private RouteCreationVehicleManager _routeVehicleChooser;
     private RouteCreationSettingsManager _settingController;
@@ -18,7 +18,7 @@ public class RouteCreationStationManager
     [SerializeField] private Transform _routeElementScrollView;
     [SerializeField] private TransportRouteElementView _routeElementPrefab;
     [SerializeField] private IUserInformationPopup _routeElementUserInformationPopup;
-    
+
     public string RouteName
     {
         get => _routeNameField.text;
@@ -136,12 +136,10 @@ public class RouteCreationStationManager
         TransportRouteElementView routeElementViewLast = GetElementView(_routeElementScrollView.childCount - 1);
         routeElementViewSecondLast.ToNode = routeElementViewLast.FromNode;
         routeElementViewLast.ToNode = routeElementViewFirst.FromNode;
-        if (_routeElementScrollView.childCount == 1)
-        {
-            SelectedRouteElement = GetElementView(0);
-            _settingController.LoadRouteElementSettings(SelectedRouteElement.RouteElement);
-        }
 
+        SelectedRouteElement = GetElementView(0);
+        _settingController.LoadRouteElementSettings(SelectedRouteElement.RouteElement);
+        
         _settingController.RouteSettingVisibleGameObject.SetActive(true);
     }
 
@@ -155,22 +153,27 @@ public class RouteCreationStationManager
 
     public void RemoveTransportRouteElement(TransportRouteElementView routeElementView)
     {
+        Debug.Log(_routeElementScrollView.childCount);
         for (int i = 0; i < _routeElementScrollView.childCount; i++)
         {
             TransportRouteElementView element = GetElementView(i);
-            if (element.Equals(routeElementView))
-            {
-                GameObject.Destroy(element.gameObject);
-                break;
-            }
+            if (!element.Equals(routeElementView)) continue;
+            GameObject.Destroy(element.gameObject);
+            break;
         }
-
+        Debug.Log(_routeElementScrollView.childCount);
         for (int i = 0; i < _routeElementScrollView.childCount; i++)
         {
             TransportRouteElementView view = GetElementView(i);
             if (view.ToNode != routeElementView.FromNode) continue;
             view.ToNode = GetElementView((i + 1) % _routeElementScrollView.childCount).FromNode;
             break;
+        }
+
+        Debug.Log(_routeElementScrollView.childCount);
+        if (_routeElementScrollView.childCount <= 2)
+        {
+            _settingController.RouteSettingVisibleGameObject.SetActive(false);
         }
     }
 }

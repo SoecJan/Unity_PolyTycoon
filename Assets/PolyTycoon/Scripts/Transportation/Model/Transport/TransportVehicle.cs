@@ -104,6 +104,8 @@ public class TransportVehicleController : ITransport
                 receiverStorage.Amount += TransferAmount;
                 yield return new WaitForSeconds(TransferTime);
             }
+
+            if (truckStorage.Amount == 0) _transporterStorage.Remove(setting.ProductData);
         }
     }
 }

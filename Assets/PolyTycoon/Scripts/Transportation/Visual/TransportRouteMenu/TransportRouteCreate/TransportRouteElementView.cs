@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TransportRouteElementView : MonoBehaviour
 {
 	private TransportRouteElement _transportRouteElement;
-	[SerializeField] private Text _fromText;
+	[SerializeField] private TextMeshProUGUI _fromText;
 	[SerializeField] private Button _selectButton;
+	[SerializeField] private Button _deleteButton;
 
 	public PathFindingNode FromNode
 	{
@@ -42,5 +44,10 @@ public class TransportRouteElementView : MonoBehaviour
 	{
 		if (_transportRouteElement == null) _transportRouteElement = new TransportRouteElement();
 		_transportRouteElement.RouteSettings = new List<TransportRouteSetting>();
+		_deleteButton.onClick.AddListener(delegate
+		{
+			TransportRouteCreateController transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
+			transportRouteCreateController.StationManager.RemoveTransportRouteElement(this);
+		});
 	}
 }

@@ -242,6 +242,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
         foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
         {
             PlaceObject(simpleMapPlaceable);
+            simpleMapPlaceable.transform.parent = complexPlaceableTransform;
         }
 
         return true;

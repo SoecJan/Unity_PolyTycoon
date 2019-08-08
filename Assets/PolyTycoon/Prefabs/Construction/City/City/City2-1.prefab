@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _constructionUiSprite: {fileID: 0}
   _buildingName: MainBuidling
+  _isHighlightable: 0
   _usedCoordinates:
   - _usedCoordinate: {x: 0, y: 0, z: 1}
     _terrainType: 3
@@ -92,7 +93,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _constructionUiSprite: {fileID: 0}
-  _buildingName: Azuria City
+  _buildingName: 
+  _isHighlightable: 1
   _childMapPlaceables:
   - {fileID: 2616509654392229248}
   - {fileID: 2616534639592152664}
@@ -295,6 +297,11 @@ PrefabInstance:
       propertyPath: _cityPlaceable
       value: 
       objectReference: {fileID: 2612486185536692784}
+    - target: {fileID: 3049920239192025717, guid: 2c3d46f859271f84ab9e844da37523dc,
+        type: 3}
+      propertyPath: _isHighlightable
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3158149481569503195, guid: 2c3d46f859271f84ab9e844da37523dc,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -387,6 +394,11 @@ PrefabInstance:
       propertyPath: _cityPlaceable
       value: 
       objectReference: {fileID: 2612486185536692784}
+    - target: {fileID: 4039999183927011033, guid: c5ce86aca9b176740ab47ecfbf1229be,
+        type: 3}
+      propertyPath: _isHighlightable
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4149646521719378371, guid: c5ce86aca9b176740ab47ecfbf1229be,
         type: 3}
       propertyPath: m_LocalPosition.x

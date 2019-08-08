@@ -9,9 +9,10 @@ public class CityWorldToScreenUi : MonoBehaviour
 	[SerializeField] private TextMeshProUGUI _text;
 	[SerializeField] private GameObject _visibleGameObject;
 
-	public TextMeshProUGUI Text {
+	public string Text {
 		get {
-			return _text;
+			return _text.text;
 		}
+		set { _text.text = value; }
 	}
 }

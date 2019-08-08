@@ -64,15 +64,23 @@ public class RouteCreationVehicleManager
         _unloadSpeedText.text = "-";
         _costText.text = "-";
         _dailyCostText.text = "-";
+
+        for (int i = 0; i < _vehicleChoiceScrollViewTransform.childCount; i++)
+        {
+            Transform childTransform = _vehicleChoiceScrollViewTransform.GetChild(i);
+            VehicleOptionView vehicleOptionView =
+                childTransform.gameObject.GetComponent<VehicleOptionView>();
+            vehicleOptionView.SelectToggle.isOn = false;
+        }
+        
     }
 
     #endregion
 
     private void OnVehicleSelectClick(TransportVehicleData transportVehicleData)
     {
-        Debug.Log("Vehicle selected: " + transportVehicleData.VehicleName);
         SelectedTransportVehicleData = transportVehicleData;
-        OnVehicleSelect(SelectedTransportVehicleData);
+        OnVehicleSelect?.Invoke(SelectedTransportVehicleData);
     }
 
     private void FillVehicleView()
@@ -85,22 +93,19 @@ public class RouteCreationVehicleManager
             vehicleOptionObject.TransportVehicle = transportVehicleData;
             vehicleOptionObject.SelectToggle.onValueChanged.AddListener(delegate(bool isActive)
             {
-                if (isActive)
-                {
-                    OnVehicleSelectClick(vehicleOptionObject.TransportVehicle);
-                }
+                OnVehicleSelectClick(isActive ? vehicleOptionObject.TransportVehicle : null);
             });
             vehicleOptionObject.SelectToggle.group = _vehicleChoiceToggleGroup;
+            vehicleOptionObject.SelectToggle.isOn = false;
         }
     }
 
     private void UpdateUi(TransportVehicleData transportVehicleData)
     {
-        if (!transportVehicleData) return;
-        _vehicleChoiceTitleText.text = transportVehicleData.VehicleName;
-        _speedText.text = transportVehicleData.MaxSpeed.ToString();
+        _vehicleChoiceTitleText.text = transportVehicleData ? transportVehicleData.VehicleName : "Vehicle Choice";
+        _speedText.text = transportVehicleData ?  transportVehicleData.MaxSpeed.ToString() : "-";
         _strengthText.text = "-";
-        _capacityText.text = transportVehicleData.MaxCapacity.ToString();
+        _capacityText.text = transportVehicleData ?  transportVehicleData.MaxCapacity.ToString() : "-";
         _unloadSpeedText.text = "-";
         _costText.text = "-";
         _dailyCostText.text = "-";

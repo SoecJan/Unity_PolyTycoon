@@ -76,7 +76,7 @@ public class CityManager : MonoBehaviour, ICityManager
             _cityWorldToScreenUi.gameObject,
             city.gameObject.transform, new Vector3(0, 50f, 0));
         CityWorldToScreenUi worldToScreenUi = uiGameObject.UiTransform.gameObject.GetComponent<CityWorldToScreenUi>();
-        worldToScreenUi.Text.text = city.transform.name;
+        worldToScreenUi.Text = city.BuildingName;
     }
 
     CityToPlace PlacePendingCity(CityToPlace cityToPlace)

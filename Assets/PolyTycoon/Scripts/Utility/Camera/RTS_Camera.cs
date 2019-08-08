@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TMPro;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace RTS_Cam
 {
@@ -28,6 +31,7 @@ namespace RTS_Cam
 
         private Transform m_Transform; //camera tranform
         public bool useFixedUpdate = false; //use FixedUpdate() or Update()
+        private bool isFocused = true;
 
         #region Movement
 
@@ -173,13 +177,13 @@ namespace RTS_Cam
 
         private void Update()
         {
-            if (!useFixedUpdate)
+            if (!useFixedUpdate && isFocused)
                 CameraUpdate();
         }
 
         private void FixedUpdate()
         {
-            if (useFixedUpdate)
+            if (useFixedUpdate && isFocused)
                 CameraUpdate();
         }
 
@@ -187,6 +191,12 @@ namespace RTS_Cam
 
         #region Camera_Methods
 
+        public void SetFocus(bool isFocused)
+        {
+            this.isFocused = isFocused;
+            Debug.Log("Focus: " + isFocused);
+        }
+        
         /// <summary>
         /// update camera movement and rotation
         /// </summary>

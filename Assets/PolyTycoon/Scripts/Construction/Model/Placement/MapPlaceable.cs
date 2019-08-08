@@ -12,17 +12,18 @@ public abstract class MapPlaceable : MonoBehaviour, IMapPlaceable
 {
     [SerializeField] private Sprite _constructionUiSprite;
     [SerializeField] private string _buildingName; // Name of this building
-
+    [SerializeField] protected bool _isHighlightable = true;
+    
     public Sprite ConstructionUiSprite => _constructionUiSprite;
-    public string BuildingName => _buildingName;
+    public string BuildingName { get => _buildingName; set => _buildingName = value; }
     public bool IsDraggable { get; set; }
 
     public Outline Outline { get; private set; }
 
-    void Start()
+    public virtual void Start()
     {
         Outline = GetComponent<Outline>();
-        if (Outline) return;
+        if (Outline || !_isHighlightable) return;
         Outline = gameObject.AddComponent<Outline>();
         Outline.OutlineMode = Outline.Mode.OutlineVisible;
         Outline.OutlineColor = Color.yellow;

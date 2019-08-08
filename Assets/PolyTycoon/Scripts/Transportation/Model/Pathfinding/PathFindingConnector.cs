@@ -10,6 +10,7 @@ public abstract class PathFindingConnector : PathFindingNode
     protected override void Initialize()
     {
         base.Initialize();
+        _isHighlightable = false;
         IsDraggable = true;
     }
 

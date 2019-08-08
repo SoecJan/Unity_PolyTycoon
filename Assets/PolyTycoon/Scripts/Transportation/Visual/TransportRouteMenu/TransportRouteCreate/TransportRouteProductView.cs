@@ -15,6 +15,10 @@ public class TransportRouteProductView : PoolableObject
 		set
 		{
 			productData = value;
+			if (!_defaultSprite)
+			{
+				_defaultSprite = _productImage.sprite;
+			}
 			_productImage.sprite = value ? value.ProductSprite : _defaultSprite;
 			if (_setting == null) _setting = new TransportRouteSetting();
 			_setting.ProductData = value;
@@ -32,14 +36,6 @@ public class TransportRouteProductView : PoolableObject
 	}
 
 	public Button SelectionButton => _selectionButton;
-
-	void Start()
-    {
-		if (!_defaultSprite)
-		{
-			_defaultSprite = _productImage.sprite;
-		}
-    }
 
 	public override void Hide()
 	{

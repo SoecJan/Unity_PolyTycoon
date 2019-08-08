@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -21,7 +22,8 @@ public class RouteCreationSettingsManager
     [SerializeField] private Transform _unloadSettingScrollView;
     [SerializeField] private Transform _loadSettingScrollView;
     [SerializeField] private TransportRouteProductView _routeProductElementPrefab;
-    [SerializeField] private TextMeshProUGUI _fromToText;
+    [FormerlySerializedAs("_fromToText")] [SerializeField] private TextMeshProUGUI _loadAtText;
+    [SerializeField] private TextMeshProUGUI _unloadAtText;
     [SerializeField] private ToggleGroup _routeSettingToggleGroup;
     [SerializeField] private RectTransform _productSelectorAnchor;
 
@@ -132,12 +134,12 @@ public class RouteCreationSettingsManager
     {
         Debug.Log("Product " + productData.ProductName);
         _selectedProductView.Product = productData;
-        for (int i = 0; i < _productViews.Count - 1; i++)
+        for (int i = 0; i < _productViews.Count; i++)
         {
             TransportRouteProductView productView = _productViews[i];
             if (productView.Equals(_selectedProductView))
             {
-                _selectedProductView = _productViews[i + 1];
+                _selectedProductView = _productViews[(i + 1)%_productViews.Count];
                 break;
             }
         }
@@ -145,10 +147,10 @@ public class RouteCreationSettingsManager
 
     public void LoadRouteElementSettings(TransportRouteElement transportRouteElement)
     {
-        //ClearObjects();
         string fromText = transportRouteElement.FromNode ? transportRouteElement.FromNode.BuildingName : "None";
         string toText = transportRouteElement.ToNode ? transportRouteElement.ToNode.BuildingName : "None";
-        _fromToText.text = "From: " + fromText + "\nTo:" + toText;
+        _loadAtText.text = "Load at " + fromText;
+        _unloadAtText.text = "Unload at " + toText;
 
         for (int i = 0; i < _unloadSettingScrollView.childCount; i++)
         {
@@ -189,5 +191,7 @@ public class RouteCreationSettingsManager
                 unloadIndex++;
             }
         }
+        
+        _selectedProductView = _productViews[0];
     }
 }
