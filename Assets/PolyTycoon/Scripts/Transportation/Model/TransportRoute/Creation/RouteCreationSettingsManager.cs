@@ -35,7 +35,8 @@ public class RouteCreationSettingsManager
         set
         {
             _selectedProductView = value;
-            _selectedProductView.SelectionToggle.isOn = true;
+            if (_selectedProductView)
+                _selectedProductView.SelectionToggle.isOn = true;
         }
     }
     #endregion

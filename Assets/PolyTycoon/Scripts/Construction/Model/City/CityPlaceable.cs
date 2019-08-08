@@ -124,9 +124,9 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
     
     private string GetCityName()
     {
-        string path = "Assets/PolyTycoon/Resources/Data/CityPlacement/city_name.txt";
-        string[] lines = System.IO.File.ReadAllLines (path);
-        return lines[Random.Range(0,lines.Length)];
+        TextAsset spellData = Resources.Load("Data/CityPlacement/city_name") as TextAsset;
+        string[] names = spellData.text.Split('\n');
+        return names[Random.Range(0, names.Length)];
     }
 
     private void FillEmittedProducts()
