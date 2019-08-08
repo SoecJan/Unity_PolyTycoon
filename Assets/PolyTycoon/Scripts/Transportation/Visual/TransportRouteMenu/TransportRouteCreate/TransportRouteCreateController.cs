@@ -42,7 +42,7 @@ public class TransportRouteCreateController : AbstractUi
         SettingController.Initialize();
         _stationManager.RouteCreateController = this;
 
-        _showButton.onClick.AddListener(delegate { SetVisible(!VisibleObject.activeSelf); });
+        _showButton.onClick.AddListener(delegate { SetVisible(true); });
         _exitButton.onClick.AddListener(delegate
         {
             SetVisible(false);
@@ -89,8 +89,6 @@ public class TransportRouteCreateController : AbstractUi
     
     public TransportVehicleData TransportVehicleData { get => _vehicleManager.SelectedTransportVehicleData;}
     
-    
-
     #endregion
 
     public void IsReady()

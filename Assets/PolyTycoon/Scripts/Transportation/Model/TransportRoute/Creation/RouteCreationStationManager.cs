@@ -12,11 +12,13 @@ public class RouteCreationStationManager
     private TransportRouteCreateController _routeCreateController;
     private RouteCreationVehicleManager _routeVehicleChooser;
     private RouteCreationSettingsManager _settingController;
-
+    
     [SerializeField] private TMP_InputField _routeNameField;
     [SerializeField] private GameObject _routeElementVisibleGameObject;
     [SerializeField] private Transform _routeElementScrollView;
+    [SerializeField] private ToggleGroup _elementToggleGroup;
     [SerializeField] private TransportRouteElementView _routeElementPrefab;
+    private TransportRouteElementView _selectedRouteElement;
     [SerializeField] private IUserInformationPopup _routeElementUserInformationPopup;
 
     public string RouteName
@@ -55,7 +57,15 @@ public class RouteCreationStationManager
         }
     }
 
-    public TransportRouteElementView SelectedRouteElement { get; set; }
+    public TransportRouteElementView SelectedRouteElement
+    {
+        get => _selectedRouteElement;
+        set
+        {
+            _selectedRouteElement = value;
+            _selectedRouteElement.SelectToggle.isOn = true;
+        }
+    }
 
     public GameObject RouteElementVisibleGameObject => _routeElementVisibleGameObject;
 
@@ -118,8 +128,10 @@ public class RouteCreationStationManager
     private void AddNode(PathFindingNode pathFindingNode)
     {
         TransportRouteElementView elementView = GameObject.Instantiate(_routeElementPrefab, _routeElementScrollView);
-        elementView.SelectButton.onClick.AddListener(delegate
+        elementView.SelectToggle.group = _elementToggleGroup;
+        elementView.SelectToggle.onValueChanged.AddListener(delegate(bool value)
         {
+            if (!value) return;
             if (SelectedRouteElement)
             {
                 _settingController.Save(SelectedRouteElement.RouteElement);
@@ -139,7 +151,7 @@ public class RouteCreationStationManager
 
         SelectedRouteElement = GetElementView(0);
         _settingController.LoadRouteElementSettings(SelectedRouteElement.RouteElement);
-        
+
         _settingController.RouteSettingVisibleGameObject.SetActive(true);
     }
 
@@ -161,6 +173,7 @@ public class RouteCreationStationManager
             GameObject.Destroy(element.gameObject);
             break;
         }
+
         Debug.Log(_routeElementScrollView.childCount);
         for (int i = 0; i < _routeElementScrollView.childCount; i++)
         {

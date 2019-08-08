@@ -13,8 +13,6 @@ public interface IPlacementManager
     MapPlaceable PlaceableObjectPrefab { set; }
     BuildingManager BuildingManager { get; }
     TerrainGenerator TerrainGenerator { get; set; }
-    MapPlaceable[] Buildings { get; }
-    SimpleMapPlaceable GetBuilding(string buildingName);
     bool PlaceObject(ComplexMapPlaceable complexMapPlaceable);
     bool IsPlaceable(Vector3 position, List<NeededSpace> neededSpaces);
 }
@@ -28,7 +26,8 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 {
     #region Attributes
 
-    [SerializeField] private MapPlaceable[] _buildings; // Objects that can be placed
+    [SerializeField] private MapPlaceable[] _infrastructurePlaceables; // Objects that can be placed
+    [SerializeField] private MapPlaceable[] _productionPlaceables; // Objects that can be placed
 
     [SerializeField]
     private TerrainGenerator _terrainGenerator; // Needed to check the ground belpw a building before placement
@@ -66,19 +65,9 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 
         set => _terrainGenerator = value;
     }
-
-    public SimpleMapPlaceable GetBuilding(string buildingName)
-    {
-        foreach (SimpleMapPlaceable mapPlaceable in Buildings)
-        {
-            if (mapPlaceable.BuildingName.Equals(buildingName))
-                return mapPlaceable;
-        }
-
-        return null;
-    }
-
-    public MapPlaceable[] Buildings => _buildings;
+    public MapPlaceable[] InfrastructurePlaceables => _infrastructurePlaceables;
+    
+    public MapPlaceable[] ProductionPlaceables => _productionPlaceables;
 
     #endregion
 

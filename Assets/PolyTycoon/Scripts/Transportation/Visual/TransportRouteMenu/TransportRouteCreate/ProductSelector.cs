@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ProductSelector : MonoBehaviour
@@ -11,9 +12,19 @@ public class ProductSelector : MonoBehaviour
 
 	public GameObject VisibleGameObject => _visibleGameObject;
 
+	public void ShowProducts(List<ProductData> _shownProducts)
+	{
+		for (int i = 0; i < _scrollView.childCount; i++)
+		{
+			GameObject childGameObject = _scrollView.GetChild(i).gameObject;
+			ProductView productView = childGameObject.GetComponent<ProductView>();
+			childGameObject.SetActive(_shownProducts.Contains(productView.ProductData));
+		}
+	}
+	
 	public Action<ProductData> OnProductSelectAction { private get; set; }
 
-	private void PrintClick(ProductData productData)
+	private void OnProductSelect(ProductData productData)
 	{
 		OnProductSelectAction(productData);
 	}
@@ -25,7 +36,7 @@ public class ProductSelector : MonoBehaviour
 		{
 			ProductView productUiSlot = GameObject.Instantiate(_productUiSlotPrefab, _scrollView);
 			productUiSlot.ProductData = product;
-			productUiSlot.ClickCallBack = PrintClick;
+			productUiSlot.ClickCallBack = OnProductSelect;
 		}
 	}
 }

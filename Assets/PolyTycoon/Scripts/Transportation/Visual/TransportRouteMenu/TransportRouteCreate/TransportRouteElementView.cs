@@ -7,7 +7,7 @@ public class TransportRouteElementView : MonoBehaviour
 {
 	private TransportRouteElement _transportRouteElement;
 	[SerializeField] private TextMeshProUGUI _fromText;
-	[SerializeField] private Button _selectButton;
+	[SerializeField] private Toggle _selectToggle;
 	[SerializeField] private Button _deleteButton;
 
 	public PathFindingNode FromNode
@@ -17,7 +17,14 @@ public class TransportRouteElementView : MonoBehaviour
 		{
 			if (_transportRouteElement == null) _transportRouteElement = new TransportRouteElement();
 			_transportRouteElement.FromNode = value;
-			_fromText.text = value.BuildingName;
+			if (value is ICityBuilding cityBuilding)
+			{
+				_fromText.text = cityBuilding.CityPlaceable().BuildingName;
+			}
+			else
+			{
+				_fromText.text = value.BuildingName;
+			}
 		}
 	}
 
@@ -38,7 +45,7 @@ public class TransportRouteElementView : MonoBehaviour
 		}
 	}
 
-	public Button SelectButton => _selectButton;
+	public Toggle SelectToggle => _selectToggle;
 
 	void Awake()
 	{

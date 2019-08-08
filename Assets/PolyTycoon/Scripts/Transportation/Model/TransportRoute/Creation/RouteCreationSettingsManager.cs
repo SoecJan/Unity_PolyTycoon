@@ -22,13 +22,22 @@ public class RouteCreationSettingsManager
     [SerializeField] private Transform _unloadSettingScrollView;
     [SerializeField] private Transform _loadSettingScrollView;
     [SerializeField] private TransportRouteProductView _routeProductElementPrefab;
-    [FormerlySerializedAs("_fromToText")] [SerializeField] private TextMeshProUGUI _loadAtText;
+    [FormerlySerializedAs("_fromToText")] 
+    [SerializeField] private TextMeshProUGUI _loadAtText;
     [SerializeField] private TextMeshProUGUI _unloadAtText;
     [SerializeField] private ToggleGroup _routeSettingToggleGroup;
-    [SerializeField] private RectTransform _productSelectorAnchor;
 
     public GameObject RouteSettingVisibleGameObject => _routeSettingVisibleGameObject;
 
+    private TransportRouteProductView SelectedProductView
+    {
+        get => _selectedProductView;
+        set
+        {
+            _selectedProductView = value;
+            _selectedProductView.SelectionToggle.isOn = true;
+        }
+    }
     #endregion
 
     #region Standard Methods
@@ -91,17 +100,18 @@ public class RouteCreationSettingsManager
 
     private TransportRouteProductView AddSetting(Transform parentTransform)
     {
-        TransportRouteProductView elementGameObject =
+        TransportRouteProductView transportRouteProductView =
             GameObject.Instantiate(_routeProductElementPrefab, parentTransform);
-        //RouteCreateController.RouteElementController.SelectedRouteElement.TransportRouteElement.RouteSettings.Add(elementGameObject.Setting);
-        elementGameObject.SelectionButton.onClick.AddListener(delegate
+        transportRouteProductView.SelectionToggle.group = _routeSettingToggleGroup;
+        transportRouteProductView.SelectionToggle.onValueChanged.AddListener(delegate (bool value)
         {
-            ((RectTransform) _routeSettingProductSelector.VisibleGameObject.transform).anchoredPosition =
-                _productSelectorAnchor.anchoredPosition;
             _routeSettingProductSelector.VisibleGameObject.SetActive(true);
-            _selectedProductView = elementGameObject;
+            if (value)
+            {
+                SelectedProductView = transportRouteProductView;
+            }
         });
-        return elementGameObject;
+        return transportRouteProductView;
     }
 
     public void RemoveRouteSetting(TransportRouteProductView routeSettingView)
@@ -126,6 +136,8 @@ public class RouteCreationSettingsManager
                 _loadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportRouteProductView>();
             GameObject.Destroy(routeProductView.gameObject);
         }
+
+        SelectedProductView = null;
     }
 
     #endregion
@@ -133,13 +145,13 @@ public class RouteCreationSettingsManager
     private void ProductSelected(ProductData productData)
     {
         Debug.Log("Product " + productData.ProductName);
-        _selectedProductView.Product = productData;
+        SelectedProductView.Product = productData;
         for (int i = 0; i < _productViews.Count; i++)
         {
             TransportRouteProductView productView = _productViews[i];
-            if (productView.Equals(_selectedProductView))
+            if (productView.Equals(SelectedProductView))
             {
-                _selectedProductView = _productViews[(i + 1)%_productViews.Count];
+                SelectedProductView = _productViews[(i + 1)%_productViews.Count];
                 break;
             }
         }
@@ -192,6 +204,6 @@ public class RouteCreationSettingsManager
             }
         }
         
-        _selectedProductView = _productViews[0];
+        SelectedProductView = _productViews[0];
     }
 }

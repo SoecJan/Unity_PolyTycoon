@@ -7,7 +7,7 @@ public class TransportRouteProductView : PoolableObject
 	private TransportRouteSetting _setting;
 	private static Sprite _defaultSprite;
 	[SerializeField] private Image _productImage;
-	[SerializeField] private Button _selectionButton;
+	[SerializeField] private Toggle _selectionToggle;
 
 	public ProductData Product
 	{
@@ -35,7 +35,7 @@ public class TransportRouteProductView : PoolableObject
 		}
 	}
 
-	public Button SelectionButton => _selectionButton;
+	public Toggle SelectionToggle => _selectionToggle;
 
 	public override void Hide()
 	{
