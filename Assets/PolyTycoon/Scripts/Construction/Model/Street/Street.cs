@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using Debug = UnityEngine.Debug;
 
+/// <summary>
+/// Is the foundation for street networks
+/// </summary>
 public class Street : PathFindingConnector
 {
 	#region Methods

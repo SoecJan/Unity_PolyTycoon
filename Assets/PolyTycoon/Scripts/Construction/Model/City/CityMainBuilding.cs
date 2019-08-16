@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class contains the definition for a main building inside the city.
+/// </summary>
 public class CityMainBuilding : PathFindingTarget, IProductReceiver, ICityBuilding
 {
 	#region Attributes

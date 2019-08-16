@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Is the foundation for rail networks.
+/// </summary>
 public class Rail : PathFindingConnector
 {
     protected PathFindingNode AdjacentNodes(int i)

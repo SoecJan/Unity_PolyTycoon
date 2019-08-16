@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-
+/// <summary>
+/// This interface describes functionality for an object that can be placed inside the game.
+/// </summary>
 public interface ISimpleMapPlaceable
 {
+    /// <summary>
+    /// A position vector that can be used by other threads.
+    /// </summary>
     Vector3 ThreadsafePosition { get; }
+    /// <summary>
+    /// Coordinates that this objects blocks. Used by the <see cref="BuildingManager"/>.
+    /// </summary>
     List<NeededSpace> UsedCoordinates { get; }
+    
+    /// <returns>The height of the placed object.</returns>
     float GetHeight();
 
     /// <summary>
@@ -121,11 +131,14 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     #endregion
 }
 
+/// <summary>
+/// Wrapper for used coordinates. This is needed to specify the type of ground that is suitable for a given SimpleMapPlaceable.
+/// </summary>
 [Serializable]
 public class NeededSpace
 {
-    [SerializeField] private Vector3Int _usedCoordinate;
-    [SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland;
+    [SerializeField] private Vector3Int _usedCoordinate; // The relative offset from the origin
+    [SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland; // The suitable ground type
 
     public NeededSpace(NeededSpace neededSpace, Vector3Int offset)
     {

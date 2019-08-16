@@ -1,10 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// A StorageContainer can take any kind of <see cref="ProductData"/> and store it.
+/// The stored products can be picked up by <see cref="TransportVehicle"/>.
+/// </summary>
 public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmitter, IProductReceiver
 {
-    private static ProductManager _productManager;
-    private Dictionary<ProductData, ProductStorage> _storedProducts;
+    private static ProductManager _productManager; // Used to return all products as possible received products.
+    private Dictionary<ProductData, ProductStorage> _storedProducts; // Dictionary containg all stored products.
 
     protected override void Initialize()
     {
@@ -15,6 +19,8 @@ public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmit
         }
         _storedProducts = new Dictionary<ProductData, ProductStorage>();
     }
+
+    #region IProductEmitter
 
     public ProductStorage EmitterStorage(ProductData productData = null)
     {
@@ -27,7 +33,11 @@ public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmit
     {
         return new List<ProductData>(_storedProducts.Keys);
     }
+    
+    #endregion
 
+    #region IProductReceiver
+    
     public ProductStorage ReceiverStorage(ProductData productData = null)
     {
         if (productData == null && _storedProducts.Count == 1) return _storedProducts.Values.ToArray()[0];
@@ -43,4 +53,6 @@ public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmit
     {
         return _productManager.Products;
     }
+    
+    #endregion
 }

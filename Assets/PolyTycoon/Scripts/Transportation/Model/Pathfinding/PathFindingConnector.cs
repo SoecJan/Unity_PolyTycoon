@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Pathfinding Connectors create a network. Using this network the <see cref="PathFinder"/> can find a
+/// <see cref="Path"/> from one <see cref="PathFindingNode"/> to an other.
+/// </summary>
 public abstract class PathFindingConnector : PathFindingNode
 {
     [SerializeField] protected Transform _cornerTransform;
@@ -16,7 +20,7 @@ public abstract class PathFindingConnector : PathFindingNode
 
     public override void Rotate(Vector3 axis, float rotationAmount)
     {
-        // Don't rotate these
+        // Don't rotate these entities
     }
 
     protected abstract PathFindingConnector Neighbor(int direction);
@@ -49,7 +53,7 @@ public abstract class PathFindingConnector : PathFindingNode
     {
         if (AdjacentNodes(1) || AdjacentNodes(3))
         {
-            transform.eulerAngles = new Vector3(0f, 0f, 0f);
+            transform.eulerAngles = Vector3.zero;
         }
         
         bool verticalNode = AdjacentNodes(0) || AdjacentNodes(2);

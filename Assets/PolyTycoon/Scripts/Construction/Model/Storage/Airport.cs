@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Airport : AbstractStorageContainer
 {
@@ -15,16 +13,24 @@ public class Airport : AbstractStorageContainer
         base.OnPlacement();
         Vector3 offset = transform.position;
         offset.y = 0f;
+        float flightHeight = 10f;
+        float groundHeight = 0f;
+        float rampOffset = 0.7f;
+        float terminalZOffset = 0.8f;
+        
+        // radius
+        float groundRadius = 0.5f;
+        float airRadius = 7.5f;
         
         _landingWayPoints = new WayPoint[3];
-        _landingWayPoints[0] = new WayPoint(new Vector3(0.7f,10f,-15f), new Vector3(0.7f,8f,-9.5f), new Vector3(0.7f,5f,-7.5f), 7.5f);
-        _landingWayPoints[1] = new WayPoint(new Vector3(0.7f,5f,-7.5f), new Vector3(0.7f,0f,-5f), new Vector3(0.7f,0f,0.2f), 7.5f);
-        _landingWayPoints[2] = new WayPoint(new Vector3(0.7f,0f,0.2f), new Vector3(0.7f,0f,0.8f), new Vector3(0f,0f,0.8f), 0.5f);
+        _landingWayPoints[0] = new WayPoint(new Vector3(rampOffset,flightHeight,-airRadius*2), new Vector3(rampOffset,8f,-9.5f), new Vector3(rampOffset,flightHeight/2f,-airRadius), airRadius);
+        _landingWayPoints[1] = new WayPoint(new Vector3(rampOffset,flightHeight/2,-airRadius), new Vector3(rampOffset,groundHeight,-5f), new Vector3(rampOffset,groundHeight,0.2f), airRadius);
+        _landingWayPoints[2] = new WayPoint(new Vector3(rampOffset,groundHeight,0.2f), new Vector3(rampOffset,groundHeight,terminalZOffset), new Vector3(0f,groundHeight,terminalZOffset), groundRadius);
         
         _takeoffWayPoints = new WayPoint[3];
-        _takeoffWayPoints[0] = new WayPoint(new Vector3(-0.7f,0f,0.2f), new Vector3(-0.7f,0f,0.8f), new Vector3(-0f,0f,0.8f), 0.5f);
-        _takeoffWayPoints[1] = new WayPoint(new Vector3(-0.7f,0f,-0.2f), new Vector3(-0.7f,0f,-5f), new Vector3(-0.7f,5f,-7.5f), 7.5f);
-        _takeoffWayPoints[2] = new WayPoint(new Vector3(-0.7f,5f,-7.5f), new Vector3(-0.7f,8f,-9.5f), new Vector3(-0.7f,10f,-15f), 7.5f);
+        _takeoffWayPoints[0] = new WayPoint(new Vector3(-rampOffset,groundHeight,0.2f), new Vector3(-rampOffset,groundHeight,terminalZOffset), new Vector3(0f,groundHeight,terminalZOffset), groundRadius);
+        _takeoffWayPoints[1] = new WayPoint(new Vector3(-rampOffset,groundHeight,-0.2f), new Vector3(-rampOffset,groundHeight,-5f), new Vector3(-rampOffset,flightHeight/2f,-airRadius), airRadius);
+        _takeoffWayPoints[2] = new WayPoint(new Vector3(-rampOffset,flightHeight/2f,-airRadius), new Vector3(-rampOffset,8f,-9.5f), new Vector3(-rampOffset,flightHeight,-airRadius*2), airRadius);
 
         foreach (WayPoint wayPoint in _landingWayPoints)
         {

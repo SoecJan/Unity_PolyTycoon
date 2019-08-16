@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
+/// <summary>
+/// Extends the functionality of <see cref="WaypointMover"/> to handle a multiple paths that are driven one at a time.
+/// </summary>
 public class RouteMover : WaypointMover
 {
     #region Attribute

@@ -4,23 +4,28 @@ using System.Collections.Specialized;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// This Interface describes functionality of a Factory instance.
+/// </summary>
 public interface IFactory : IProductEmitter, IProductReceiver
 {
-    ProductData ProductData { get; set; }
-    float ProductionProgress { get; }
-    bool IsProductSelectable { get; }
+    ProductData ProductData { get; set; } // Sets the Product that is produced
+    float ProductionProgress { get; } // Used to view the production progress until a new product is created
 }
 
+/// <summary>
+/// A Factory produces products out of source products.
+/// <see cref="TransportVehicle"/> can drive to a Factory and unload/load products.
+/// </summary>
 public class Factory : PathFindingTarget, IFactory
 {
     #region Attributes
 
     [SerializeField] private Dictionary<ProductData, ProductStorage> _neededProducts; // Dict of needed Products
     [SerializeField] private ProductStorage _producedProduct; // The currently produced product
-    private bool _isProductSelectable = true;
+    [SerializeField] private int _maxAmount = 20;
     private bool _isProducing;
     private float _elapsedTime; // Time elapsed since the begin of the production process
-    private int _tempMaxAmount = 20;
 
     private Coroutine _produceCoroutine;
 //	private Dictionary<BiomeGenerator.Biome, float> _biomeValueDictionary;
@@ -45,8 +50,6 @@ public class Factory : PathFindingTarget, IFactory
     }
 
     public float ProductionProgress => _elapsedTime / ProductData.ProductionTime;
-
-    public bool IsProductSelectable => _isProductSelectable;
 
     //public Dictionary<BiomeGenerator.Biome, float> BiomeValueDictionary {
     //	get {
@@ -87,12 +90,15 @@ public class Factory : PathFindingTarget, IFactory
         if (_producedProduct.StoredProductData == null) return;
 
         InitializeProduction();
-        _isProductSelectable = false;
     }
 
+    /// <summary>
+    /// Sets up the production process
+    /// *
+    /// </summary>
     private void InitializeProduction()
     {
-        EmitterStorage().MaxAmount = _tempMaxAmount;
+        EmitterStorage().MaxAmount = _maxAmount;
         EmitterStorage().Amount = 0;
         _isProducing = false;
         _elapsedTime = 0f;
@@ -103,7 +109,7 @@ public class Factory : PathFindingTarget, IFactory
         {
             foreach (NeededProduct neededProduct in ProductData.NeededProduct)
             {
-                _neededProducts.Add(neededProduct.Product, new ProductStorage(neededProduct.Product, _tempMaxAmount));
+                _neededProducts.Add(neededProduct.Product, new ProductStorage(neededProduct.Product, _maxAmount));
             }
         }
 
@@ -131,7 +137,7 @@ public class Factory : PathFindingTarget, IFactory
     #region Production
 
     /// <summary>
-    /// Handles the Production process. Handled by <see cref="set_ProductData"/>.
+    /// Handles the Production process.
     /// </summary>
     IEnumerator Produce()
     {
@@ -156,12 +162,16 @@ public class Factory : PathFindingTarget, IFactory
             _isProducing = false;
             _elapsedTime = 0f;
 
-            // Debug
             Debug.Log("Product Finished: " + EmitterStorage().StoredProductData.ProductName + ": " +
                       EmitterStorage().Amount);
         }
     }
-
+    
+    /// <summary>
+    /// Checks if another product can be produced.
+    /// Checks Storage Capacity and the presence of needed products
+    /// </summary>
+    /// <returns>true if a new product can be produced</returns>
     private bool IsProductionReady()
     {
         bool productionReady = ProductData != null && EmitterStorage().Amount < EmitterStorage().MaxAmount;
@@ -173,12 +183,13 @@ public class Factory : PathFindingTarget, IFactory
                 productionReady = false;
             }
         }
-
         return productionReady;
     }
 
     #endregion
 
+    #region ProductEmitter
+    
     public ProductStorage EmitterStorage(ProductData productData = null)
     {
         if (productData == null) return _producedProduct;
@@ -189,4 +200,6 @@ public class Factory : PathFindingTarget, IFactory
     {
         return new List<ProductData> {_producedProduct.StoredProductData};
     }
+    
+    #endregion
 }

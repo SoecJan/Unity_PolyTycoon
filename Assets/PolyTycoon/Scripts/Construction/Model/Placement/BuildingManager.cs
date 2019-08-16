@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This interface describes the functionality for a class that holds the reference to all buildings that were placed by the player.
+/// </summary>
 public interface IBuildingManager
 {
     PathFindingNode GetNode(Vector3 position);

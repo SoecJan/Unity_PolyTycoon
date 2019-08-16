@@ -1,9 +1,16 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-
+/// <summary>
+/// The city manager holds a reference to all cities.
+/// </summary>
 public interface ICityManager
 {
+    /// <summary>
+    /// This function returns the <see cref="CityPlaceable"/> reference to a given city name string.
+    /// </summary>
+    /// <param name="cityName">The name of the <see cref="CityPlaceable"/> that needs to be returned.</param>
+    /// <returns>The <see cref="CityPlaceable"/> instance associated with the given name</returns>
     CityPlaceable GetCity(string cityName);
 }
 
@@ -25,13 +32,13 @@ public class CityManager : MonoBehaviour, ICityManager
         AddRandomCity();
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            AddRandomCity();
-        }
-    }
+//    void Update()
+//    {
+//        if (Input.GetKeyDown(KeyCode.K))
+//        {
+//            AddRandomCity(); // Debugging
+//        }
+//    }
 
     private void AddRandomCity()
     {

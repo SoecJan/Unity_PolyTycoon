@@ -1,12 +1,26 @@
 
 using System.Collections.Generic;
 
+/// <summary>
+/// This interface describes functionality for a PathFinder
+/// </summary>
 public interface IPathFinder
 {
+    /// <summary>
+    /// Finds Paths for the given <see cref="TransportRouteElement"/> based on the given <see cref="TransportVehicleData"/>
+    /// </summary>
+    /// <param name="transportVehicleData">The vehicle that is going to use the path</param>
+    /// <param name="transportRouteElements">The route that needs to be calculated</param>
+    /// <returns>The populated List of TransportRouteElements</returns>
     List<TransportRouteElement> FindPath(TransportVehicleData transportVehicleData,
         List<TransportRouteElement> transportRouteElements);
 }
 
+/// <summary>
+/// Wraps the Pathfinding process for multiple <see cref="AbstractPathFindingAlgorithm"/> instances.
+/// Determines the <see cref="PathType"/> and therefore this used <see cref="AbstractPathFindingAlgorithm"/> of a
+/// given <see cref="TransportVehicleData"/> for Pathfinding.
+/// </summary>
 public class PathFinder : IPathFinder
 {
     private Dictionary<PathType, AbstractPathFindingAlgorithm> _pathFindingAlgorithms;
@@ -24,7 +38,7 @@ public class PathFinder : IPathFinder
             {PathType.Air, new AirPathFinding()}
         };
     }
-
+    
     public List<TransportRouteElement> FindPath(TransportVehicleData transportVehicleData,
         List<TransportRouteElement> transportRouteElements)
     {

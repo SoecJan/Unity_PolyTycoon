@@ -1,8 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This interface describes the functionality of all ComplexMapPlaceables
+/// </summary>
 public interface IComplexMapPlaceable
 {
+	/// <summary>
+	/// Holds a reference to every <see cref="SimpleMapPlaceable"/> that is contained in a <see cref="IComplexMapPlaceable"/>.
+	/// </summary>
 	List<SimpleMapPlaceable> ChildMapPlaceables { get; }
 }
 

@@ -1,9 +1,19 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This interface describes the functionality of a building inside a given city.
+/// </summary>
 public interface ICityBuilding
 {
+	/// <summary>
+	/// A reference to the city instance this entity belongs to.
+	/// </summary>
+	/// <returns></returns>
 	CityPlaceable CityPlaceable();
+	/// <summary>
+	/// The amount of people living inside the building.
+	/// </summary>
 	int CurrentResidentCount { get; set; }
 }
 

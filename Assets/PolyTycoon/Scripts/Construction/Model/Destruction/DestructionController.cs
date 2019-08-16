@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// This class is used to remove a placed <see cref="MapPlaceable"/> from the game.
+/// </summary>
 public class DestructionController : MonoBehaviour
 {
     private Camera _mainCamera;
