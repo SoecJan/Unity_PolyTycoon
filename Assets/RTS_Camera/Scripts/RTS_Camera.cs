@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using TMPro;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace RTS_Cam
 {
@@ -31,15 +28,13 @@ namespace RTS_Cam
 
         private Transform m_Transform; //camera tranform
         public bool useFixedUpdate = false; //use FixedUpdate() or Update()
-        private bool isFocused = true;
 
         #region Movement
 
-        public float shiftMultiplier = 2f;
         public float keyboardMovementSpeed = 5f; //speed with keyboard movement
         public float screenEdgeMovementSpeed = 3f; //spee with screen edge movement
         public float followingSpeed = 5f; //speed when following a target
-        public float rotationSpeed = 3f;
+        public float rotationSped = 3f;
         public float panningSpeed = 10f;
         public float mouseRotationSpeed = 10f;
 
@@ -48,7 +43,7 @@ namespace RTS_Cam
         #region Height
 
         public bool autoHeight = true;
-        public LayerMask groundMask = 9; //layermask of ground or other objects that affect height
+        public LayerMask groundMask = -1; //layermask of ground or other objects that affect height
 
         public float maxHeight = 10f; //maximal height
         public float minHeight = 15f; //minimnal height
@@ -56,7 +51,7 @@ namespace RTS_Cam
         public float keyboardZoomingSensitivity = 2f;
         public float scrollWheelZoomingSensitivity = 25f;
 
-        private float zoomPos = 0.5f; //value in range (0, 1) used as t in Matf.Lerp
+        private float zoomPos = 0; //value in range (0, 1) used as t in Matf.Lerp
 
         #endregion
 
@@ -89,7 +84,7 @@ namespace RTS_Cam
         #region Input
 
         public bool useScreenEdgeInput = true;
-        public float screenEdgeBorder = 10f;
+        public float screenEdgeBorder = 3f;
 
         public bool useKeyboardInput = true;
         public string horizontalAxis = "Horizontal";
@@ -166,6 +161,18 @@ namespace RTS_Cam
             }
         }
 
+        private bool IsInputDetected()
+        {
+            bool leftRect = MouseInput.x <= 3f;
+            bool rightRect = MouseInput.x >= Screen.width - 3f;
+            bool downRect = MouseInput.y <= 3f;
+            bool upRect = MouseInput.y >= Screen.height - 3f;
+            bool panning = Input.GetKey(panningKey);
+            bool escape = Input.GetKey(KeyCode.Escape);
+            bool keyboardMove = !Vector2.zero.Equals(KeyboardInput);
+            return leftRect || rightRect || downRect || upRect || panning || escape || keyboardMove;
+        }
+        
         #endregion
 
         #region Unity_Methods
@@ -177,26 +184,20 @@ namespace RTS_Cam
 
         private void Update()
         {
-            if (!useFixedUpdate && isFocused)
+            if (!useFixedUpdate)
                 CameraUpdate();
         }
 
         private void FixedUpdate()
         {
-            if (useFixedUpdate && isFocused)
+            if (useFixedUpdate)
                 CameraUpdate();
         }
 
         #endregion
 
-        #region Camera_Methods
+        #region RTSCamera_Methods
 
-        public void SetFocus(bool isFocused)
-        {
-            this.isFocused = isFocused;
-            Debug.Log("Focus: " + isFocused);
-        }
-        
         /// <summary>
         /// update camera movement and rotation
         /// </summary>
@@ -217,46 +218,38 @@ namespace RTS_Cam
         /// </summary>
         private void Move()
         {
-            if (useKeyboardInput)
+            if (useKeyboardInput && !Vector2.zero.Equals(KeyboardInput))
             {
                 Vector3 desiredMove = new Vector3(KeyboardInput.x, 0, KeyboardInput.y);
-                
+
                 desiredMove *= keyboardMovementSpeed;
                 desiredMove *= Time.deltaTime;
                 desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
                 desiredMove = m_Transform.InverseTransformDirection(desiredMove);
 
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    desiredMove *= shiftMultiplier;
-                }
-                
                 m_Transform.Translate(desiredMove, Space.Self);
             }
 
             if (useScreenEdgeInput)
             {
-                Vector3 desiredMove = new Vector3();
+                bool leftRect = MouseInput.x <= 3f;
+                bool rightRect = MouseInput.x >= Screen.width - 3f;
+                bool downRect = MouseInput.y <= 3f;
+                bool upRect = MouseInput.y >= Screen.height - 3f;
 
-                Rect leftRect = new Rect(0, 0, screenEdgeBorder, Screen.height);
-                Rect rightRect = new Rect(Screen.width - screenEdgeBorder, 0, screenEdgeBorder, Screen.height);
-                Rect upRect = new Rect(0, Screen.height - screenEdgeBorder, Screen.width, screenEdgeBorder);
-                Rect downRect = new Rect(0, 0, Screen.width, screenEdgeBorder);
-
-                desiredMove.x = leftRect.Contains(MouseInput) ? -1 : rightRect.Contains(MouseInput) ? 1 : 0;
-                desiredMove.z = upRect.Contains(MouseInput) ? 1 : downRect.Contains(MouseInput) ? -1 : 0;
-
-                desiredMove *= screenEdgeMovementSpeed;
-                desiredMove *= Time.deltaTime;
-                desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
-                desiredMove = m_Transform.InverseTransformDirection(desiredMove);
-
-                if (Input.GetKey(KeyCode.LeftShift))
+                if (leftRect || rightRect || downRect || upRect)
                 {
-                    desiredMove *= shiftMultiplier;
+                    Vector3 desiredMove = new Vector3();
+                    desiredMove.x = leftRect ? -1 : rightRect ? 1 : 0;
+                    desiredMove.z = upRect ? 1 : downRect ? -1 : 0;
+
+                    desiredMove *= screenEdgeMovementSpeed;
+                    desiredMove *= Time.deltaTime;
+                    desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
+                    desiredMove = m_Transform.InverseTransformDirection(desiredMove);
+                    
+                    m_Transform.Translate(desiredMove, Space.Self);
                 }
-                
-                m_Transform.Translate(desiredMove, Space.Self);
             }       
         
             if(usePanning && Input.GetKey(panningKey) && MouseAxis != Vector2.zero)
@@ -267,18 +260,13 @@ namespace RTS_Cam
                 desiredMove *= Time.deltaTime;
                 desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
                 desiredMove = m_Transform.InverseTransformDirection(desiredMove);
-                
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    desiredMove *= shiftMultiplier;
-                }
 
                 m_Transform.Translate(desiredMove, Space.Self);
             }
         }
 
         /// <summary>
-        /// calculate height
+        /// calcualte height
         /// </summary>
         private void HeightCalculation()
         {
@@ -306,7 +294,7 @@ namespace RTS_Cam
         private void Rotation()
         {
             if(useKeyboardRotation)
-                transform.Rotate(Vector3.up, RotationDirection * Time.deltaTime * rotationSpeed, Space.World);
+                transform.Rotate(Vector3.up, RotationDirection * Time.deltaTime * rotationSped, Space.World);
 
             if (useMouseRotation && Input.GetKey(mouseRotationKey))
                 m_Transform.Rotate(Vector3.up, -MouseAxis.x * Time.deltaTime * mouseRotationSpeed, Space.World);
@@ -317,6 +305,11 @@ namespace RTS_Cam
         /// </summary>
         private void FollowTarget()
         {
+            if (IsInputDetected())
+            {
+                ResetTarget();
+                return;
+            }
             Vector3 targetPos = new Vector3(targetFollow.position.x, m_Transform.position.y, targetFollow.position.z) + targetOffset;
             m_Transform.position = Vector3.MoveTowards(m_Transform.position, targetPos, Time.deltaTime * followingSpeed);
         }
@@ -359,7 +352,7 @@ namespace RTS_Cam
         {
             Ray ray = new Ray(m_Transform.position, Vector3.down);
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, LayerMask.NameToLayer("Terrain")))
+            if (Physics.Raycast(ray, out hit, groundMask.value))
                 return (hit.point - m_Transform.position).magnitude;
 
             return 0f;

@@ -72,7 +72,7 @@ public class TransportVehicleController : ITransport
 
     public ProductStorage TransportStorage(ProductData productData)
     {
-        return _transporterStorage[productData];
+        return _transporterStorage.ContainsKey(productData) ? _transporterStorage[productData] : null;
     }
 
     /// <summary>

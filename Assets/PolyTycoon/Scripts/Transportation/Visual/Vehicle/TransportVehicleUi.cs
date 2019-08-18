@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using RTS_Cam;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,12 +14,14 @@ public class TransportVehicleUi : AbstractUi
     // dependencies
     private TransportVehicle _transportVehicle;
     private Coroutine _coroutine;
+    private static RTS_Camera _rtsCamera; // For vehicle following
 
     // Ui navigation
     [SerializeField] private Button _exitButton;
 
     // Vehicle display
     [SerializeField] private Image _vehicleImage;
+    [SerializeField] private Button _vehicleFollowButton;
 
     // Vehicle information display
     [SerializeField] private TextMeshProUGUI _initialCostText;
@@ -61,6 +64,11 @@ public class TransportVehicleUi : AbstractUi
             DisplayedTransportVehicle = null;
             Reset();
         });
+        _vehicleFollowButton.onClick.AddListener(delegate
+        {
+            if (!_rtsCamera) _rtsCamera = FindObjectOfType<RTS_Camera>();
+            _rtsCamera.SetTarget(_transportVehicle ? _transportVehicle.transform : null);
+        });
     }
 
     private void ShowVehicleInformation(TransportVehicle transportVehicle)
@@ -86,6 +94,7 @@ public class TransportVehicleUi : AbstractUi
         }
         else
         {
+            // remove loaded products
             for (int i = 0; i < _scrollView.childCount; i++)
             {
                 Object.Destroy(_scrollView.GetChild(i).gameObject);

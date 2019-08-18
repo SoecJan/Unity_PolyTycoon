@@ -65,6 +65,7 @@ public class TerrainChunk
 		meshCollider = meshObject.AddComponent<MeshCollider>();
 		defaultMaterial = material;
 		meshRenderer.material = material;
+		meshObject.isStatic = true;
 
 		// Set the GameObjects position and parent
 		meshObject.transform.position = new Vector3(position.x, 0, position.y);

@@ -97,7 +97,7 @@ namespace RTS_Cam
             {
                 camera.rotateLeftKey = (KeyCode)EditorGUILayout.EnumPopup("Rotate left: ", camera.rotateLeftKey);
                 camera.rotateRightKey = (KeyCode)EditorGUILayout.EnumPopup("Rotate right: ", camera.rotateRightKey);
-                camera.rotationSpeed = EditorGUILayout.FloatField("Keyboard rotation speed", camera.rotationSpeed);
+                camera.rotationSped = EditorGUILayout.FloatField("Keyboard rotation speed", camera.rotationSped);
             }
 
             using (new HorizontalBlock())

@@ -9,6 +9,7 @@ public class AmountProductView : ProductView
 
 	public void Text(ProductStorage productStorage)
 	{
-		_amountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
+		if (productStorage != null)
+			_amountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
 	}
 }
