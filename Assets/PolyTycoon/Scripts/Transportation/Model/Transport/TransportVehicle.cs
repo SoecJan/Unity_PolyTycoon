@@ -92,6 +92,8 @@ public class TransportVehicleController : ITransport
 
             if (isUnload || !isEmitterProducingProduct) continue;
 
+            Debug.Log(setting.ToString());
+            
             if (!_transporterStorage.ContainsKey(setting.ProductData))
             {
                 _transporterStorage.Add(setting.ProductData, new ProductStorage(setting.ProductData)
@@ -129,6 +131,8 @@ public class TransportVehicleController : ITransport
             bool hasProductLoaded = _transporterStorage.ContainsKey(setting.ProductData);
             // if: setting is for loading, receiver not in need of the product or the truck has none of the product
             if (isLoad || !isLoadedProductReceiver || !hasProductLoaded) continue;
+            
+            Debug.Log(setting.ToString());
 
             ProductStorage receiverStorage = consumer.ReceiverStorage(setting.ProductData);
             ProductStorage truckStorage = _transporterStorage[setting.ProductData];
@@ -268,7 +272,7 @@ public class TransportVehicle : MonoBehaviour
         int routeIndex = Modulo((_routeMover.PathIndex - 1), _transportRoute.TransportRouteElements.Count);
         TransportRouteElement element = _transportRoute.TransportRouteElements[routeIndex];
         yield return _transportController.Unload(element);
-
+        
         // Load Products
         routeIndex = (_routeMover.PathIndex) % _transportRoute.TransportRouteElements.Count;
         element = _transportRoute.TransportRouteElements[routeIndex];
