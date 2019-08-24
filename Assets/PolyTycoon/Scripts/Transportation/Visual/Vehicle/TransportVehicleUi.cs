@@ -14,7 +14,7 @@ public class TransportVehicleUi : AbstractUi
     // dependencies
     private TransportVehicle _transportVehicle;
     private Coroutine _coroutine;
-    private static RTS_Camera _rtsCamera; // For vehicle following
+    private static CameraBehaviour _rtsCamera; // For vehicle following
 
     // Ui navigation
     [SerializeField] private Button _exitButton;
@@ -66,7 +66,7 @@ public class TransportVehicleUi : AbstractUi
         });
         _vehicleFollowButton.onClick.AddListener(delegate
         {
-            if (!_rtsCamera) _rtsCamera = FindObjectOfType<RTS_Camera>();
+            if (!_rtsCamera) _rtsCamera = FindObjectOfType<CameraBehaviour>();
             _rtsCamera.SetTarget(_transportVehicle ? _transportVehicle.transform : null);
         });
     }
