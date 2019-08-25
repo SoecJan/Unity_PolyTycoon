@@ -5,7 +5,6 @@ public interface ITransportRouteManager
 {
     void RemoveTransportRoute(TransportRoute transportRoute);
     void CreateTransportRoute(TransportVehicleData transportVehicleData, List<TransportRouteElement> transportRouteElements);
-    void OnTransportRouteChange(TransportRoute transportRoute);
 }
 
 /// <summary>
@@ -71,11 +70,6 @@ public class TransportRouteManager : MonoBehaviour, ITransportRouteManager
     {
         List<TransportRouteElement> transportRouteElements = (List<TransportRouteElement>) result;
         OnTransportRoutePathFound(transportRouteElements);
-    }
-
-    public void OnTransportRouteChange(TransportRoute transportRoute)
-    {
-        Debug.LogError("TransportRouteChanges need to be reimplemented"); // TODO
     }
 
     private void OnTransportRouteChangePathFound(TransportRoute transportRoute)

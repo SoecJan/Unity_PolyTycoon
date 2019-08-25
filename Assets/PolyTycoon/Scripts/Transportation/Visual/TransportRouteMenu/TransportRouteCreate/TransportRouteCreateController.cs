@@ -55,7 +55,8 @@ public class TransportRouteCreateController : AbstractUi
             _stationManager.RouteElementVisibleGameObject.SetActive(value);
             if (value)
             {
-                SettingController.OnShow(_vehicleManager.SelectedTransportVehicleData);
+                TransportVehicleData transportVehicleData = _vehicleManager.SelectedTransportVehicleData;
+                SettingController.OnShow(transportVehicleData != null ? transportVehicleData.MaxCapacity : -1);
             }
             else
             {
@@ -71,6 +72,7 @@ public class TransportRouteCreateController : AbstractUi
         _selectedTransportRoute = null;
         _createButton.gameObject.SetActive(true);
         _applyButton.gameObject.SetActive(false);
+        _vehicleToggle.interactable = true;
         _vehicleToggle.isOn = true;
         _routeToggle.isOn = false;
         _routeToggle.interactable = false;
@@ -114,22 +116,24 @@ public class TransportRouteCreateController : AbstractUi
     public void LoadRoute(TransportRoute transportRoute)
     {
         _selectedTransportRoute = transportRoute;
+        _vehicleManager.VehicleChoiceVisibleGameObject.SetActive(false);
+        _stationManager.RouteElementVisibleGameObject.SetActive(true);
+        _vehicleToggle.isOn = false;
+        _vehicleToggle.interactable = false;
+        _routeToggle.interactable = true;
+        _routeToggle.isOn = true;
         _createButton.gameObject.SetActive(false);
         _applyButton.gameObject.SetActive(true);
-        SetVisible(true);
+        SettingController.OnShow(_selectedTransportRoute.TransportVehicle.MaxCapacity);
         StationManager.LoadTransportRoute(_selectedTransportRoute);
+        SetVisible(true);
     }
 
     public void SaveRouteChanges()
     {
-        if (!_vehicleManager.SelectedTransportVehicleData)
-            _userInformationPopup.InformationText = "Vehicle needs to be set first!";
-        if (_stationManager.TransportRouteElementViews.Count <= 1)
-            _userInformationPopup.InformationText = "A route needs more than 1 station!";
-
         _selectedTransportRoute.RouteName = _stationManager.RouteName;
         _selectedTransportRoute.TransportRouteElements = _stationManager.TransportRouteElements;
-        _transportRouteManager.OnTransportRouteChange(_selectedTransportRoute);
+        _selectedTransportRoute.TransportVehicle.TransportRoute = _selectedTransportRoute;
     }
 
     public override void SetVisible(bool visible)

@@ -57,15 +57,15 @@ public class RouteCreationSettingsManager
         _routeSettingProductSelector.OnProductSelectAction = null;
     }
 
-    public void OnShow(TransportVehicleData selectedTransportVehicleData)
+    public void OnShow(int vehicleCapacity)
     {
-        if (!selectedTransportVehicleData) return;
+        if (vehicleCapacity < 0) return;
         _routeSettingProductSelector.OnProductSelectAction = ProductSelected;
-        for (int i = 0; i < selectedTransportVehicleData.MaxCapacity; i++)
+        for (int i = 0; i < vehicleCapacity; i++)
         {
             _productViews.Add(AddSetting(_loadSettingScrollView));
         }
-        for (int i = 0; i < selectedTransportVehicleData.MaxCapacity; i++)
+        for (int i = 0; i < vehicleCapacity; i++)
         {
             _productViews.Add(AddSetting(_unloadSettingScrollView));
         }

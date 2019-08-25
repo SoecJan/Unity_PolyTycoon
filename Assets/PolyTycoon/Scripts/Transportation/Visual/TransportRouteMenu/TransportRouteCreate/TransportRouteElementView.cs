@@ -47,11 +47,13 @@ public class TransportRouteElementView : MonoBehaviour
 
 	public Toggle SelectToggle => _selectToggle;
 
+	public Button DeleteButton => _deleteButton;
+
 	void Awake()
 	{
 		if (_transportRouteElement == null) _transportRouteElement = new TransportRouteElement();
 		_transportRouteElement.RouteSettings = new List<TransportRouteSetting>();
-		_deleteButton.onClick.AddListener(delegate
+		DeleteButton.onClick.AddListener(delegate
 		{
 			TransportRouteCreateController transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
 			transportRouteCreateController.StationManager.RemoveTransportRouteElement(this);

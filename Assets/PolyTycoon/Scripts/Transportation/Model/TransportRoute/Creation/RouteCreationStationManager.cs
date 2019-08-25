@@ -159,8 +159,32 @@ public class RouteCreationStationManager
     {
         foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
         {
-            AddNode(transportRouteElement.FromNode);
+            TransportRouteElementView elementView = GameObject.Instantiate(_routeElementPrefab, _routeElementScrollView);
+            elementView.DeleteButton.interactable = false;
+            elementView.RouteElement = transportRouteElement;
+            elementView.SelectToggle.group = _elementToggleGroup;
+            elementView.SelectToggle.onValueChanged.AddListener(delegate(bool value)
+            {
+                if (!value) return;
+                if (SelectedRouteElement)
+                {
+                    _settingController.Save(SelectedRouteElement.RouteElement);
+                }
+
+                SelectedRouteElement = elementView;
+                _settingController.LoadRouteElementSettings(elementView.RouteElement);
+                Debug.Log("TransportElement selected; Setting Amount: " + elementView.RouteElement.RouteSettings.Count);
+            });
         }
+
+        SelectedRouteElement = GetElementView(0);
+        for (int i = 1; i < _routeElementScrollView.childCount; i++)
+        {
+            GetElementView(i).SelectToggle.isOn = false;
+        }
+
+        _settingController.LoadRouteElementSettings(SelectedRouteElement.RouteElement);
+        _settingController.RouteSettingVisibleGameObject.SetActive(true);
     }
 
     public void RemoveTransportRouteElement(TransportRouteElementView routeElementView)
