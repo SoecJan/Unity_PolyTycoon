@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1878430316800838947}
   - component: {fileID: 1878430316800838946}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Button H4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,14 +61,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.14901961, g: 0.16862746, b: 0.15294118, a: 0.78431374}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 1c8ca493bb767424a95c769495332d07, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 020c508cce2d64b47b12be49a544623a, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -152,6 +152,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Text H4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1456204779155326741, guid: 1299d60f761bf9340961a89536fa7684,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1456204779155326738, guid: 1299d60f761bf9340961a89536fa7684,
         type: 3}
