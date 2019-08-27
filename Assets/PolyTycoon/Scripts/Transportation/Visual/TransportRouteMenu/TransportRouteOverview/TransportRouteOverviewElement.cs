@@ -36,6 +36,7 @@ public class TransportRouteOverviewElement : PoolableObject
 	{
 		if (!_transportRouteCreateController) _transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
 		_transportRouteCreateController.LoadRoute(TransportRoute);
+		FindObjectOfType<CameraBehaviour>().SetTarget(TransportRoute.TransportVehicle.transform);
 	}
 
 	private void OnRemoveClick()

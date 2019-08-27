@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -140,6 +141,24 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
         _emittedProducts = new List<ProductStorage>();
         FillEmittedProducts();
         FillReceivedProducts();
+        StartCoroutine(ProductAmountReset(30));
+    }
+
+    private IEnumerator ProductAmountReset(int waitTime)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(waitTime);
+            foreach (ProductStorage productStorage in _receivedProducts.Values)
+            {
+                productStorage.Amount = 0;
+            }
+
+            foreach (ProductStorage productStorage in _emittedProducts)
+            {
+                productStorage.Amount = productStorage.MaxAmount;
+            }
+        }
     }
 
     /// <summary>
@@ -158,6 +177,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
             _usedNamesList.Add(_usedNamesList.Count + 1);
             return overflowName;
         }
+
         // Loop over all used indices
         int output = Random.Range(0, names.Length);
         while (_usedNamesList.Contains(output))
@@ -199,7 +219,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
             }
         }
     }
-    
+
     /// <summary>
     /// <inheritdoc cref="IPathNode.PathTo"/>
     /// </summary>

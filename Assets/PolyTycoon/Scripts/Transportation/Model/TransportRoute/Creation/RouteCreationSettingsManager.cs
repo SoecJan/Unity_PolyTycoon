@@ -29,6 +29,8 @@ public class RouteCreationSettingsManager
 
     public GameObject RouteSettingVisibleGameObject => _routeSettingVisibleGameObject;
 
+    public ProductSelector RouteSettingProductSelector => _routeSettingProductSelector;
+
     private TransportRouteProductView SelectedProductView
     {
         get => _selectedProductView;
@@ -106,7 +108,6 @@ public class RouteCreationSettingsManager
         transportRouteProductView.SelectionToggle.group = _routeSettingToggleGroup;
         transportRouteProductView.SelectionToggle.onValueChanged.AddListener(delegate (bool value)
         {
-            _routeSettingProductSelector.VisibleGameObject.SetActive(true);
             if (value)
             {
                 SelectedProductView = transportRouteProductView;

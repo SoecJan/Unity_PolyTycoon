@@ -153,6 +153,7 @@ public class RouteCreationStationManager
         _settingController.LoadRouteElementSettings(SelectedRouteElement.RouteElement);
 
         _settingController.RouteSettingVisibleGameObject.SetActive(true);
+        _settingController.RouteSettingProductSelector.VisibleGameObject.SetActive(true);
     }
 
     public void LoadTransportRoute(TransportRoute transportRoute)
@@ -185,6 +186,7 @@ public class RouteCreationStationManager
 
         _settingController.LoadRouteElementSettings(SelectedRouteElement.RouteElement);
         _settingController.RouteSettingVisibleGameObject.SetActive(true);
+        _settingController.RouteSettingProductSelector.VisibleGameObject.SetActive(true);
     }
 
     public void RemoveTransportRouteElement(TransportRouteElementView routeElementView)

@@ -74,10 +74,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
             SimpleMapPlaceable simpleMapPlaceable = BuildingManager.GetNode(position);
             return simpleMapPlaceable ? ((PathFindingNode) simpleMapPlaceable) : null;
         }
-        else
-        {
-            return null;
-        }
+        return null;
     }
 
     #endregion
@@ -128,11 +125,11 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     }
 
     /// <summary>
-    /// Cleans up on this street object after it has been destroyed
+    /// Cleans up on this object after it has been destroyed
     /// </summary>
     void OnDestroy()
     {
-        // Remove this street instance from the neighbors
+        // Remove this instance from the neighbors
         if (!IsPlaced) return;
         TotalNodeCount -= 1;
         for (int i = 0; i < NeighborCount; i++)

@@ -23,16 +23,14 @@ public abstract class PathFindingConnector : PathFindingNode
         // Don't rotate these entities
     }
 
-    protected abstract PathFindingConnector Neighbor(int direction);
-
     public override void OnPlacement()
     {
         base.OnPlacement();
         transform.name = GetType().ToString() + ": " + transform.position.ToString();
         for (int i = 0; i < 4; i++)
         {
-            PathFindingConnector neighbor = Neighbor(i);
-            if (neighbor) neighbor.UpdateOrientation();
+            PathFindingConnector neighbor = AdjacentNodes(i) as PathFindingConnector;
+            if (neighbor != null) neighbor.UpdateOrientation();
         }
         UpdateOrientation();
     }

@@ -5,16 +5,10 @@ using UnityEngine;
 /// </summary>
 public class Rail : PathFindingConnector
 {
-    protected PathFindingNode AdjacentNodes(int i)
+	protected override PathFindingNode AdjacentNodes(int direction)
     {
-	    PathFindingNode pathFindingNode = base.AdjacentNodes(i);
-	    Trainstation trainstation = pathFindingNode as Trainstation;
-	    return pathFindingNode is Rail || (trainstation != null && trainstation.AccessRail == this) ? pathFindingNode : null;
-    }
-
-    protected override PathFindingConnector Neighbor(int direction)
-    {
-	    return AdjacentNodes(direction) as Rail;
+	    PathFindingNode pathFindingNode = base.AdjacentNodes(direction);
+	    return (pathFindingNode is Trainstation || pathFindingNode is Rail) ? pathFindingNode : null;
     }
 
     public override WayPoint GetTraversalVectors(int fromDirection, int toDirection)

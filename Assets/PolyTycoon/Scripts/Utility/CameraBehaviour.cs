@@ -102,7 +102,7 @@ public class CameraBehaviour : MonoBehaviour
     private void Zoom(Transform movingTransform)
     {
         Vector3 currentPositionVector = movingTransform.localPosition;
-        Vector3 changePositionVector = ScrollWheel * _scrollViewZoomingSensitivity * Time.deltaTime * Vector3.forward;
+        Vector3 changePositionVector = ((ZoomDirection * _keyboardZoomingSensitivity) + (ScrollWheel * _scrollViewZoomingSensitivity)) * Time.deltaTime * Vector3.forward;
         Vector3 futurePositionVector = currentPositionVector + changePositionVector;
         if (futurePositionVector.z >= -0.5f) futurePositionVector.z = -0.5f;
         if (futurePositionVector.z <= -30f) futurePositionVector.z = -30f;

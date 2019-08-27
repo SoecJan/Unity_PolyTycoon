@@ -37,7 +37,7 @@ public class ProductView : MonoBehaviour
 	{
 		_productButton.onClick.AddListener(delegate
 		{
-			ClickCallBack(_productData);
+			ClickCallBack?.Invoke(_productData);
 		});
 	}
 	#endregion

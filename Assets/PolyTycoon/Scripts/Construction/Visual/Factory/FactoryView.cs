@@ -15,21 +15,20 @@ public class FactoryView : AbstractUi
 
     private Factory _factory;
 
-    [Header("General")] 
-    [SerializeField] private Button _exitButton;
+    [Header("General")] [SerializeField] private Button _exitButton;
 
-    [Header("Factory Information")]
-    [SerializeField] private TextMeshProUGUI _titleText;
+    [Header("Factory Information")] [SerializeField]
+    private TextMeshProUGUI _titleText;
+
     [SerializeField] private TextMeshProUGUI _amountLabel;
     [SerializeField] private Slider _productionTimeSlider;
     [SerializeField] private Image _productImage;
     private Sprite _defaultProductSprite;
-    
-    [Header("ToolTip")] 
-    [SerializeField] private FactoryProductToolTip _factoryProductToolTip;
 
-    [Header("Needed Product")] 
-    [SerializeField] private FactoryNeededProductView _factoryNeededProductView;
+    [Header("ToolTip")] [SerializeField] private FactoryProductToolTip _factoryProductToolTip;
+
+    [Header("Needed Product")] [SerializeField]
+    private FactoryNeededProductView _factoryNeededProductView;
 
     #endregion
 
@@ -39,15 +38,11 @@ public class FactoryView : AbstractUi
     {
         set
         {
-            if (value == null && _factory)
-            {
-                _factory.Outline.enabled = false;
-            }
+            if (value == _factory) return;
+            if (_factory) _factory.Outline.enabled = false;
             _factory = value;
-            if (!_factory)
-            {
-                return;
-            }
+            if (!_factory) return;
+
             _factory.Outline.enabled = true;
             OnProductChange(_factory.ProductData);
 //            LoadNeededProducts();
@@ -75,16 +70,13 @@ public class FactoryView : AbstractUi
     {
         _factoryNeededProductView.ClearObjects();
         if (!_factory) return;
-        _factoryNeededProductView.VisibleGameObject.SetActive(_factory.ReceiverStorage() != null);
-        if (_factory.ReceiverStorage() == null)
-        {
-            return;
-        }
-
+        _factoryNeededProductView.VisibleGameObject.SetActive(_factory.ReceiverStorage() != null || _factory.ReceivedProductList().Count > 0);
+        
         // Add NeededProduct views to UI
         foreach (ProductData neededProducts in _factory.ReceivedProductList())
         {
-            NeededProductView neededProductView = GameObject.Instantiate(_factoryNeededProductView.NeededProductViewPrefab,
+            NeededProductView neededProductView = GameObject.Instantiate(
+                _factoryNeededProductView.NeededProductViewPrefab,
                 _factoryNeededProductView.ScrollView);
             neededProductView.ProductData = neededProducts;
             neededProductView.Text(_factory.ReceiverStorage(neededProducts));
@@ -115,7 +107,8 @@ public class FactoryView : AbstractUi
         // Update Tooltip
         _factoryProductToolTip.Image.sprite = productData.ProductSprite;
         _factoryProductToolTip.ProductNameText = productData.ProductName;
-        _factoryProductToolTip.ProductInformationText = productData.Description + "\nProduction Time: " + productData.ProductionTime;
+        _factoryProductToolTip.ProductInformationText =
+            productData.Description + "\nProduction Time: " + productData.ProductionTime;
     }
 
     private IEnumerator UpdateUI()
@@ -130,9 +123,11 @@ public class FactoryView : AbstractUi
                 _productImage.sprite = _factory.ProductData.ProductSprite;
                 for (int i = 0; i < _factoryNeededProductView.ScrollView.childCount; i++)
                 {
-                    AmountProductView productView = _factoryNeededProductView.ScrollView.GetChild(i).gameObject.GetComponent<AmountProductView>();
+                    AmountProductView productView = _factoryNeededProductView.ScrollView.GetChild(i).gameObject
+                        .GetComponent<AmountProductView>();
                     if (((IProductReceiver) _factory).ReceiverStorage(productView.ProductData) == null) continue;
-                    ProductStorage productStorage = ((IProductReceiver) _factory).ReceiverStorage(productView.ProductData);
+                    ProductStorage productStorage =
+                        ((IProductReceiver) _factory).ReceiverStorage(productView.ProductData);
                     productView.Text(productStorage);
                 }
             }
@@ -167,7 +162,8 @@ public class FactoryView : AbstractUi
         [SerializeField] private TextMeshProUGUI _productNameText;
         [SerializeField] private TextMeshProUGUI _productInformationText;
 
-        public FactoryProductToolTip(Image image, TextMeshProUGUI productNameText, TextMeshProUGUI productInformationText)
+        public FactoryProductToolTip(Image image, TextMeshProUGUI productNameText,
+            TextMeshProUGUI productInformationText)
         {
             _image = image;
             _productNameText = productNameText;
@@ -180,13 +176,13 @@ public class FactoryView : AbstractUi
         {
             get { return _productNameText.text; }
             set { _productNameText.text = value; }
-        } 
+        }
 
         public string ProductInformationText
         {
             get { return _productInformationText.text; }
             set { _productInformationText.text = value; }
-        } 
+        }
     }
 
     [Serializable]
@@ -194,7 +190,11 @@ public class FactoryView : AbstractUi
     {
         [SerializeField] private GameObject _visibleGameObject;
         [SerializeField] private RectTransform _scrollView;
-        [FormerlySerializedAs("amountProductStorageViewPrefab")] [FormerlySerializedAs("_neededProductStorageViewPrefab")] [SerializeField] private NeededProductView neededProductViewPrefab;
+
+        [FormerlySerializedAs("amountProductStorageViewPrefab")]
+        [FormerlySerializedAs("_neededProductStorageViewPrefab")]
+        [SerializeField]
+        private NeededProductView neededProductViewPrefab;
 
         public RectTransform ScrollView => _scrollView;
 

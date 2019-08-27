@@ -8,9 +8,10 @@ public class Street : PathFindingConnector
 {
 	#region Methods
 	
-	protected override PathFindingConnector Neighbor(int i)
+	protected override PathFindingNode AdjacentNodes(int i)
 	{
-		return AdjacentNodes(i) as Street;
+		PathFindingNode node = base.AdjacentNodes(i);
+		return node is Rail ? null : node;
 	}
 	#endregion
 	

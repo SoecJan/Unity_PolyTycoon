@@ -226,7 +226,7 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
 
         float tileX0 = heightMap.values[xIndex, zIndex];
         float tileX1 = heightMap.values[xIndex + 1, zIndex];
-        float tileY0 = heightMap.values[xIndex + 1, zIndex];
+        float tileY0 = heightMap.values[xIndex, zIndex + 1];
         float tileY1 = heightMap.values[xIndex + 1, zIndex + 1];
 
         float min = Mathf.Min(tileX0, tileX1, tileY0, tileY1);

@@ -70,7 +70,7 @@ public class Factory : PathFindingTarget, IFactory
     {
         if (_neededProducts.Count == 0) return null;
         if (productData == null && _neededProducts.Count == 1) return _neededProducts[_neededProducts.Keys.ToArray()[0]];
-        return productData != null ? _neededProducts[productData] : null;
+        return productData != null && _neededProducts.ContainsKey(productData) ? _neededProducts[productData] : null;
     }
 
     public List<ProductData> ReceivedProductList()
