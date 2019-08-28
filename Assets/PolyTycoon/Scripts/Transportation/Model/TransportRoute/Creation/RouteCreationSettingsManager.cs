@@ -138,6 +138,8 @@ public class RouteCreationSettingsManager
                 _loadSettingScrollView.GetChild(i).gameObject.GetComponent<TransportRouteProductView>();
             GameObject.Destroy(routeProductView.gameObject);
         }
+        
+        _productViews.Clear();
 
         SelectedProductView = null;
     }

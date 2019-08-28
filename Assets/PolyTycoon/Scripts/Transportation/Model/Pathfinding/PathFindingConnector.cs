@@ -27,12 +27,6 @@ public abstract class PathFindingConnector : PathFindingNode
     {
         base.OnPlacement();
         transform.name = GetType().ToString() + ": " + transform.position.ToString();
-        for (int i = 0; i < 4; i++)
-        {
-            PathFindingConnector neighbor = AdjacentNodes(i) as PathFindingConnector;
-            if (neighbor != null) neighbor.UpdateOrientation();
-        }
-        UpdateOrientation();
     }
     
     public override bool IsTraversable()
@@ -47,7 +41,7 @@ public abstract class PathFindingConnector : PathFindingNode
         return !(verticalStreet || horizontalStreet); // Only corner rails are nodes
     }
     
-    protected virtual void UpdateOrientation()
+    public virtual void UpdateOrientation()
     {
         if (AdjacentNodes(1) || AdjacentNodes(3))
         {

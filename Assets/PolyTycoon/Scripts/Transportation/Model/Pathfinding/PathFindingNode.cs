@@ -169,6 +169,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
                 node.FindNextNodes();
             }
         }
+        if (this is PathFindingConnector connector) connector.UpdateOrientation();
     }
 
     /// <summary>
@@ -181,6 +182,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         for (int i = 0; i < NeighborCount; i++)
         {
             PathFindingNode nextNode = AdjacentNodes(i);
+            
             while (nextNode && !nextNode.IsNode())
             {
                 Array.Clear(nextNode.NeighborNodes, 0, NeighborCount); // Clear Neighbors of non nodes
@@ -195,6 +197,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
             if (pathFindingNodes[i] && IsNode()) // Check if the Node exists and i am a node
             {
                 pathFindingNodes[i].NeighborNodes[(i + 2) % NeighborCount] = this;
+                if (nextNode is PathFindingConnector connector) connector.UpdateOrientation();
             }
         }
 
