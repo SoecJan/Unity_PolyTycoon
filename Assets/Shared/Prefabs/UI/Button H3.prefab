@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4837165477152797768}
   - component: {fileID: 4837165477152797771}
   - component: {fileID: 4837165477152797770}
+  - component: {fileID: -5952275547041506754}
   m_Layer: 5
   m_Name: Button H3
   m_TagString: Untagged
@@ -141,6 +142,21 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &-5952275547041506754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4837165477152797772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -900027084, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.043137256}
+  m_EffectDistance: {x: 2, y: 2}
+  m_UseGraphicAlpha: 1
 --- !u!1001 &3219285946567510606
 PrefabInstance:
   m_ObjectHideFlags: 0

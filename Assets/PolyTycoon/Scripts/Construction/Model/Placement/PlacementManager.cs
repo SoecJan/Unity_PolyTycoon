@@ -26,6 +26,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 {
     #region Attributes
 
+    public static System.Action<MapPlaceable> _onObjectPlacement;
     [SerializeField] private MapPlaceable[] _infrastructurePlaceables; // Objects that can be placed
     [SerializeField] private MapPlaceable[] _productionPlaceables; // Objects that can be placed
 
@@ -112,7 +113,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
         hitInfo.point -=
             new Vector3(_offsetVec3.x, 0f,
                 _offsetVec3.z); // Align the current cursor position to the offset, but keep object height
-        float animationHeightOffset = ((1 + Mathf.Sin(Time.time * _animationSpeedMultiplier)) / 2) + 0.5f;
+        float animationHeightOffset = ((1 + Mathf.Sin(Time.unscaledTime * _animationSpeedMultiplier)) / 2) + 0.5f;
         Vector3 position = new Vector3(Mathf.Round(hitInfo.point.x), hitInfo.point.y + animationHeightOffset,
                                Mathf.Round(hitInfo.point.z)) + _offsetVec3;
         // Check position change
@@ -174,9 +175,9 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
                     if (!PlaceObject(previewObject))
                     {
                         Destroy(previewObject.gameObject);
+                        _onObjectPlacement?.Invoke(null);
                     }
                 }
-
                 _draggedGameObjects.Clear();
             }
 
@@ -184,12 +185,15 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
                 !PlaceObject((ComplexMapPlaceable) _currentPlaceableObject))
             {
                 Destroy(_currentPlaceableObject.gameObject);
+                _onObjectPlacement?.Invoke(null);
             }
             else if (_currentPlaceableObject is SimpleMapPlaceable && !PlaceObject((SimpleMapPlaceable)_currentPlaceableObject))
             {
                 Destroy(_currentPlaceableObject.gameObject);
+                _onObjectPlacement?.Invoke(null);
             }
 
+            _onObjectPlacement?.Invoke(_currentPlaceableObject);
             _currentPlaceableObject = null;
             _isDragging = false;
         }
@@ -202,10 +206,12 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
             for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
             {
                 Destroy(_draggedGameObjects.Values.ElementAt(i).gameObject);
+                _onObjectPlacement?.Invoke(null);
             }
             _draggedGameObjects.Clear();
         }
         Destroy(_currentPlaceableObject.gameObject);
+        _onObjectPlacement?.Invoke(null);
         _currentPlaceableObject = null;
         _isDragging = false;
     }

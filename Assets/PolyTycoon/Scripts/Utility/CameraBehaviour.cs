@@ -41,13 +41,13 @@ public class CameraBehaviour : MonoBehaviour
     [SerializeField] private KeyCode _mouseRotationKey = KeyCode.Mouse1;
     
     
-    private Vector2 KeyboardInput => new Vector2(Input.GetAxis(_horizontalInputAxis), Input.GetAxis(_verticalInputAxis));
+    private Vector2 KeyboardInput => new Vector2(Input.GetAxisRaw(_horizontalInputAxis), Input.GetAxisRaw(_verticalInputAxis));
 
     private Vector2 MouseInput => Input.mousePosition;
 
-    private float ScrollWheel => Input.GetAxis(_zoomingAxis);
+    private float ScrollWheel => Input.GetAxisRaw(_zoomingAxis);
 
-    private Vector2 MouseAxis => new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+    private Vector2 MouseAxis => new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 
     private int ZoomDirection
     {
@@ -86,9 +86,12 @@ public class CameraBehaviour : MonoBehaviour
     {
         _transform = transform;
         _parentTransform = _transform.parent;
+        PauseMenueController._onActivation += delegate(bool value) { enabled = !value; };
+        InputFieldUtility._onInputFieldSelect += delegate { enabled = false; };
+        InputFieldUtility._onInputFieldDeselect += delegate { enabled = true; };
     }
 
-    void FixedUpdate()
+    void Update() // Not in fixed update because of timescale
     {
         if (IsInputDetected()) _targetTransform = null;
         if (_targetTransform)
@@ -102,7 +105,7 @@ public class CameraBehaviour : MonoBehaviour
     private void Zoom(Transform movingTransform)
     {
         Vector3 currentPositionVector = movingTransform.localPosition;
-        Vector3 changePositionVector = ((ZoomDirection * _keyboardZoomingSensitivity) + (ScrollWheel * _scrollViewZoomingSensitivity)) * Time.deltaTime * Vector3.forward;
+        Vector3 changePositionVector = ((ZoomDirection * _keyboardZoomingSensitivity) + (ScrollWheel * _scrollViewZoomingSensitivity)) * Time.unscaledDeltaTime * Vector3.forward;
         Vector3 futurePositionVector = currentPositionVector + changePositionVector;
         if (futurePositionVector.z >= -0.5f) futurePositionVector.z = -0.5f;
         if (futurePositionVector.z <= -30f) futurePositionVector.z = -30f;
@@ -158,7 +161,7 @@ public class CameraBehaviour : MonoBehaviour
         }
 
         if (desiredMove == default(Vector3)) return;
-        desiredMove *= Time.deltaTime;
+        desiredMove *= Time.unscaledDeltaTime;
         desiredMove = Quaternion.Euler(new Vector3(0f, moveTransform.eulerAngles.y, 0f)) * desiredMove;
         desiredMove = moveTransform.InverseTransformDirection(desiredMove);
 

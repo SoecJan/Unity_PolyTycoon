@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ public class ConstructionElementView : MonoBehaviour
 	private static PlacementManager placementManager;
 	private MapPlaceable _mapPlaceable;
 	[Header("Visuals")]
-	[SerializeField] private Button _buildingSelectButton;
+	[SerializeField] private Toggle _buildingSelectToggle;
 	[SerializeField] private Image _buildingImage;
 	[SerializeField] private TextMeshProUGUI _buildingNameText;
 	#endregion
@@ -17,12 +18,21 @@ public class ConstructionElementView : MonoBehaviour
 	private void Start()
 	{
 		if (!placementManager) placementManager = FindObjectOfType<PlacementManager>();
-		_buildingSelectButton.onClick.AddListener(OnClick);
+		PlacementManager._onObjectPlacement += this.OnObjectPlacement;
+		{
+			
+		};
+		_buildingSelectToggle.onValueChanged.AddListener(OnClick);
 	}
 
-	public MapPlaceable MapPlaceable {
-		get => _mapPlaceable;
+	private void OnDestroy()
+	{
+		PlacementManager._onObjectPlacement -= this.OnObjectPlacement;
+	}
 
+	public Toggle BuildingSelectToggle => _buildingSelectToggle;
+
+	public MapPlaceable MapPlaceable {
 		set {
 			_mapPlaceable = value;
 			_buildingImage.sprite = _mapPlaceable.ConstructionUiSprite;
@@ -30,8 +40,21 @@ public class ConstructionElementView : MonoBehaviour
 		}
 	}
 
-	private void OnClick()
+	void OnObjectPlacement(MapPlaceable mapPlaceable)
 	{
+		if (!mapPlaceable)
+		{
+			_buildingSelectToggle.isOn = false;
+		}
+		else if (mapPlaceable.ConstructionUiSprite.Equals(_buildingImage.sprite))
+		{
+			_buildingSelectToggle.isOn = false;
+		} 
+	}
+
+	private void OnClick(bool value)
+	{
+		if (!value) return;
 		placementManager.PlaceableObjectPrefab = _mapPlaceable;
 	}
 	#endregion

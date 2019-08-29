@@ -72,7 +72,6 @@ public class RouteCreationVehicleManager
                 childTransform.gameObject.GetComponent<VehicleOptionView>();
             vehicleOptionView.SelectToggle.isOn = false;
         }
-        
     }
 
     #endregion

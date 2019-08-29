@@ -1,10 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PauseMenueController : AbstractUi
 {
+	public static System.Action<bool> _onActivation;
+	private bool _isVisible = false; // Workaround for animation and VisibleObject.activeSelf conflict
 	[SerializeField] private Button _resumeButton;
 	[SerializeField] private Button _settingsButton;
 	[SerializeField] private Button _exitButton;
@@ -18,7 +21,10 @@ public class PauseMenueController : AbstractUi
 
 	private void OnResumeClick()
 	{
-		SetVisible(false);
+		_isVisible = false;
+		SetVisible(_isVisible);
+		_onActivation?.Invoke(_isVisible);
+		Time.timeScale = 1f;
 	}
 
 	private void OnSettingsClick()
@@ -37,6 +43,9 @@ public class PauseMenueController : AbstractUi
 	public override void OnShortCut()
 	{
 		base.OnShortCut();
-		SetVisible(!VisibleObject.activeSelf);
+		_isVisible = !_isVisible;
+		SetVisible(_isVisible);
+		_onActivation?.Invoke(_isVisible);
+		if (_isVisible) Time.timeScale = 0f;
 	}
 }

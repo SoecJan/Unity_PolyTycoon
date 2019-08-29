@@ -17,6 +17,7 @@ public class ConstructionChoiceView : AbstractUi
 	[SerializeField] private Toggle _infrastructureButton;
 	[SerializeField] private Toggle _productionButton;
 	[SerializeField] private ConstructionElementView _constructionElementViewPrefab;
+	[SerializeField] private ToggleGroup _constructionElementToggleGroup;
 	[SerializeField] private RectTransform _scrollViewContent;
 	#endregion
 
@@ -26,11 +27,7 @@ public class ConstructionChoiceView : AbstractUi
 		_placementManager = FindObjectOfType<PlacementManager>();
 		_exitButton.onClick.AddListener(delegate { SetVisible(false); });
 		_showButton.onClick.AddListener(delegate { SetVisible(!VisibleObject.activeSelf); });
-		foreach (MapPlaceable mapPlaceable in _placementManager.InfrastructurePlaceables)
-		{
-			ConstructionElementView constructionChoiceView = GameObject.Instantiate(_constructionElementViewPrefab, _scrollViewContent);
-			constructionChoiceView.MapPlaceable = mapPlaceable;
-		}
+		CreateElementViews(_placementManager.InfrastructurePlaceables);
 		
 		_infrastructureButton.onValueChanged.AddListener(delegate(bool value)
 		{
@@ -39,11 +36,7 @@ public class ConstructionChoiceView : AbstractUi
 			{
 				Destroy(_scrollViewContent.GetChild(i).gameObject);
 			}
-			foreach (MapPlaceable mapPlaceable in _placementManager.InfrastructurePlaceables)
-			{
-				ConstructionElementView constructionChoiceView = GameObject.Instantiate(_constructionElementViewPrefab, _scrollViewContent);
-				constructionChoiceView.MapPlaceable = mapPlaceable;
-			}
+			CreateElementViews(_placementManager.InfrastructurePlaceables);
 		});
 		_productionButton.onValueChanged.AddListener(delegate(bool value)
 		{
@@ -52,15 +45,22 @@ public class ConstructionChoiceView : AbstractUi
 			{
 				Destroy(_scrollViewContent.GetChild(i).gameObject);
 			}
-			foreach (MapPlaceable mapPlaceable in _placementManager.ProductionPlaceables)
-			{
-				ConstructionElementView constructionChoiceView = GameObject.Instantiate(_constructionElementViewPrefab, _scrollViewContent);
-				constructionChoiceView.MapPlaceable = mapPlaceable;
-			}
+			CreateElementViews(_placementManager.ProductionPlaceables);
 		});
 		_infrastructureButton.isOn = true;
 	}
 
+	private void CreateElementViews(MapPlaceable[] placeables)
+	{
+		foreach (MapPlaceable mapPlaceable in placeables)
+		{
+			ConstructionElementView constructionChoiceView = GameObject.Instantiate(_constructionElementViewPrefab, _scrollViewContent);
+			constructionChoiceView.MapPlaceable = mapPlaceable;
+			constructionChoiceView.BuildingSelectToggle.group = _constructionElementToggleGroup;
+			constructionChoiceView.BuildingSelectToggle.isOn = false;
+		}
+	}
+	
 	public override void OnShortCut()
 	{
 		//if (_visibleUi == this || _visibleUi == null)

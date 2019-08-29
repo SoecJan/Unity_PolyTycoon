@@ -17,7 +17,6 @@ public class ConstructionUiAnimationController : MonoBehaviour
 
     public void OnMouseEnter()
     {
-        Debug.Log("Mouse Enter");
         this._animator.SetTrigger(MouseEnter);
     }
 
