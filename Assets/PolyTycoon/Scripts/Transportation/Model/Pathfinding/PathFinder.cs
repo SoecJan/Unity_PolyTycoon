@@ -1,24 +1,49 @@
-using System;
+
 using System.Collections.Generic;
-using UnityEngine;
 
-public class PathFinder : MonoBehaviour
+/// <summary>
+/// This interface describes functionality for a PathFinder
+/// </summary>
+public interface IPathFinder
 {
-    private Dictionary<Vehicle.PathType, AbstractPathFindingAlgorithm> _pathFindingAlgorithms;
+    /// <summary>
+    /// Finds Paths for the given <see cref="TransportRouteElement"/> based on the given <see cref="TransportVehicleData"/>
+    /// </summary>
+    /// <param name="transportVehicleData">The vehicle that is going to use the path</param>
+    /// <param name="transportRouteElements">The route that needs to be calculated</param>
+    /// <returns>The populated List of TransportRouteElements</returns>
+    List<TransportRouteElement> FindPath(TransportVehicleData transportVehicleData,
+        List<TransportRouteElement> transportRouteElements);
+}
 
-    private void Start()
+/// <summary>
+/// Wraps the Pathfinding process for multiple <see cref="AbstractPathFindingAlgorithm"/> instances.
+/// Determines the <see cref="PathType"/> and therefore this used <see cref="AbstractPathFindingAlgorithm"/> of a
+/// given <see cref="TransportVehicleData"/> for Pathfinding.
+/// </summary>
+public class PathFinder : IPathFinder
+{
+    private Dictionary<PathType, AbstractPathFindingAlgorithm> _pathFindingAlgorithms;
+
+    public PathFinder(TerrainGenerator terrainGenerator)
     {
-        _pathFindingAlgorithms = new Dictionary<Vehicle.PathType, AbstractPathFindingAlgorithm>();
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Road, new NetworkAStarPathFinding());
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Rail, new RailAStarPathFinding());
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Water, new TileAStarPathFinding(FindObjectOfType<TerrainGenerator>(),TerrainGenerator.TerrainType.Ocean));
-        _pathFindingAlgorithms.Add(Vehicle.PathType.Air, new AirPathFinding());
+        _pathFindingAlgorithms = new Dictionary<PathType, AbstractPathFindingAlgorithm>
+        {
+            {PathType.Road, new NetworkAStarPathFinding()},
+            {PathType.Rail, new RailAStarPathFinding()},
+            {
+                PathType.Water,
+                new TileAStarPathFinding(terrainGenerator, TerrainGenerator.TerrainType.Ocean)
+            },
+            {PathType.Air, new AirPathFinding()}
+        };
     }
-
-    public TransportRoute FindPath(TransportRoute transportRoute)
+    
+    public List<TransportRouteElement> FindPath(TransportVehicleData transportVehicleData,
+        List<TransportRouteElement> transportRouteElements)
     {
-        AbstractPathFindingAlgorithm _pathFinder = _pathFindingAlgorithms[transportRoute.Vehicle.MoveType];
-        foreach (TransportRouteElement transportRouteElement in transportRoute.TransportRouteElements)
+        AbstractPathFindingAlgorithm _pathFinder = _pathFindingAlgorithms[transportVehicleData.PathType];
+        foreach (TransportRouteElement transportRouteElement in transportRouteElements)
         {
             IPathNode pathNode = transportRouteElement.FromNode as IPathNode;
             Path path;
@@ -35,9 +60,8 @@ public class PathFinder : MonoBehaviour
             {
                 path = _pathFinder.FindPath(transportRouteElement.FromNode, transportRouteElement.ToNode);
             }
-
             transportRouteElement.Path = path;
         }
-        return transportRoute;
+        return transportRouteElements;
     }
 }

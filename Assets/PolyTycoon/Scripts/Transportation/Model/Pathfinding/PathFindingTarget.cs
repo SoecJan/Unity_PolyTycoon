@@ -1,21 +1,78 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class PathFindingTarget : PathFindingNode
+/// <summary>
+/// This interface defines functionality for optimizing the use of the Pathfinder.
+/// Instead of calculating new paths on every request this interface enables existing paths to be saved and reused.
+/// </summary>
+public interface IPathNode
 {
+	/// <summary>
+	/// This Method enables other classes to receive the Path from one node to another target node.
+	/// </summary>
+	/// <param name="targetNode">The Node that is supposed to be reached</param>
+	/// <returns>A path from the IPathNode instance to the targetNode</returns>
+	Path PathTo(PathFindingNode targetNode);
+
+	/// <summary>
+	/// This Method can be used to add a Path from the current instance to a target Node.
+	/// </summary>
+	/// <param name="targetNode">The target node that can be accessed by this path</param>
+	/// <param name="path">The path that leads to the target node</param>
+	void AddPath(PathFindingNode targetNode, Path path);
+
+	/// <summary>
+	/// This Method can be used to remove a Path from the current instance.
+	/// </summary>
+	/// <param name="targetNode">The target Node this instance should no longer hold a path to</param>
+	void RemovePath(PathFindingNode targetNode);
+}
+
+/// <summary>
+/// An endpoint.
+/// The Pathfinding algorithm finds Paths from and to PathFindingTargets using <see cref="PathFindingConnector"/>.
+/// </summary>
+public abstract class PathFindingTarget : PathFindingNode, IPathNode
+{
+	private Dictionary<PathFindingNode, Path> _paths; // Paths for the IPathNode Interface
+	
 	protected override void Initialize()
     {
 	    base.Initialize();
-	    _isClickable = true;
+	    _paths = new Dictionary<PathFindingNode, Path>(); 
+	    _isClickable = true; // PathFindingTargets can be clicked on by the user to get more information about status
     }
     
     public override bool IsTraversable()
     {
-	    return false;
+	    return false; // It is not possible for movers to traverse through a PathFindingTarget
     }
 
     protected override bool IsNode()
     {
-	    return true;
+	    return true; // A PathFindingTarget can always be accessed via the node graph
+    }
+    
+    public Path PathTo(PathFindingNode targetNode)
+    {
+	    return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
+    }
+
+    public void AddPath(PathFindingNode targetNode, Path path)
+    {
+	    if (_paths.ContainsKey(targetNode))
+	    {
+		    _paths[targetNode] = path;
+	    }
+	    else
+	    {
+		    _paths.Add(targetNode, path);
+	    }
+    }
+
+    public void RemovePath(PathFindingNode targetNode)
+    {
+	    _paths.Remove(targetNode);
     }
     
     public override WayPoint GetTraversalVectors(int fromDirection, int toDirection)

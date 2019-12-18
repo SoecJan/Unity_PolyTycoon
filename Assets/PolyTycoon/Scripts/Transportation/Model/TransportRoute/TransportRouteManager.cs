@@ -1,129 +1,131 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-public class TransportRouteManager : MonoBehaviour
+public interface ITransportRouteManager
 {
-	#region Attributes
-	[Header("Controller")]
-	[SerializeField] private TransportRouteCreateController _routeCreateController;
-	[SerializeField] private TransportRouteOverview _transportRouteOverview;
-	[SerializeField] private VehicleManager _vehicleManager;
+    void RemoveTransportRoute(TransportRoute transportRoute);
+    void CreateTransportRoute(TransportVehicleData transportVehicleData, List<TransportRouteElement> transportRouteElements);
+}
 
-	private PathFinder _pathFinder;
-	private UserInformationPopup _userPopup;
-	#endregion
+/// <summary>
+/// Handles <see cref="TransportRouteCreateController"/> and <see cref="TransportRouteOverview"/> interaction.
+/// </summary>
+public class TransportRouteManager : MonoBehaviour, ITransportRouteManager
+{
+    #region Attributes
 
-	#region Getter & Setter
-	public TransportRouteCreateController RouteCreateController {
-		get {
-			return _routeCreateController;
-		}
+    [Header("Controller")] 
+    private TransportRouteCreateController _routeCreateController;
+    private ITransportRouteOverview _transportRouteOverview;
+    private IVehicleManager _vehicleManager;
+    private IPathFinder _pathFinder;
+    private IUserInformationPopup _userPopup;
 
-		set {
-			_routeCreateController = value;
-		}
-	}
-	#endregion
+    #endregion
 
-	#region Methods
-	void Start()
-	{
-		_vehicleManager = FindObjectOfType<VehicleManager>();
-		_userPopup = FindObjectOfType<UserInformationPopup>();
-		_pathFinder = FindObjectOfType<PathFinder>();
-	}
+    #region Getter & Setter
 
-	private void Reset()
-	{
-		RouteCreateController.Reset();
-	}
+    private TransportRouteCreateController RouteCreateController
+    {
+        get => _routeCreateController;
 
-	public void RemoveTransportRoute(TransportRoute transportRoute)
-	{
-		Destroy(transportRoute.Vehicle.gameObject);
-		_transportRouteOverview.Remove(transportRoute);
-	}
+        set => _routeCreateController = value;
+    }
 
-	public void OnTransportRouteCreate()
-	{
-		if (!RouteCreateController) RouteCreateController = FindObjectOfType<TransportRouteCreateController>();
+    #endregion
 
-		TransportRoute transportRoute = new TransportRoute
-		{
-			Vehicle = RouteCreateController.VehicleChooser.SelectedVehicle,
-			RouteName = RouteCreateController.RouteElementController.RouteNameField.text
-		};
-		foreach (TransportRouteElementView view in RouteCreateController.RouteElementController.TransportRouteElementViews)
-		{
-			transportRoute.TransportRouteElements.Add(view.RouteElement);
-		}
-		PrintNodes(transportRoute);
-		ThreadedDataRequester.RequestData(() => _pathFinder.FindPath(transportRoute), FoundPath);
-	}
+    #region Methods
 
-	private void FoundPath(object result)
-	{
-		TransportRoute transportRoute = (TransportRoute) result;
-		OnTransportRoutePathFound(transportRoute);
-	}
-	
-	private void PrintNodes(TransportRoute transportRoute)
-	{
-		foreach (TransportRouteElement element in transportRoute.TransportRouteElements)
-		{
-			Debug.Log("From: " + element.FromNode + "; To: " + element.ToNode);
-		}
-	}
+    void Start()
+    {
+        this._routeCreateController = FindObjectOfType<TransportRouteCreateController>();
+        this._transportRouteOverview = FindObjectOfType<TransportRouteOverview>();
+        this._vehicleManager = FindObjectOfType<VehicleManager>();
+        this._userPopup = FindObjectOfType<UserInformationPopup>();
+        this._pathFinder = new PathFinder(FindObjectOfType<TerrainGenerator>());
+    }
 
-	public void OnTransportRouteChange(TransportRoute transportRoute)
-	{
-		PrintNodes(transportRoute);
-//		_networkPathFinder.FindPath(transportRoute);
-		Debug.LogError("TransportRouteChanges need to be reimplemented"); // TODO
-	}
+    private void Reset()
+    {
+        RouteCreateController.Reset();
+    }
 
-	private void OnTransportRouteChangePathFound(TransportRoute transportRoute)
-	{
-		Debug.Log("Route updated");
-		transportRoute.Vehicle.TransportRoute = transportRoute;
-		RouteCreateController.SetVisible(false);
-		Reset();
-	}
+    /// <summary>
+    /// Removes a TransportRoute and vehicle from the game
+    /// </summary>
+    /// <param name="transportRoute">The transport route to be removed</param>
+    public void RemoveTransportRoute(TransportRoute transportRoute)
+    {
+        Destroy(transportRoute.TransportVehicle.gameObject);
+        _transportRouteOverview.Remove(transportRoute);
+    }
 
-	private void OnTransportRoutePathFound(TransportRoute transportRoute)
-	{
-		if (transportRoute.Vehicle == null)
-		{
-			_userPopup.InformationText = "Choose a vehicle";
-			return;
-		}
+    public void CreateTransportRoute(TransportVehicleData transportVehicleData,
+        List<TransportRouteElement> routeElements)
+    {
+        ThreadedDataRequester.RequestData(() => _pathFinder.FindPath(transportVehicleData, routeElements), FoundPath);
+    }
 
-		if (transportRoute.TransportRouteElements == null || transportRoute.TransportRouteElements.Count <= 1)
-		{
-			_userPopup.InformationText = "Not enough stations";
-			return;
-		}
-		if ("".Equals(transportRoute.RouteName))
-		{
-			_userPopup.InformationText = "Route needs to have a name";
-			return;
-		}
-		foreach (TransportRouteElement element in transportRoute.TransportRouteElements)
-		{
-			if (element.Path != null) continue;
-			_userPopup.InformationText = "Stations are not connected";
-			return;
-		}
-		// Add TransportRoute to Overview
-		_transportRouteOverview.Add(transportRoute);
-		// Instantiate and configure Vehicle
-		GameObject instancedVehicle = _vehicleManager.AddVehicle(transportRoute.Vehicle,
-			transportRoute.TransportRouteElements[0].Path.WayPoints[0].TraversalVectors[0]);
-		TransportVehicle transportVehicle = instancedVehicle.GetComponent<TransportVehicle>();
-		transportRoute.Vehicle = transportVehicle;
-		transportVehicle.TransportRoute = transportRoute;
-		// Reset Route UI
-		RouteCreateController.SetVisible(false);
-		Reset();
-	}
-	#endregion
+    private void FoundPath(object result)
+    {
+        List<TransportRouteElement> transportRouteElements = (List<TransportRouteElement>) result;
+        OnTransportRoutePathFound(transportRouteElements);
+    }
+
+    private void OnTransportRouteChangePathFound(TransportRoute transportRoute)
+    {
+        Debug.Log("Route updated");
+        transportRoute.TransportVehicle.TransportRoute = transportRoute;
+        RouteCreateController.SetVisible(false);
+        Reset();
+    }
+
+    private void OnTransportRoutePathFound(List<TransportRouteElement> transportRouteElements)
+    {
+        TransportVehicleData transportVehicleData = _routeCreateController.TransportVehicleData;
+        if (transportVehicleData == null)
+        {
+            _userPopup.InformationText = "Choose a vehicle";
+            return;
+        }
+        
+        if ("".Equals(_routeCreateController.RouteName))
+        {
+            _userPopup.InformationText = "Route needs to have a name";
+            return;
+        }
+
+        if (transportRouteElements == null || transportRouteElements.Count <= 1)
+        {
+            _userPopup.InformationText = "Not enough stations";
+            return;
+        }
+
+        foreach (TransportRouteElement element in transportRouteElements)
+        {
+            if (element.Path != null) continue;
+            _userPopup.InformationText = "Stations are not connected";
+            return;
+        }
+
+        Vector3 startPosition = transportRouteElements[0].Path.WayPoints[0].TraversalVectors[0];
+        TransportVehicle transportVehicle = _vehicleManager.AddVehicle(transportVehicleData, startPosition);
+        // Initialize TransportRoute
+        TransportRoute transportRoute = new TransportRoute
+        {
+            TransportRouteElements = transportRouteElements,
+            RouteName = _routeCreateController.RouteName,
+            TransportVehicle = transportVehicle
+        };
+
+        // Configure Vehicle
+        transportVehicle.TransportRoute = transportRoute;
+        // Add TransportRoute to Overview
+        _transportRouteOverview.Add(transportRoute);
+        // Reset Route UI
+        RouteCreateController.SetVisible(false);
+        Reset();
+    }
+
+    #endregion
 }

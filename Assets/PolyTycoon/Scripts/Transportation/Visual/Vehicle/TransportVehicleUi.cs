@@ -1,112 +1,118 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 
+/// <summary>
+/// Ui that displays information on a selected transport vehicle.
+/// By setting the DisplayedTransportVehicle to a value or null.
+/// </summary>
 public class TransportVehicleUi : AbstractUi
 {
-	private static TransportRouteCreateController _transportRouteCreateController;
-	private TransportVehicle _displayedTransportVehicle;
-	private Coroutine _coroutine;
-	//[SerializeField] private LineRenderer _lineRenderer;
-	[SerializeField] private Image _vehicleImage;
-	[SerializeField] private Button _vehicleRouteButton;
-	[SerializeField] private Button _exitButton;
-	[SerializeField] private Text _initialCostText;
-	[SerializeField] private Text _dailyCostText;
-	[SerializeField] private Text _strengthText;
-	[SerializeField] private Text _topSpeedText;
-	[SerializeField] private Text _capacityText;
-	[SerializeField] private Text _loadSpeedText;
-	[SerializeField] private RectTransform _scrollView;
-	[SerializeField] private NeededProductView _scrollViewElementPrefab;
+    // dependencies
+    private TransportVehicle _transportVehicle;
+    private Coroutine _coroutine;
+    private static CameraBehaviour _rtsCamera; // For vehicle following
 
-	public TransportVehicle DisplayedTransportVehicle {
-		get {
-			return _displayedTransportVehicle;
-		}
+    // Ui navigation
+    [SerializeField] private Button _exitButton;
 
-		set
-		{
-			if (_displayedTransportVehicle == value) return;
-			if (value == null && _displayedTransportVehicle)
-			{
-				_displayedTransportVehicle.Outline.enabled = false;
-			}
-			_displayedTransportVehicle = value;
-			if (_displayedTransportVehicle == null)
-			{
-				SetVisible(false);
-			}
-			else
-			{
-				_displayedTransportVehicle.Outline.enabled = true;
-				foreach (ProductStorage productStorage in _displayedTransportVehicle.LoadedProducts.Values)
-				{
-					NeededProductView neededProductView = GameObject.Instantiate(_scrollViewElementPrefab, _scrollView);
-					neededProductView.ProductData = productStorage.StoredProductData;
-					neededProductView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
-				}
+    // Vehicle display
+    [SerializeField] private Image _vehicleImage;
+    [SerializeField] private Button _vehicleFollowButton;
 
-				_vehicleImage.sprite = _displayedTransportVehicle.Sprite;
-				_initialCostText.text = "-";
-				_dailyCostText.text = "-";
-				_strengthText.text = "-";
-				_topSpeedText.text = _displayedTransportVehicle.UnloadSpeed.ToString();
-				_capacityText.text = _displayedTransportVehicle.TotalCapacity.ToString();
-				_loadSpeedText.text = _displayedTransportVehicle.UnloadSpeed.ToString();
-				if (_coroutine == null) _coroutine = StartCoroutine(UpdateUi());
-				SetVisible(true);
-			}
-		}
-	}
+    // Vehicle information display
+    [SerializeField] private TextMeshProUGUI _initialCostText;
+    [SerializeField] private TextMeshProUGUI _dailyCostText;
+    [SerializeField] private TextMeshProUGUI _strengthText;
+    [SerializeField] private TextMeshProUGUI _topSpeedText;
+    [SerializeField] private TextMeshProUGUI _capacityText;
+    [SerializeField] private TextMeshProUGUI _transferTimeText;
 
-	void Start()
-	{
-		if (!_transportRouteCreateController) _transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
-		_vehicleRouteButton.onClick.AddListener(OnVehicleRouteButtonClick);
-		_exitButton.onClick.AddListener(delegate { DisplayedTransportVehicle = null; Reset(); });
-	}
+    // Loaded product display
+    [SerializeField] private RectTransform _scrollView;
+    [SerializeField] private AmountProductView _scrollViewElementPrefab;
 
-	void OnVehicleRouteButtonClick()
-	{
-		if (_displayedTransportVehicle != null)
-		{
-			_transportRouteCreateController
-				.LoadTransportRoute(
-					_displayedTransportVehicle
-						.TransportRoute);
-		}
-	}
+    /// <summary>
+    /// Null value: Removes displayed outline, resets the ui and makes it invisible
+    ///
+    /// Value: Sets displayed outline, loads vehicle & product information and makes the ui visible
+    /// </summary>
+    public TransportVehicle DisplayedTransportVehicle
+    {
+        set
+        {
+            if (_transportVehicle == value) return; // Don't update the selected object
+            if (_transportVehicle) _transportVehicle.Outline.enabled = false; // remove outline
+            ShowVehicleInformation(null);
+            _transportVehicle = value; 
+            if (_transportVehicle) _transportVehicle.Outline.enabled = true; // add outline
 
-	private IEnumerator UpdateUi()
-	{
-		while (_displayedTransportVehicle != null)
-		{
-			for (int i = 0; i< _scrollView.childCount; i++)
-			{
-				NeededProductView productView = _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
-				ProductStorage productStorage = _displayedTransportVehicle.LoadedProducts[productView.ProductData];
-				productView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
-			}
-			yield return new WaitForSeconds(1);
-		}
+            ShowVehicleInformation(_transportVehicle); // Update information display
+            SetVisible(_transportVehicle != null); // Show Ui, if a vehicle is selected
+            
+            if (_coroutine == null) _coroutine = StartCoroutine(UpdateUi());
+        }
+    }
 
-		_coroutine = null;
-	}
+    void Start()
+    {
+        _exitButton.onClick.AddListener(delegate
+        {
+            DisplayedTransportVehicle = null;
+            Reset();
+        });
+        _vehicleFollowButton.onClick.AddListener(delegate
+        {
+            if (!_rtsCamera) _rtsCamera = FindObjectOfType<CameraBehaviour>();
+            _rtsCamera.SetTarget(_transportVehicle ? _transportVehicle.transform : null);
+        });
+    }
 
-	public new void Reset()
-	{ 
-		_vehicleImage.sprite = null;
-		for (int i = 0; i< _scrollView.childCount; i++)
-		{
-			GameObject.Destroy(_scrollView.GetChild(i).gameObject);
-		}
-		_initialCostText.text = "-";
-		_dailyCostText.text = "-";
-		_strengthText.text = "-";
-		_topSpeedText.text = "-";
-		_capacityText.text = "-";
-		_loadSpeedText.text = "-";
-	}
+    private void ShowVehicleInformation(TransportVehicle transportVehicle)
+    {
+        // Set text displays
+        _vehicleImage.sprite = transportVehicle != null ? transportVehicle.Sprite : null;
+        _initialCostText.text = transportVehicle != null ? "-" : "/";
+        _dailyCostText.text = transportVehicle != null ? "-" : "/";
+        _strengthText.text = transportVehicle != null ? "-" : "/";
+        _topSpeedText.text = transportVehicle != null ? transportVehicle.MaxSpeed.ToString() : "-";
+        _capacityText.text = transportVehicle != null ? transportVehicle.MaxCapacity.ToString() : "-";
+        _transferTimeText.text = transportVehicle != null ? transportVehicle.TransferTime.ToString() : "-";
+        
+        // Set loaded products view
+        if (transportVehicle != null)
+        {
+            foreach (ProductData productData in transportVehicle.LoadedProducts)
+            {
+                AmountProductView amountProductView = Object.Instantiate(_scrollViewElementPrefab, _scrollView);
+                amountProductView.ProductData = productData;
+                amountProductView.Text(transportVehicle.TransportStorage(productData));
+            }
+        }
+        else
+        {
+            // remove loaded products
+            for (int i = 0; i < _scrollView.childCount; i++)
+            {
+                Object.Destroy(_scrollView.GetChild(i).gameObject);
+            }
+        }
+    }
+
+    private IEnumerator UpdateUi()
+    {
+        while (_transportVehicle != null)
+        {
+            for (int i = 0; i < _scrollView.childCount; i++)
+            {
+                AmountProductView productView = _scrollView.GetChild(i).gameObject.GetComponent<AmountProductView>();
+                ProductStorage productStorage = _transportVehicle.TransportStorage(productView.ProductData);
+                productView.Text(productStorage);
+            }
+            yield return new WaitForSeconds(1);
+        }
+        _coroutine = null;
+    }
 }

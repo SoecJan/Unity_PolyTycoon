@@ -4,7 +4,43 @@ using System.Collections.Generic;
 using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 
-public class TerrainGenerator : MonoBehaviour
+public interface ITerrainGenerator
+{
+    /// <summary>
+    /// Translates a worldcoordinate to a ChunkVec2 that can be used in GetTerrainChunk(Vec2)
+    /// </summary>
+    /// <param name="xPos"></param>
+    /// <param name="zPos"></param>
+    /// <returns>Vec2 of the TerrainChunk that contains the given positions</returns>
+    Vector2 GetTerrainChunkPosition(float xPos, float zPos);
+
+    /// <summary>
+    /// Gets a TerrainChunk at a specified Index.
+    /// </summary>
+    /// <param name="coordinates"></param>
+    /// <returns>The TerrainChunk at the specified Index. May be null</returns>
+    TerrainChunk GetTerrainChunk(Vector2 coordinates);
+
+    /// <summary>
+    /// Checks to see if all visible TerrainChunks received their Mesh
+    /// </summary>
+    /// <returns>true if all TerrainChunks received their mesh</returns>
+    bool IsReady();
+
+    /// <summary>
+    /// Rises or Lowers the Terrain to align with any placed object
+    /// </summary>
+    /// <param name="terrainChunk"></param>
+    /// <param name="objectPosition"></param>
+    /// <returns>Returns true on successful Terrain Transformation</returns>
+    bool TransformTerrainMeshToObject(SimpleMapPlaceable mapPlaceable);
+
+    TerrainChunk GetChunk(float x, float z);
+    bool IsSuitedTerrain(TerrainGenerator.TerrainType terrainType, Vector3 position);
+    bool IsSuitedTerrain(TerrainGenerator.TerrainType terrainType, float x, float z);
+}
+
+public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
 {
     #region Attributes
 
@@ -59,12 +95,7 @@ public class TerrainGenerator : MonoBehaviour
 
     #region Getter & Setter
 
-    public float TerrainPlaceableHeight
-    {
-        get { return m_terrainPlaceableHeight; }
-
-        set { m_terrainPlaceableHeight = value; }
-    }
+    public float TerrainPlaceableHeight => m_terrainPlaceableHeight;
 
     /// <summary>
     /// Translates a worldcoordinate to a ChunkVec2 that can be used in GetTerrainChunk(Vec2)
@@ -125,7 +156,7 @@ public class TerrainGenerator : MonoBehaviour
     /// The amount of placement slots in a chunk in one direction. It is not the total amount of slots.
     /// </summary>
     /// <returns>The terrain slot amount</returns>
-    public float GetSlotsPerChunk()
+    private float GetSlotsPerChunk()
     {
         return ((float) meshSettings.numVertsPerLine - 3);
     }
@@ -195,7 +226,7 @@ public class TerrainGenerator : MonoBehaviour
 
         float tileX0 = heightMap.values[xIndex, zIndex];
         float tileX1 = heightMap.values[xIndex + 1, zIndex];
-        float tileY0 = heightMap.values[xIndex + 1, zIndex];
+        float tileY0 = heightMap.values[xIndex, zIndex + 1];
         float tileY1 = heightMap.values[xIndex + 1, zIndex + 1];
 
         float min = Mathf.Min(tileX0, tileX1, tileY0, tileY1);
@@ -276,7 +307,7 @@ public class TerrainGenerator : MonoBehaviour
     /// <param name="mapPlaceable"></param>
     /// <param name="objectHeight"></param>
     /// <returns>Transformed Mesh Information. May be null</returns>
-    public Vector3[] CalculateMeshTransformation(Vector3[] meshVertices, SimpleMapPlaceable mapPlaceable)
+    private Vector3[] CalculateMeshTransformation(Vector3[] meshVertices, SimpleMapPlaceable mapPlaceable)
     {
         Debug.Log(TileType(meshVertices, mapPlaceable.transform.position));
         // Get information references
@@ -400,7 +431,7 @@ public class TerrainGenerator : MonoBehaviour
     #region Chunk Handling
 
     // Called if an additional Chunk needs to be loaded
-    public void UpdateVisibleChunks()
+    private void UpdateVisibleChunks()
     {
         // Create empty Hashset of Chunk Vector2, Loop though visibeTerrainChunks and add their Vector2.
 

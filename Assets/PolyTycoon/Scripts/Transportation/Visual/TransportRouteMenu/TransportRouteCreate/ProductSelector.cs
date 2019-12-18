@@ -1,31 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ProductSelector : MonoBehaviour
 {
-	private System.Action<ProductData> onProductSelectAction;
 	[Header("Navigation")]
 	[SerializeField] private GameObject _visibleGameObject;
 	[Header("ScrollView")]
 	[SerializeField] private Transform _scrollView;
 	[SerializeField] private ProductView _productUiSlotPrefab;
 
-	public GameObject VisibleGameObject {
-		get {
-			return _visibleGameObject;
-		}
+	public GameObject VisibleGameObject => _visibleGameObject;
 
-		set {
-			_visibleGameObject = value;
+	public void ShowProducts(List<ProductData> _shownProducts)
+	{
+		for (int i = 0; i < _scrollView.childCount; i++)
+		{
+			GameObject childGameObject = _scrollView.GetChild(i).gameObject;
+			ProductView productView = childGameObject.GetComponent<ProductView>();
+			childGameObject.SetActive(_shownProducts.Contains(productView.ProductData));
 		}
 	}
+	
+	public Action<ProductData> OnProductSelectAction { private get; set; }
 
-	public Action<ProductData> OnProductSelectAction {
-		get { return onProductSelectAction; }
-		set { onProductSelectAction = value; }
-	}
-
-	private void PrintClick(ProductData productData)
+	private void OnProductSelect(ProductData productData)
 	{
 		OnProductSelectAction(productData);
 	}
@@ -37,7 +36,7 @@ public class ProductSelector : MonoBehaviour
 		{
 			ProductView productUiSlot = GameObject.Instantiate(_productUiSlotPrefab, _scrollView);
 			productUiSlot.ProductData = product;
-			productUiSlot.ClickCallBack = PrintClick;
+			productUiSlot.ClickCallBack = OnProductSelect;
 		}
 	}
 }

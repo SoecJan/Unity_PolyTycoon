@@ -1,20 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class NeededProductView : ProductView
+public class NeededProductView : AmountProductView
 {
+	[FormerlySerializedAs("_storedProductAmountText")] [SerializeField] private TextMeshProUGUI _neededProductText;
 
-	[SerializeField] private Text _neededAmountText;
-
-	public Text NeededAmountText {
-		get {
-			return _neededAmountText;
-		}
-
-		set {
-			_neededAmountText = value;
-		}
-	}
+	public string StoredProductAmountText {
+		get { return _neededProductText.text; }
+		set { _neededProductText.text = value; }
+	} 
 }

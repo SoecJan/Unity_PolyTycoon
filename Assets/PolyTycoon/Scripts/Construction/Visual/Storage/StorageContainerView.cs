@@ -8,12 +8,11 @@ public class StorageContainerView : AbstractUi
     private AbstractStorageContainer _storageContainer;
     private Coroutine _updateUiCoroutine;
     [SerializeField] private Button _exitButton;
-    [SerializeField] private NeededProductView _storedProductView;
+    [SerializeField] private AmountProductView _storedProductView;
     [SerializeField] private RectTransform _scrollView;
     
     public AbstractStorageContainer StorageContainer
     {
-        get { return _storageContainer; }
         set
         {
             _storageContainer = value;
@@ -22,14 +21,6 @@ public class StorageContainerView : AbstractUi
                 SetVisible(false);
                 return;
             }
-
-            foreach (ProductStorage productStorage in _storageContainer.StoredProducts().Values)
-            {
-                NeededProductView neededProductView = Instantiate(_storedProductView, _scrollView);
-                neededProductView.ProductData = productStorage.StoredProductData;
-                neededProductView.NeededAmountText.text = productStorage.Amount + "/" + productStorage.MaxAmount;
-            }
-            
             SetVisible(true);
             if (_updateUiCoroutine == null)
                 _updateUiCoroutine = StartCoroutine(UpdateUi());
@@ -45,28 +36,41 @@ public class StorageContainerView : AbstractUi
         });
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     IEnumerator UpdateUi()
     {
+        // Update while visible
         while (VisibleObject.activeSelf)
         {
+            // Add view on change
+            if (_scrollView.childCount < _storageContainer.EmittedProductList().Count)
+            {
+                List<ProductData> copy = _storageContainer.EmittedProductList();
+                // Remove entries from the copy
+                for (int i = 0; i < _scrollView.childCount; i++)
+                {
+                    AmountProductView amountProductView =
+                        _scrollView.GetChild(i).gameObject.GetComponent<AmountProductView>();
+                    copy.Remove(amountProductView.ProductData);
+                }
+                // Instantiate all entries of the copy
+                foreach (ProductData productData in copy)
+                {
+                    AmountProductView amountProductView = Instantiate(_storedProductView, _scrollView);
+                    amountProductView.ProductData = productData;
+                    amountProductView.Text(_storageContainer.EmitterStorage(productData));
+                }
+            }
+            
+            // Update existing views
             for (int i = 0; i < _scrollView.childCount; i++)
             {
-                NeededProductView neededProductView = _scrollView.GetChild(i).gameObject.GetComponent<NeededProductView>();
-                neededProductView.NeededAmountText.text = _storageContainer.StoredProducts()[neededProductView.ProductData].Amount + "/" +
-                                                          _storageContainer.StoredProducts()[neededProductView.ProductData].MaxAmount;
+                AmountProductView amountProductView = _scrollView.GetChild(i).gameObject.GetComponent<AmountProductView>();
+                amountProductView.Text(_storageContainer.EmitterStorage(amountProductView.ProductData));
             }
             yield return new WaitForSeconds(0.1f);
         }
         _updateUiCoroutine = null;
     }
-    
-    
 
     public override void Reset()
     {

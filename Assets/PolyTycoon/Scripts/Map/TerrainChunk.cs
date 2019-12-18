@@ -65,6 +65,7 @@ public class TerrainChunk
 		meshCollider = meshObject.AddComponent<MeshCollider>();
 		defaultMaterial = material;
 		meshRenderer.material = material;
+		meshObject.isStatic = true;
 
 		// Set the GameObjects position and parent
 		meshObject.transform.position = new Vector3(position.x, 0, position.y);
@@ -133,7 +134,7 @@ public class TerrainChunk
 		ThreadedDataRequester.RequestData(() => HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine,
 			heightMapSettings, sampleCentre), OnHeightMapReceived);
 
-		ThreadedDataRequester.RequestData(() => BiomeGenerator.GenerateBiomeData(biomeSettings, meshSettings.numVertsPerLine -3, meshSettings.numVertsPerLine -3, sampleCentre + new Vector2(22.5f, 22.5f)), OnBiomeDataReceived);
+//		ThreadedDataRequester.RequestData(() => BiomeGenerator.GenerateBiomeData(biomeSettings, meshSettings.numVertsPerLine -3, meshSettings.numVertsPerLine -3, sampleCentre + new Vector2(22.5f, 22.5f)), OnBiomeDataReceived);
 	}
 
 	// Callback function on ThreadedDataRequester invoked by this.Load();

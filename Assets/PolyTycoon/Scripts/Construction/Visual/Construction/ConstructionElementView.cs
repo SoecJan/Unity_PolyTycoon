@@ -1,29 +1,38 @@
-﻿using UnityEngine;
+﻿using System;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class ConstructionElementView : MonoBehaviour
 {
 	#region Attributes
-	private static GroundPlacementController _groundPlacementController;
+	private static PlacementManager placementManager;
 	private MapPlaceable _mapPlaceable;
 	[Header("Visuals")]
-	[SerializeField] private Button _buildingSelectButton;
+	[SerializeField] private Toggle _buildingSelectToggle;
 	[SerializeField] private Image _buildingImage;
-	[SerializeField] private Text _buildingNameText;
+	[SerializeField] private TextMeshProUGUI _buildingNameText;
 	#endregion
 
 	#region Methods
 	private void Start()
 	{
-		if (!_groundPlacementController) _groundPlacementController = FindObjectOfType<GroundPlacementController>();
-		_buildingSelectButton.onClick.AddListener(OnClick);
+		if (!placementManager) placementManager = FindObjectOfType<PlacementManager>();
+		PlacementManager._onObjectPlacement += this.OnObjectPlacement;
+		{
+			
+		};
+		_buildingSelectToggle.onValueChanged.AddListener(OnClick);
 	}
 
-	public MapPlaceable MapPlaceable {
-		get {
-			return _mapPlaceable;
-		}
+	private void OnDestroy()
+	{
+		PlacementManager._onObjectPlacement -= this.OnObjectPlacement;
+	}
 
+	public Toggle BuildingSelectToggle => _buildingSelectToggle;
+
+	public MapPlaceable MapPlaceable {
 		set {
 			_mapPlaceable = value;
 			_buildingImage.sprite = _mapPlaceable.ConstructionUiSprite;
@@ -31,9 +40,22 @@ public class ConstructionElementView : MonoBehaviour
 		}
 	}
 
-	private void OnClick()
+	void OnObjectPlacement(MapPlaceable mapPlaceable)
 	{
-		_groundPlacementController.PlaceableObjectPrefab = _mapPlaceable;
+		if (!mapPlaceable)
+		{
+			_buildingSelectToggle.isOn = false;
+		}
+		else if (mapPlaceable.ConstructionUiSprite.Equals(_buildingImage.sprite))
+		{
+			_buildingSelectToggle.isOn = false;
+		} 
+	}
+
+	private void OnClick(bool value)
+	{
+		if (!value) return;
+		placementManager.PlaceableObjectPrefab = _mapPlaceable;
 	}
 	#endregion
 }

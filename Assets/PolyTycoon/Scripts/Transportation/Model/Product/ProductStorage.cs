@@ -1,127 +1,117 @@
 ﻿using UnityEngine;
 
 
-	/// <summary>
-	/// This is the base class of Products that need to be stored.
-	/// </summary>
-	[System.Serializable]
-	public class ProductStorage
-	{
-		#region Attributes
-		[SerializeField] private ProductData _storedProductData;
-		[SerializeField] private int _maxAmount;
-		[SerializeField] private int _storedAmount;
-		[SerializeField] private BiomeGenerator.Biome _growthBiome;
-		[SerializeField] private float _baseGrowthValue = 0.5f;
-		#endregion
+/// <summary>
+/// This is the base class of Products that need to be stored.
+/// </summary>
+[System.Serializable]
+public class ProductStorage
+{
+    #region Attributes
 
-		#region Constructors & Getter & Setter
-		public ProductStorage()
-		{}
+    [SerializeField] private ProductData _storedProductData;
+    [SerializeField] private int _maxAmount;
+    [SerializeField] private int _storedAmount;
+    [SerializeField] private BiomeGenerator.Biome _growthBiome;
+    [SerializeField] private float _baseGrowthValue = 0.5f;
 
-		public ProductStorage(ProductData productData)
-		{
-			_storedProductData = productData;
-		}
+    #endregion
 
-		public ProductStorage(ProductData productData, int maxAmount) : this(productData)
-		{
-			_maxAmount = maxAmount;
-		}
+    #region Constructors & Getter & Setter
 
-		public ProductStorage(ProductData productData, int maxAmount, int storedAmount) : this(productData, maxAmount)
-		{
-			_storedAmount = storedAmount;
-		}
+    public ProductStorage()
+    {
+    }
 
-		public ProductData StoredProductData {
-			get {
-				return _storedProductData;
-			}
+    public ProductStorage(ProductData productData)
+    {
+        _storedProductData = productData;
+    }
 
-			set {
-				_storedProductData = value;
-			}
-		}
+    public ProductStorage(ProductData productData, int maxAmount) : this(productData)
+    {
+        _maxAmount = maxAmount;
+    }
 
-		public int MaxAmount {
-			get {
-				return _maxAmount;
-			}
+    public ProductStorage(ProductData productData, int maxAmount, int storedAmount) : this(productData, maxAmount)
+    {
+        _storedAmount = storedAmount;
+    }
 
-			set {
-				_maxAmount = value;
-			}
-		}
+    public ProductData StoredProductData
+    {
+        get => _storedProductData;
 
-		public int Amount {
-			get {
-				return _storedAmount;
-			}
+        set => _storedProductData = value;
+    }
 
-			set {
-				_storedAmount = value;
-			}
-		}
+    public int MaxAmount
+    {
+        get => _maxAmount;
 
-		public BiomeGenerator.Biome GrowthBiome {
-			get {
-				return _growthBiome;
-			}
+        set => _maxAmount = value;
+    }
 
-			set {
-				_growthBiome = value;
-			}
-		}
+    public int Amount
+    {
+        get => _storedAmount;
 
-		public float BaseGrowthValue {
-			get {
-				return _baseGrowthValue;
-			}
+        set => _storedAmount = value;
+    }
 
-			set {
-				_baseGrowthValue = value;
-			}
-		}
-		#endregion
+    public BiomeGenerator.Biome GrowthBiome
+    {
+        get => _growthBiome;
 
-		#region Methods
+        set => _growthBiome = value;
+    }
 
-		public override string ToString()
-		{
-			return (StoredProductData == null ? "" : StoredProductData.ToString()) + "; Amount: " + Amount;
-		}
+    public float BaseGrowthValue
+    {
+        get => _baseGrowthValue;
 
-		/// <summary>
-		/// Returns a new instance of the used object.
-		/// </summary>
-		/// <returns>New Instance</returns>
-		public ProductStorage Clone()
-		{
-			ProductStorage storage = new ProductStorage
-			{
-				StoredProductData = this._storedProductData,
-				MaxAmount = this._maxAmount,
-				Amount = this._storedAmount
-			};
-			return storage;
-		}
+        set => _baseGrowthValue = value;
+    }
 
-		public override bool Equals(object obj)
-		{
-			var storage = obj as ProductStorage;
-			return storage != null &&
-			       storage.StoredProductData.ProductName.Equals(this.StoredProductData.ProductName);
-		}
+    #endregion
 
-		public override int GetHashCode()
-		{
-			var hashCode = -929180017;
-			hashCode = hashCode * -1521134295 + _maxAmount.GetHashCode();
-			hashCode = hashCode * -1521134295 + _storedAmount.GetHashCode();
-			hashCode = hashCode * -1521134295 + MaxAmount.GetHashCode();
-			hashCode = hashCode * -1521134295 + Amount.GetHashCode();
-			return hashCode;
-		}
-		#endregion
-	}
+    #region Methods
+
+    public override string ToString()
+    {
+        return (StoredProductData == null ? "" : StoredProductData.ToString()) + "; Amount: " + Amount;
+    }
+
+    /// <summary>
+    /// Returns a new instance of the used object.
+    /// </summary>
+    /// <returns>New Instance</returns>
+    public ProductStorage Clone()
+    {
+        ProductStorage storage = new ProductStorage
+        {
+            StoredProductData = this._storedProductData,
+            MaxAmount = this._maxAmount,
+            Amount = this._storedAmount
+        };
+        return storage;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is ProductStorage storage &&
+               storage.StoredProductData.ProductName.Equals(this.StoredProductData.ProductName);
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = -929180017;
+        hashCode = hashCode * -1521134295 + _maxAmount.GetHashCode();
+        hashCode = hashCode * -1521134295 + _storedAmount.GetHashCode();
+        hashCode = hashCode * -1521134295 + MaxAmount.GetHashCode();
+        hashCode = hashCode * -1521134295 + Amount.GetHashCode();
+        return hashCode;
+    }
+
+    #endregion
+}

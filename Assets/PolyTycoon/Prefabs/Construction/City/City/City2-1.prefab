@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _constructionUiSprite: {fileID: 0}
+  _buildingName: MainBuidling
+  _isHighlightable: 0
   _usedCoordinates:
   - _usedCoordinate: {x: 0, y: 0, z: 1}
     _terrainType: 3
@@ -32,7 +34,7 @@ MonoBehaviour:
     _terrainType: 3
   - _usedCoordinate: {x: 1, y: 0, z: -1}
     _terrainType: 3
-  _buildingName: MainBuidling
+  _threadsafePosition: {x: 0, y: 0, z: 0}
   neighborNodes: []
   _cityPlaceable: {fileID: 2612486185536692784}
 --- !u!1 &2728140242757728608
@@ -46,7 +48,7 @@ GameObject:
   - component: {fileID: 2726832778619442902}
   - component: {fileID: 2612486185536692784}
   m_Layer: 0
-  m_Name: City2-3
+  m_Name: City2-1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -91,8 +93,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _constructionUiSprite: {fileID: 0}
-  _usedCoordinates: []
-  _buildingName: Azuria City
+  _buildingName: 
+  _isHighlightable: 1
   _childMapPlaceables:
   - {fileID: 2616509654392229248}
   - {fileID: 2616534639592152664}
@@ -106,7 +108,8 @@ MonoBehaviour:
   - {fileID: 6991897530106164236}
   - {fileID: 4721536590535421038}
   _mainBuilding: {fileID: 7682169505824363923}
-  _producedProduct: {fileID: 11400000, guid: 481aafaf9623bc84f857b6587f327264, type: 2}
+  _producedProducts:
+  - {fileID: 11400000, guid: 481aafaf9623bc84f857b6587f327264, type: 2}
 --- !u!1 &2729035749963406446
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,6 +297,11 @@ PrefabInstance:
       propertyPath: _cityPlaceable
       value: 
       objectReference: {fileID: 2612486185536692784}
+    - target: {fileID: 3049920239192025717, guid: 2c3d46f859271f84ab9e844da37523dc,
+        type: 3}
+      propertyPath: _isHighlightable
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3158149481569503195, guid: 2c3d46f859271f84ab9e844da37523dc,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -386,6 +394,11 @@ PrefabInstance:
       propertyPath: _cityPlaceable
       value: 
       objectReference: {fileID: 2612486185536692784}
+    - target: {fileID: 4039999183927011033, guid: c5ce86aca9b176740ab47ecfbf1229be,
+        type: 3}
+      propertyPath: _isHighlightable
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4149646521719378371, guid: c5ce86aca9b176740ab47ecfbf1229be,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Wrapper that connects multiple waypoints inside a <see cref="TransportRouteElement"/>.
+/// </summary>
 public class Path
 {
     public List<WayPoint> WayPoints { get; private set; }
@@ -21,10 +24,18 @@ public class Path
     }
 }
 
+/// <summary>
+/// A WayPoint consists of multiple Vector3s that make up a Path from one position to another.
+/// </summary>
 public struct WayPoint
 {
     private Vector3[] _traversalVectors;
 
+    /// <summary>
+    /// Straight line
+    /// </summary>
+    /// <param name="fromVector3">Start position</param>
+    /// <param name="toVector3">End position</param>
     public WayPoint(Vector3 fromVector3, Vector3 toVector3)
     {
         _traversalVectors = new Vector3[2];
@@ -33,6 +44,13 @@ public struct WayPoint
         Radius = 0f;
     }
 
+    /// <summary>
+    /// Curve
+    /// </summary>
+    /// <param name="fromVector3">Start position</param>
+    /// <param name="offsetVector3">The offset that forms the curve</param>
+    /// <param name="toVector3">End position</param>
+    /// <param name="radius">The radius of this curve</param>
     public WayPoint(Vector3 fromVector3, Vector3 offsetVector3, Vector3 toVector3, float radius)
     {
         _traversalVectors = new Vector3[3];

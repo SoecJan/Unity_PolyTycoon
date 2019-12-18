@@ -229,6 +229,7 @@ public class MeshData {
         } else {
             mesh.normals = bakedNormals;
         }
+        mesh.name = "TerrainMesh";
         return mesh;
     }
 }

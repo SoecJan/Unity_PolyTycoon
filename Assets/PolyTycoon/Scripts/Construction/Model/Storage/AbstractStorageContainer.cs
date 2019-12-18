@@ -1,41 +1,58 @@
 using System.Collections.Generic;
+using System.Linq;
 
-public abstract class AbstractStorageContainer : PathFindingTarget, IStore, IPathNode
+/// <summary>
+/// A StorageContainer can take any kind of <see cref="ProductData"/> and store it.
+/// The stored products can be picked up by <see cref="TransportVehicle"/>.
+/// </summary>
+public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmitter, IProductReceiver
 {
-    private Dictionary<ProductData, ProductStorage> _storedProducts;
-    private Dictionary<PathFindingNode, Path> _paths;
-    
+    private static ProductManager _productManager; // Used to return all products as possible received products.
+    private Dictionary<ProductData, ProductStorage> _storedProducts; // Dictionary containg all stored products.
+
     protected override void Initialize()
     {
         base.Initialize();
+        if (_productManager == null)
+        {
+            _productManager = FindObjectOfType<ProductManager>();
+        }
         _storedProducts = new Dictionary<ProductData, ProductStorage>();
-        _paths = new Dictionary<PathFindingNode, Path>();
     }
 
-    public Dictionary<ProductData, ProductStorage> StoredProducts()
+    #region IProductEmitter
+
+    public ProductStorage EmitterStorage(ProductData productData = null)
     {
-        return _storedProducts;
+        if (_storedProducts.Count == 0) return null;
+        if (productData == null && _storedProducts.Count == 1) return _storedProducts.Values.ToArray()[0];
+        return productData != null ? _storedProducts[productData] : null;
+    }
+
+    public List<ProductData> EmittedProductList()
+    {
+        return new List<ProductData>(_storedProducts.Keys);
     }
     
-    public Path PathTo(PathFindingNode targetNode)
+    #endregion
+
+    #region IProductReceiver
+    
+    public ProductStorage ReceiverStorage(ProductData productData = null)
     {
-        return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
+        if (productData == null && _storedProducts.Count == 1) return _storedProducts.Values.ToArray()[0];
+        if (productData == null) return null;
+        if (!_storedProducts.ContainsKey(productData))
+        {
+            _storedProducts.Add(productData, new ProductStorage(productData, 99));
+        }
+        return _storedProducts[productData];
     }
 
-    public void AddPath(PathFindingNode targetNode, Path path)
+    public List<ProductData> ReceivedProductList()
     {
-        if (_paths.ContainsKey(targetNode))
-        {
-            _paths[targetNode] = path;
-        }
-        else
-        {
-            _paths.Add(targetNode, path);
-        }
+        return _productManager.Products;
     }
-
-    public void RemovePath(PathFindingNode targetNode)
-    {
-        _paths.Remove(targetNode);
-    }
+    
+    #endregion
 }

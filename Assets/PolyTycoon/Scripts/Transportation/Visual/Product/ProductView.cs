@@ -9,21 +9,14 @@ public class ProductView : MonoBehaviour
 	#region Attributes
 	private ProductData _productData; // The productData this UI Slot represents
 
-	[SerializeField]
-	private Button _productButton;
+	[SerializeField] private Button _productButton;
 
-	//[SerializeField]
-	//private static FactoryView factoryUI; // The FactoryUI this UI Slot is presented by
-
-	[SerializeField]
-	private Image _image; // The Image that is going to show the productData sprite to the player
+	[SerializeField] private Image _image; // The Image that is going to show the productData sprite to the player
 	#endregion
 
 	#region Getter & Setter
 	public ProductData ProductData {
-		get {
-			return _productData;
-		}
+		get => _productData;
 
 		set {
 			_productData = value;
@@ -31,51 +24,21 @@ public class ProductView : MonoBehaviour
 		}
 	}
 
-	public Button ProductButton {
-		get {
-			return _productButton;
-		}
-
-		set {
-			_productButton = value;
-		}
-	}
+	public Button ProductButton => _productButton;
 
 	public System.Action<ProductData> ClickCallBack
 	{
-		get; set;
+		private get; set;
 	}
-
-	//public static FactoryView FactoryUI {
-	//	get {
-	//		return factoryUI;
-	//	}
-
-	//	set {
-	//		factoryUI = value;
-	//	}
-	//}
 	#endregion
 
 	#region Default Methods
 	void Start()
 	{
-		//if (!FactoryUI)
-		//{
-		//	FactoryUI = GameObject.FindObjectOfType<FactoryView>(); // Get the static reference 
-		//}
 		_productButton.onClick.AddListener(delegate
 		{
-			ClickCallBack(_productData);
+			ClickCallBack?.Invoke(_productData);
 		});
 	}
-	#endregion
-
-	#region UI Input
-	//public void OnButtonClick()
-	//{
-	//	if (FactoryUI.Factory)
-	//		FactoryUI.Factory.ProductData = ProductData; // If this UI Slot is clicked -> Factory ProductData is set
-	//}
 	#endregion
 }

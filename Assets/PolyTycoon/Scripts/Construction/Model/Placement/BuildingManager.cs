@@ -2,12 +2,40 @@
 using UnityEngine;
 
 /// <summary>
+/// This interface describes the functionality for a class that holds the reference to all buildings that were placed by the player.
+/// </summary>
+public interface IBuildingManager
+{
+    PathFindingNode GetNode(Vector3 position);
+
+    /// <summary>
+    /// Checks if a MapPlaceable can be placed at it's postition without changing the buildingDictionary
+    /// </summary>
+    /// <returns></returns>
+    bool IsPlaceable(Vector3 position, List<NeededSpace> neededSpaces);
+
+    /// <summary>
+    /// Adds a MapPlaceable to the placedBuildingDictionary
+    /// </summary>
+    /// <param name="placedObject"></param>
+    /// <returns></returns>
+    void AddMapPlaceable(SimpleMapPlaceable placedObject);
+
+    /// <summary>
+    /// Removes a MapPlaceable at the specified position.
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns>The removed MapPlaceable. May be null</returns>
+    void RemoveMapPlaceable(Vector3 position);
+}
+
+/// <summary>
 /// This class keeps track of all placed objects in the game.
 /// There may always only be one instance of this class.
-/// Any placed buildings are supplied by <see cref="GroundPlacementController"/>.
+/// Any placed buildings are supplied by <see cref="PlacementManager"/>.
 /// Is used by <see cref="SimpleMapPlaceable"/> to check adjacent tiles for other <see cref="SimpleMapPlaceable"/>s.
 /// </summary>
-public class BuildingManager
+public class BuildingManager : IBuildingManager
 {
     #region Attributes
 
@@ -137,7 +165,7 @@ public class BuildingManager
         }
     }
 
-    public void RemoveMapPlaceable(SimpleMapPlaceable mapPlaceable)
+    private void RemoveMapPlaceable(SimpleMapPlaceable mapPlaceable)
     {
         foreach (NeededSpace usedCoordinate in mapPlaceable.UsedCoordinates)
         {
@@ -166,7 +194,7 @@ public class BuildingManager
                 mapPlaceable = cityBuilding.CityPlaceable().MainBuilding;
             }
 
-            _routeCreateController.RouteElementController.OnTransportStationClick((PathFindingNode) mapPlaceable);
+            _routeCreateController.StationManager.OnTransportStationClick((PathFindingNode) mapPlaceable);
             return;
         }
 

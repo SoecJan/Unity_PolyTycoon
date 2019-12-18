@@ -1,11 +1,11 @@
 ﻿
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 
 public class TransportRouteOverviewElement : PoolableObject
 {
-
 	private static TransportRouteCreateController _transportRouteCreateController;
 	private static TransportRouteManager _transportRouteManager;
 	private TransportRoute _transportRoute;
@@ -15,12 +15,10 @@ public class TransportRouteOverviewElement : PoolableObject
 	[SerializeField] private Button _removeButton;
 
 	[Header("Information")]
-	[SerializeField] private Text _routeNameText;
+	[SerializeField] private TextMeshProUGUI _routeNameText;
 
 	public TransportRoute TransportRoute {
-		get {
-			return _transportRoute;
-		}
+		get => _transportRoute;
 
 		set {
 			_transportRoute = value;
@@ -37,7 +35,8 @@ public class TransportRouteOverviewElement : PoolableObject
 	private void OnEditClick()
 	{
 		if (!_transportRouteCreateController) _transportRouteCreateController = FindObjectOfType<TransportRouteCreateController>();
-		_transportRouteCreateController.LoadTransportRoute(TransportRoute);
+		_transportRouteCreateController.LoadRoute(TransportRoute);
+		FindObjectOfType<CameraBehaviour>().SetTarget(TransportRoute.TransportVehicle.transform);
 	}
 
 	private void OnRemoveClick()

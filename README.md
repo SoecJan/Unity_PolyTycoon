@@ -37,6 +37,10 @@ Trello: https://trello.com/b/bPIOa4Pt/polytycoon
 
 05.2019 - Multithreaded pathfinding and city placement
 
+07.2019 - Bugfixes, Code Refactorings and new Route Creation UI
+
+08.2019 - New Mill building and class/code documentation
+
 # Future Plans
 
 ## Transport System
@@ -50,5 +54,5 @@ Trello: https://trello.com/b/bPIOa4Pt/polytycoon
 - Unlock new buildings and vehicles
 - Bigger supply chains require better vehicles
 
-## Performance
-- Multithreading for vehicle movement and loading logic
+## Terrain Generation
+- Mesh optimization

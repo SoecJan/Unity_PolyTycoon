@@ -1,16 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CityWorldToScreenUi : MonoBehaviour
 {
-	[SerializeField] private Text _text;
+	[SerializeField] private TextMeshProUGUI _text;
 	[SerializeField] private GameObject _visibleGameObject;
 
-	public Text Text {
+	public string Text {
 		get {
-			return _text;
+			return _text.text;
 		}
+		set { _text.text = value; }
 	}
 }

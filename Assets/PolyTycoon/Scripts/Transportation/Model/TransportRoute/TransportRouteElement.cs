@@ -2,61 +2,24 @@
 
 public class TransportRouteElement
 {
-	#region Attributes
-	private List<TransportRouteSetting> _routeSettings;
-	private Path _path;
-	private PathFindingNode _fromNode;
-	private PathFindingNode _toNode;
-	#endregion
+    #region Constructor
 
-	#region Constructor
-	public TransportRouteElement()
-	{
-		_routeSettings = new List<TransportRouteSetting>();
-	}
+    public TransportRouteElement()
+    {
+        RouteSettings = new List<TransportRouteSetting>();
+    }
 
-	#endregion
+    #endregion
 
-	#region Getter & Setter
+    #region Getter & Setter
 
-	public Path Path {
-		get {
-			return _path;
-		}
+    public Path Path { get; set; }
 
-		set {
-			_path = value;
-		}
-	}
+    public PathFindingNode FromNode { get; set; }
 
-	public PathFindingNode FromNode {
-		get {
-			return _fromNode;
-		}
+    public PathFindingNode ToNode { get; set; }
 
-		set {
-			_fromNode = value;
-		}
-	}
+    public List<TransportRouteSetting> RouteSettings { get; set; }
 
-	public PathFindingNode ToNode {
-		get {
-			return _toNode;
-		}
-
-		set {
-			_toNode = value;
-		}
-	}
-
-	public List<TransportRouteSetting> RouteSettings {
-		get {
-			return _routeSettings;
-		}
-
-		set {
-			_routeSettings = value;
-		}
-	}
-	#endregion
+    #endregion
 }

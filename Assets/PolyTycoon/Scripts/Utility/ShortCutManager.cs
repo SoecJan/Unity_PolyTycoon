@@ -7,6 +7,13 @@ public class ShortCutManager : MonoBehaviour
 
 	[SerializeField] private List<ShortCutTrigger> _shortCutTriggers;
 
+	private void Start()
+	{
+		PauseMenueController._onActivation += delegate(bool value) { enabled = !value; };
+		InputFieldUtility._onInputFieldSelect += delegate { enabled = false; };
+		InputFieldUtility._onInputFieldDeselect += delegate { enabled = true; };
+	}
+
 	void Update()
 	{
 		foreach (ShortCutTrigger shortCutTrigger in _shortCutTriggers)

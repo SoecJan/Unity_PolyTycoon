@@ -3,25 +3,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// This interface describes functionality for an object that can be placed inside the game.
+/// </summary>
+public interface ISimpleMapPlaceable
+{
+    /// <summary>
+    /// A position vector that can be used by other threads.
+    /// </summary>
+    Vector3 ThreadsafePosition { get; }
+    /// <summary>
+    /// Coordinates that this objects blocks. Used by the <see cref="BuildingManager"/>.
+    /// </summary>
+    List<NeededSpace> UsedCoordinates { get; }
+    
+    /// <returns>The height of the placed object.</returns>
+    float GetHeight();
+
+    /// <summary>
+    /// Is called by <see cref="BuildingManager"/> after successful placement of this MapPlaceable.
+    /// </summary>
+    void OnPlacement();
+}
 
 /// <summary>
 /// All objects that can be placed on the map need to have this or a derivative of this component. 
-/// Placement on the grid is then processed by <see cref="GroundPlacementController"/> and registered by <see cref="BuildingManager"/>.
+/// Placement on the grid is then processed by <see cref="PlacementManager"/> and registered by <see cref="BuildingManager"/>.
 /// </summary>
-public abstract class SimpleMapPlaceable : MapPlaceable
+public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 {
     #region Attributes
-
     protected bool _isClickable;
-    
-
     [SerializeField]
     private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
-
-    
-
     [SerializeField] private Vector3 _threadsafePosition;
-
     #endregion
 
     #region Default Methods
@@ -50,7 +65,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable
 
     /// <summary>
     /// Detects if a placeable was clicked on by the player.
-    /// Prevents any detection if the placeable was just placed by <see cref="GroundPlacementController"/>.
+    /// Prevents any detection if the placeable was just placed by <see cref="PlacementManager"/>.
     /// </summary>
     void OnMouseOver()
     {
@@ -60,7 +75,6 @@ public abstract class SimpleMapPlaceable : MapPlaceable
             OnClickAction(this);
         }
     }
-
     #endregion
 
     #region Getter & Setter
@@ -73,11 +87,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable
 
     public List<NeededSpace> UsedCoordinates => _usedCoordinates;
 
-    
-
     protected bool IsPlaced { get; private set; }
-
-    
 
     public static Action<SimpleMapPlaceable> OnClickAction { get; set; }
 
@@ -101,7 +111,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable
 
     /// <summary>
     /// Rotates the UsedCoordinates to align to the current Transform rotation. 
-    /// Called before Placement by <see cref="GroundPlacementController"/>.
+    /// Called before Placement by <see cref="PlacementManager"/>.
     /// </summary>
     protected void RotateUsedCoords(float rotationAmount)
     {
@@ -121,11 +131,14 @@ public abstract class SimpleMapPlaceable : MapPlaceable
     #endregion
 }
 
+/// <summary>
+/// Wrapper for used coordinates. This is needed to specify the type of ground that is suitable for a given SimpleMapPlaceable.
+/// </summary>
 [Serializable]
 public class NeededSpace
 {
-    [SerializeField] private Vector3Int _usedCoordinate;
-    [SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland;
+    [SerializeField] private Vector3Int _usedCoordinate; // The relative offset from the origin
+    [SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland; // The suitable ground type
 
     public NeededSpace(NeededSpace neededSpace, Vector3Int offset)
     {

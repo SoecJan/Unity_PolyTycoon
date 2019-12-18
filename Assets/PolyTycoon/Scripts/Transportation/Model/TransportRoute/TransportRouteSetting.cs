@@ -1,58 +1,34 @@
 ﻿public class TransportRouteSetting
 {
-	#region Attributes
-	private ProductData _productData;
-	private int _amount;
-	private bool _isLoad;
-	#endregion
 
-	#region Getter & Setter
-	public ProductData ProductData {
-		get {
-			return _productData;
-		}
+    #region Getter & Setter
 
-		set {
-			_productData = value;
-		}
-	}
+    public ProductData ProductData { get; set; }
 
-	public int Amount {
-		get {
-			return _amount;
-		}
+    public int Amount { get; set; }
 
-		set {
-			_amount = value;
-		}
-	}
+    public bool IsLoad { get; set; }
 
-	public bool IsLoad {
-		get {
-			return _isLoad;
-		}
+    #endregion
 
-		set {
-			_isLoad = value;
-		}
-	}
-	#endregion
+    #region Methods
 
-	#region Methods
-	public TransportRouteSetting Clone()
-	{
-		TransportRouteSetting settings = new TransportRouteSetting
-		{
-			ProductData = _productData,
-			Amount = _amount,
-			IsLoad = _isLoad
-		};
-		return settings;
-	}
+    public TransportRouteSetting Clone()
+    {
+        TransportRouteSetting settings = new TransportRouteSetting
+        {
+            ProductData = ProductData,
+            Amount = Amount,
+            IsLoad = IsLoad
+        };
+        return settings;
+    }
 
-	public override string ToString()
-	{
-		return "Setting: IsLoad? " + IsLoad.ToString() + "; Product: " + _productData.ProductName + "; Amount: " + _amount.ToString();
-	}
-	#endregion
+    public override string ToString()
+    {
+        return "Setting: IsLoad? " + IsLoad.ToString() + "; Product: " + ProductData.ProductName + "; Amount: " +
+               Amount.ToString();
+    }
+
+    #endregion
 }

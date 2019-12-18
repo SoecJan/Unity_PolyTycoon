@@ -2,12 +2,18 @@
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
+public interface IPathFindingNode
+{
+    PathFindingNode[] NeighborNodes { get; }
+    bool IsTraversable();
+}
+
 /// <summary>
 /// All objects that are supposed to be reached by a vehicle need to have this component.
 /// After successful registration at BuildingManager <see cref="BuildingManager"/> this component searches for connected Node, using <see cref="PathFindingNode.OnPlacement"/> in adjacent tiles.
 /// <see cref="PathFindingNode.OnDestroy"/> handles the cleanup after a street is destroyed.
 /// </summary>
-public abstract class PathFindingNode : SimpleMapPlaceable
+public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 {
     #region Attributes
 
@@ -68,10 +74,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
             SimpleMapPlaceable simpleMapPlaceable = BuildingManager.GetNode(position);
             return simpleMapPlaceable ? ((PathFindingNode) simpleMapPlaceable) : null;
         }
-        else
-        {
-            return null;
-        }
+        return null;
     }
 
     #endregion
@@ -80,7 +83,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
 
     protected override void Initialize()
     {
-        if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
+        if (BuildingManager == null) BuildingManager = FindObjectOfType<PlacementManager>().BuildingManager;
     }
 
     void OnDrawGizmos()
@@ -122,11 +125,11 @@ public abstract class PathFindingNode : SimpleMapPlaceable
     }
 
     /// <summary>
-    /// Cleans up on this street object after it has been destroyed
+    /// Cleans up on this object after it has been destroyed
     /// </summary>
     void OnDestroy()
     {
-        // Remove this street instance from the neighbors
+        // Remove this instance from the neighbors
         if (!IsPlaced) return;
         TotalNodeCount -= 1;
         for (int i = 0; i < NeighborCount; i++)
@@ -142,7 +145,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
     public override void OnPlacement()
     {
         base.OnPlacement();
-        if (BuildingManager == null) BuildingManager = FindObjectOfType<GroundPlacementController>().BuildingManager;
+        if (BuildingManager == null) BuildingManager = FindObjectOfType<PlacementManager>().BuildingManager;
         TraversalOffset = transform.position;
         NeighborNodes = new PathFindingNode[NeighborCount];
         TotalNodeCount += 1;
@@ -166,6 +169,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
                 node.FindNextNodes();
             }
         }
+        if (this is PathFindingConnector connector) connector.UpdateOrientation();
     }
 
     /// <summary>
@@ -178,6 +182,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
         for (int i = 0; i < NeighborCount; i++)
         {
             PathFindingNode nextNode = AdjacentNodes(i);
+            
             while (nextNode && !nextNode.IsNode())
             {
                 Array.Clear(nextNode.NeighborNodes, 0, NeighborCount); // Clear Neighbors of non nodes
@@ -192,6 +197,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable
             if (pathFindingNodes[i] && IsNode()) // Check if the Node exists and i am a node
             {
                 pathFindingNodes[i].NeighborNodes[(i + 2) % NeighborCount] = this;
+                if (nextNode is PathFindingConnector connector) connector.UpdateOrientation();
             }
         }
 

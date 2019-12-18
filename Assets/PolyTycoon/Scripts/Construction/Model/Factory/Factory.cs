@@ -1,185 +1,205 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using UnityEngine;
 
-public class Factory : PathFindingTarget, IConsumer, IProducer, IPathNode
+/// <summary>
+/// This Interface describes functionality of a Factory instance.
+/// </summary>
+public interface IFactory : IProductEmitter, IProductReceiver
 {
-	#region Attributes
+    ProductData ProductData { get; set; } // Sets the Product that is produced
+    float ProductionProgress { get; } // Used to view the production progress until a new product is created
+}
 
-	[SerializeField] private Dictionary<ProductData, ProductStorage> _neededProducts; // Dict of needed Products
-	[SerializeField] private ProductStorage _producedProduct; // The currently produced product
-	private bool _isProductSelectable = true;
-	private bool _isProducing;
-	private float _elapsedTime; // Time elapsed since the begin of the production process
-	private int _tempMaxAmount = 20;
-	private Coroutine _produceCoroutine;
+/// <summary>
+/// A Factory produces products out of source products.
+/// <see cref="TransportVehicle"/> can drive to a Factory and unload/load products.
+/// </summary>
+public class Factory : PathFindingTarget, IFactory
+{
+    #region Attributes
+
+    [SerializeField] private Dictionary<ProductData, ProductStorage> _neededProducts; // Dict of needed Products
+    [SerializeField] private ProductStorage _producedProduct; // The currently produced product
+    [SerializeField] private int _maxAmount = 20;
+    private bool _isProducing;
+    private float _elapsedTime; // Time elapsed since the begin of the production process
+
+    private Coroutine _produceCoroutine;
 //	private Dictionary<BiomeGenerator.Biome, float> _biomeValueDictionary;
-	private Dictionary<PathFindingNode, Path> _paths;
-	#endregion
 
-	#region Getter & Setter
-	public ProductData ProductData {
-		get => ProducedProductStorage().StoredProductData;
+    #endregion
 
-		set {
-			// Don't alter if this is the same Product
-			if (ProducedProductStorage().StoredProductData != null && ProducedProductStorage().StoredProductData.Equals(value)) return;
+    #region Getter & Setter
 
-			// Change Product to selected
-			ProducedProductStorage().StoredProductData = value;
-			if (ProductData) InitializeProduction();
-		}
-	}
+    public ProductData ProductData
+    {
+        get => EmitterStorage()?.StoredProductData;
 
-	public float ProductionProgress => _elapsedTime / ProductData.ProductionTime;
+        set
+        {
+            // Don't alter if this is the same Product
+            if (EmitterStorage()?.StoredProductData != null && EmitterStorage().StoredProductData.Equals(value)) return;
 
-	public bool IsProductSelectable => _isProductSelectable;
+            // Change Product to selected
+            EmitterStorage().StoredProductData = value;
+            if (ProductData) InitializeProduction();
+        }
+    }
 
-	//public Dictionary<BiomeGenerator.Biome, float> BiomeValueDictionary {
-	//	get {
-	//		return _biomeValueDictionary;
-	//	}
+    public float ProductionProgress => _elapsedTime / ProductData.ProductionTime;
 
-	//	set {
-	//		_biomeValueDictionary = value;
-	//		Debug.Log("Biome Values Set");
-	//		foreach (float biomeValue in _biomeValueDictionary.Values)
-	//		{
-	//			Debug.Log(biomeValue);
-	//		}
-	//	}
-	//}
+    //public Dictionary<BiomeGenerator.Biome, float> BiomeValueDictionary {
+    //	get {
+    //		return _biomeValueDictionary;
+    //	}
 
-	public ProductStorage ProducedProductStorage()
-	{
-		return _producedProduct;
-	}
+    //	set {
+    //		_biomeValueDictionary = value;
+    //		Debug.Log("Biome Values Set");
+    //		foreach (float biomeValue in _biomeValueDictionary.Values)
+    //		{
+    //			Debug.Log(biomeValue);
+    //		}
+    //	}
+    //}
 
-	public Dictionary<ProductData, ProductStorage> NeededProducts()
-	{
-		return _neededProducts;
-	}
-	#endregion
+    public ProductStorage ReceiverStorage(ProductData productData = null)
+    {
+        if (_neededProducts.Count == 0) return null;
+        if (productData == null && _neededProducts.Count == 1) return _neededProducts[_neededProducts.Keys.ToArray()[0]];
+        return productData != null && _neededProducts.ContainsKey(productData) ? _neededProducts[productData] : null;
+    }
 
-	#region Default Methods
+    public List<ProductData> ReceivedProductList()
+    {
+        return new List<ProductData> (_neededProducts.Keys);
+    }
 
-	protected override void Initialize()
-	{
-		base.Initialize();
-		_neededProducts = new Dictionary<ProductData, ProductStorage>();
-		_paths = new Dictionary<PathFindingNode, Path>();
-		// Initialize production if a product has been set in advance.
-		if (_producedProduct.StoredProductData == null) return;
-		
-		InitializeProduction();
-		_isProductSelectable = false;
-	}
+    #endregion
 
-	private void InitializeProduction()
-	{
-		ProducedProductStorage().MaxAmount = _tempMaxAmount;
-		ProducedProductStorage().Amount = 0;
-		_isProducing = false;
-		_elapsedTime = 0f;
+    #region Default Methods
 
-		// Setup needed Products
-		_neededProducts.Clear();
-		if (ProductData.NeededProduct.Length > 0)
-		{
-			foreach (NeededProduct neededProduct in ProductData.NeededProduct)
-			{
-				_neededProducts.Add(neededProduct.Product, new ProductStorage(neededProduct.Product, _tempMaxAmount));
-			}
-		}
+    protected override void Initialize()
+    {
+        base.Initialize();
+        _neededProducts = new Dictionary<ProductData, ProductStorage>();
+        // Initialize production if a product has been set in advance.
+        if (_producedProduct.StoredProductData == null) return;
 
-		// Start production of the new product
-		if (_produceCoroutine != null)
-		{
-			StopCoroutine(_produceCoroutine);
-			_produceCoroutine = null;
-		}
-		_produceCoroutine = StartCoroutine(Produce());
-	}
+        InitializeProduction();
+    }
 
-	private void Update()
-	{
-		// Added to show production progress to the player
-		if (_isProducing)
-		{
-			_elapsedTime += Time.deltaTime;
-		}
-	}
-	#endregion
+    /// <summary>
+    /// Sets up the production process
+    /// *
+    /// </summary>
+    private void InitializeProduction()
+    {
+        EmitterStorage().MaxAmount = _maxAmount;
+        EmitterStorage().Amount = 0;
+        _isProducing = false;
+        _elapsedTime = 0f;
 
-	#region Production
-	/// <summary>
-	/// Handles the Production process. Handled by <see cref="set_ProductData"/>.
-	/// </summary>
-	IEnumerator Produce()
-	{
-		while (ProductData != null)
-		{
-			// Wait until there are enough needed products
-			while (!IsProductionReady())
-			{
-				yield return new WaitForSeconds(0.5f);
-			}
+        // Setup needed Products
+        _neededProducts.Clear();
+        if (ProductData.NeededProduct.Length > 0)
+        {
+            foreach (NeededProduct neededProduct in ProductData.NeededProduct)
+            {
+                _neededProducts.Add(neededProduct.Product, new ProductStorage(neededProduct.Product, _maxAmount));
+            }
+        }
 
-			// Remove needed products from storage
-			if (NeededProducts().Count > 0)
-			{
-				foreach (NeededProduct neededProduct in ProductData.NeededProduct)
-				{
-					NeededProducts()[neededProduct.Product].Amount -= neededProduct.Amount;
-				}
-			}
+        // Start production of the new product
+        if (_produceCoroutine != null)
+        {
+            StopCoroutine(_produceCoroutine);
+            _produceCoroutine = null;
+        }
 
-			// Produce
-			_isProducing = true;
-			yield return new WaitForSeconds(ProductData.ProductionTime);
-			ProducedProductStorage().Amount += 1;
-			_isProducing = false;
-			_elapsedTime = 0f;
+        _produceCoroutine = StartCoroutine(Produce());
+    }
 
-			// Debug
-			Debug.Log("Product Finished: " + ProducedProductStorage().StoredProductData.ProductName + ": " + ProducedProductStorage().Amount);
-		}
-	}
+    private void Update()
+    {
+        // Added to show production progress to the player
+        if (_isProducing)
+        {
+            _elapsedTime += Time.deltaTime;
+        }
+    }
 
-	private bool IsProductionReady()
-	{
-		bool productionReady = ProductData != null && ProducedProductStorage().Amount < ProducedProductStorage().MaxAmount;
-		if (!productionReady) return false;
-		foreach (NeededProduct neededProduct in ProductData.NeededProduct)
-		{
-			if (neededProduct.Amount > NeededProducts()[neededProduct.Product].Amount)
-			{
-				productionReady = false;
-			}
-		}
-		return productionReady;
-	}
-	#endregion
+    #endregion
 
-	public Path PathTo(PathFindingNode targetNode)
-	{
-		return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
-	}
+    #region Production
 
-	public void AddPath(PathFindingNode targetNode, Path path)
-	{
-		if (_paths.ContainsKey(targetNode))
-		{
-			_paths[targetNode] = path;
-		}
-		else
-		{
-			_paths.Add(targetNode, path);
-		}
-	}
+    /// <summary>
+    /// Handles the Production process.
+    /// </summary>
+    IEnumerator Produce()
+    {
+        while (ProductData != null)
+        {
+            // Wait until there are enough needed products
+            while (!IsProductionReady())
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
 
-	public void RemovePath(PathFindingNode targetNode)
-	{
-		_paths.Remove(targetNode);
-	}
+            // Remove needed products from storage
+            foreach (NeededProduct neededProduct in ProductData.NeededProduct)
+            {
+                ReceiverStorage(neededProduct.Product).Amount -= neededProduct.Amount;
+            }
+
+            // Produce
+            _isProducing = true;
+            yield return new WaitForSeconds(ProductData.ProductionTime);
+            EmitterStorage().Amount += 1;
+            _isProducing = false;
+            _elapsedTime = 0f;
+
+            Debug.Log("Product Finished: " + EmitterStorage().StoredProductData.ProductName + ": " +
+                      EmitterStorage().Amount);
+        }
+    }
+    
+    /// <summary>
+    /// Checks if another product can be produced.
+    /// Checks Storage Capacity and the presence of needed products
+    /// </summary>
+    /// <returns>true if a new product can be produced</returns>
+    private bool IsProductionReady()
+    {
+        bool productionReady = ProductData != null && EmitterStorage().Amount < EmitterStorage().MaxAmount;
+        if (!productionReady) return false;
+        foreach (NeededProduct neededProduct in ProductData.NeededProduct)
+        {
+            if (neededProduct.Amount > ReceiverStorage(neededProduct.Product).Amount)
+            {
+                productionReady = false;
+            }
+        }
+        return productionReady;
+    }
+
+    #endregion
+
+    #region ProductEmitter
+    
+    public ProductStorage EmitterStorage(ProductData productData = null)
+    {
+        if (productData == null) return _producedProduct;
+        return productData.Equals(_producedProduct.StoredProductData) ? _producedProduct : null;
+    }
+
+    public List<ProductData> EmittedProductList()
+    {
+        return new List<ProductData> {_producedProduct.StoredProductData};
+    }
+    
+    #endregion
 }
