@@ -83,7 +83,7 @@ public class TransportVehicleController : ITransport
     public IEnumerator Load(TransportRouteElement transportRouteElement)
     {
         if (!(transportRouteElement.FromNode is IProductEmitter producer)) yield break;
-        
+        Debug.Log(producer.EmitterStorage().StoredProductData.ProductName);
         // Search unloading settings and execute them
         foreach (TransportRouteSetting setting in transportRouteElement.RouteSettings)
         {
