@@ -21,6 +21,11 @@ public class ProductData : ScriptableObject
 	[SerializeField] private float _productionTime;
 	[Tooltip("The product needed for production")]
 	[SerializeField] private NeededProduct[] _neededProduct;
+	[Header("Pricing")] 
+	[Tooltip("The products base price on which the random factor is added")] 
+	[SerializeField] private int _basePrice;
+	[Tooltip("A random Factor that is applied to a base price")] 
+	[SerializeField] private float _randomPriceFactor;
 	#endregion
 
 	#region Getter & Setter
@@ -53,6 +58,19 @@ public class ProductData : ScriptableObject
 			return _neededProduct;
 		}
 	}
+
+	public int BasePrice
+	{
+		get => _basePrice;
+		set => _basePrice = value;
+	}
+
+	public float RandomPriceFactor
+	{
+		get => _randomPriceFactor;
+		set => _randomPriceFactor = value;
+	}
+
 	#endregion
 
 	public override string ToString()

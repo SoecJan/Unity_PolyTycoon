@@ -36,13 +36,12 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
     [SerializeField] private LayerMask _buildingsMask; // Needed to determine the objects to place _buildings on
     [SerializeField] private Vector3 _offsetVec3 = new Vector3(0.5f, 0, 0.5f); // Needed to align _buildings correctly
     [SerializeField] private KeyCode _rotateHotKey = KeyCode.R; // Needed to rotate a selected Building
-    [SerializeField] private float _animationSpeedMultiplier = 2f; // Needed to animate a selected Building
     [SerializeField] private float _rotateAmount = 90f; // The Amount to rotate a building on _rotateHotKey press
 
     private Camera _mainCamera;
     private UserInformationPopup _userInformationPopup;
     private MapPlaceable _currentPlaceableObject; // Object that is being placed
-    private Dictionary<Vector2, MapPlaceable> _draggedGameObjects;
+    private List<MapPlaceable> _draggedGameObjects;
     private bool _isDragging;
 
     #endregion
@@ -66,8 +65,9 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 
         set => _terrainGenerator = value;
     }
+
     public MapPlaceable[] InfrastructurePlaceables => _infrastructurePlaceables;
-    
+
     public MapPlaceable[] ProductionPlaceables => _productionPlaceables;
 
     #endregion
@@ -77,7 +77,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
     void Awake()
     {
         BuildingManager = new BuildingManager();
-        _draggedGameObjects = new Dictionary<Vector2, MapPlaceable>();
+        _draggedGameObjects = new List<MapPlaceable>();
         _userInformationPopup = FindObjectOfType<UserInformationPopup>();
         _mainCamera = Camera.main;
     }
@@ -110,12 +110,11 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         // Get current MousePosition
         if (!Physics.Raycast(ray, out var hitInfo, Mathf.Infinity, _buildingsMask)) return;
-        hitInfo.point -=
-            new Vector3(_offsetVec3.x, 0f,
-                _offsetVec3.z); // Align the current cursor position to the offset, but keep object height
-        float animationHeightOffset = ((1 + Mathf.Sin(Time.unscaledTime * _animationSpeedMultiplier)) / 2) + 0.5f;
-        Vector3 position = new Vector3(Mathf.Round(hitInfo.point.x), hitInfo.point.y + animationHeightOffset,
-                               Mathf.Round(hitInfo.point.z)) + _offsetVec3;
+
+        // Align the current cursor position to the offset
+        hitInfo.point -= new Vector3(_offsetVec3.x, _offsetVec3.y, _offsetVec3.z);
+        Vector3 position = new Vector3(Mathf.Round(hitInfo.point.x), 0.2572412f + 0.5f, Mathf.Round(hitInfo.point.z)) +
+                           _offsetVec3;
         // Check position change
         if (Math.Abs(position.x - _currentPlaceableObject.transform.position.x) > 0.5f ||
             Math.Abs(position.z - _currentPlaceableObject.transform.position.z) > 0.5f)
@@ -124,26 +123,103 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
             if (mapPlaceable && mapPlaceable.IsDraggable && _isDragging)
             {
                 Vector3 currentPlaceablePosition = _currentPlaceableObject.transform.position;
-                Vector2 key = new Vector2(currentPlaceablePosition.x, currentPlaceablePosition.z);
-                if (!_draggedGameObjects.ContainsKey(key))
+                if (_draggedGameObjects.Count == 0)
                 {
-                    // Add a new draggable to _draggedGameObject
-                    Transform currentPlaceableTransform = _currentPlaceableObject.transform;
-                    _draggedGameObjects.Add(key,
-                        Instantiate(_currentPlaceableObject, currentPlaceableTransform.position,
-                            currentPlaceableTransform.rotation));
+                    _draggedGameObjects.Add(Instantiate(_currentPlaceableObject,
+                        _currentPlaceableObject.transform.position,
+                        _currentPlaceableObject.transform.rotation));
+                }
+                else
+                {
+                    Vector3 start = _draggedGameObjects[0].transform.position;
+                    Vector3 end = position;
+
+                    Vector3 difference = end - start;
+                    int x = Mathf.RoundToInt(difference.x);
+                    int z = Mathf.RoundToInt(difference.z);
+                    int neededCount = Mathf.Abs(x) + Mathf.Abs(z);
+
+                    // Remove Objects until neededCount is met
+                    while (_draggedGameObjects.Count >= 1 && _draggedGameObjects.Count > neededCount)
+                    {
+                        Destroy(_draggedGameObjects[_draggedGameObjects.Count - 1].gameObject);
+                        _draggedGameObjects.RemoveAt(_draggedGameObjects.Count - 1);
+                    }
+
+                    // Add Objects until neededCount is met
+                    while (_draggedGameObjects.Count < neededCount)
+                    {
+                        _draggedGameObjects.Add(Instantiate(_currentPlaceableObject,
+                            _currentPlaceableObject.transform.position,
+                            _currentPlaceableObject.transform.rotation));
+                    }
+
+                    Vector3 positionToPlace = start;
+                    if (x > z)
+                    {
+                        for (int i = 1; i < _draggedGameObjects.Count; i++)
+                        {
+                            MapPlaceable draggedObject = _draggedGameObjects[i];
+                            if (x != 0)
+                            {
+                                Vector3 direction = x > 0 ? Vector3.right : Vector3.left;
+                                positionToPlace = positionToPlace + direction;
+                                draggedObject.transform.position = positionToPlace;
+                                x = x > 0 ? x - 1 : x + 1;
+                            }
+                            else if (z != 0)
+                            {
+                                Vector3 direction = z > 0 ? Vector3.forward : Vector3.back;
+                                positionToPlace = positionToPlace + direction;
+                                draggedObject.transform.position = positionToPlace;
+                                z = z > 0 ? z - 1 : z + 1;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 1; i < _draggedGameObjects.Count; i++)
+                        {
+                            MapPlaceable draggedObject = _draggedGameObjects[i];
+                            if (z != 0)
+                            {
+                                Vector3 direction = z > 0 ? Vector3.forward : Vector3.back;
+                                positionToPlace = positionToPlace + direction;
+                                draggedObject.transform.position = positionToPlace;
+                                z = z > 0 ? z - 1 : z + 1;
+                            }
+                            else if (x != 0)
+                            {
+                                Vector3 direction = x > 0 ? Vector3.right : Vector3.left;
+                                positionToPlace = positionToPlace + direction;
+                                draggedObject.transform.position = positionToPlace;
+                                x = x > 0 ? x - 1 : x + 1;
+                            }
+                        }
+                    }
+
+
+//                    if (!_draggedGameObjects.ContainsKey(key))
+//                    {
+//                        // Add a new draggable to _draggedGameObject
+//                        Transform currentPlaceableTransform = _currentPlaceableObject.transform;
+//                        MapPlaceable draggedObject = Instantiate(_currentPlaceableObject,
+//                            currentPlaceableTransform.position,
+//                            currentPlaceableTransform.rotation);
+//                        _draggedGameObjects.Add(key, draggedObject);
+//                    }
                 }
             }
         }
 
-        foreach (SimpleMapPlaceable previewGameObject in _draggedGameObjects.Values)
-        {
-            Transform previewGameObjectTransform = previewGameObject.transform;
-            Vector3 previewGameObjectPosition = previewGameObjectTransform.position;
-            previewGameObjectPosition = new Vector3(previewGameObjectPosition.x,
-                hitInfo.point.y + animationHeightOffset, previewGameObjectPosition.z);
-            previewGameObjectTransform.position = previewGameObjectPosition;
-        }
+//        foreach (SimpleMapPlaceable previewGameObject in _draggedGameObjects.Values)
+//        {
+//            Transform previewGameObjectTransform = previewGameObject.transform;
+//            Vector3 previewGameObjectPosition = previewGameObjectTransform.position;
+//            previewGameObjectPosition =
+//                new Vector3(previewGameObjectPosition.x, 0.2572412f + 0.5f, previewGameObjectPosition.z);
+//            previewGameObjectTransform.position = previewGameObjectPosition;
+//        }
 
         _currentPlaceableObject.transform.position = position;
     }
@@ -171,13 +247,14 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
                 for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
                 {
                     SimpleMapPlaceable previewObject =
-                        _draggedGameObjects.Values.ElementAt(i).GetComponent<SimpleMapPlaceable>();
+                        _draggedGameObjects[i].GetComponent<SimpleMapPlaceable>();
                     if (!PlaceObject(previewObject))
                     {
                         Destroy(previewObject.gameObject);
                         _onObjectPlacement?.Invoke(null);
                     }
                 }
+
                 _draggedGameObjects.Clear();
             }
 
@@ -187,7 +264,8 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
                 Destroy(_currentPlaceableObject.gameObject);
                 _onObjectPlacement?.Invoke(null);
             }
-            else if (_currentPlaceableObject is SimpleMapPlaceable && !PlaceObject((SimpleMapPlaceable)_currentPlaceableObject))
+            else if (_currentPlaceableObject is SimpleMapPlaceable &&
+                     !PlaceObject((SimpleMapPlaceable) _currentPlaceableObject))
             {
                 Destroy(_currentPlaceableObject.gameObject);
                 _onObjectPlacement?.Invoke(null);
@@ -205,11 +283,13 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
         {
             for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
             {
-                Destroy(_draggedGameObjects.Values.ElementAt(i).gameObject);
+                Destroy(_draggedGameObjects[i].gameObject);
                 _onObjectPlacement?.Invoke(null);
             }
+
             _draggedGameObjects.Clear();
         }
+
         Destroy(_currentPlaceableObject.gameObject);
         _onObjectPlacement?.Invoke(null);
         _currentPlaceableObject = null;

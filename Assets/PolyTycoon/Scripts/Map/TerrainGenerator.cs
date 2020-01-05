@@ -57,6 +57,9 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
     const float
         viewerMoveThresholdForChunkUpdate = 25f; // Distance for the viewer to travel until chunkupdate is invoked
 
+    private static int[] availableMapSizes = new int[] {};
+    private int _maxMapSize = 1;
+
     const float sqrViewerMoveThresholdForChunkUpdate =
         viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
 
@@ -97,6 +100,12 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
 
     public float TerrainPlaceableHeight => m_terrainPlaceableHeight;
 
+    public int MaxMapSize
+    {
+        get => _maxMapSize;
+        set => _maxMapSize = value;
+    }
+
     /// <summary>
     /// Translates a worldcoordinate to a ChunkVec2 that can be used in GetTerrainChunk(Vec2)
     /// </summary>
@@ -118,12 +127,7 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
     /// <returns>The TerrainChunk at the specified Index. May be null</returns>
     public TerrainChunk GetTerrainChunk(Vector2 coordinates)
     {
-        if (terrainChunkDictionary.ContainsKey(coordinates))
-        {
-            return terrainChunkDictionary[coordinates];
-        }
-
-        return null;
+        return terrainChunkDictionary.ContainsKey(coordinates) ? terrainChunkDictionary[coordinates] : null;
     }
 
     /// <summary>
@@ -434,7 +438,6 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
     private void UpdateVisibleChunks()
     {
         // Create empty Hashset of Chunk Vector2, Loop though visibeTerrainChunks and add their Vector2.
-
         HashSet<Vector2> alreadyUpdatedChunkCoords = new HashSet<Vector2>();
         for (int i = visibleTerrainChunks.Count - 1; i >= 0; i--)
         {
@@ -445,30 +448,31 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
         int currentChunkCoordX = Mathf.RoundToInt(viewerPosition.x / meshWorldSize);
         int currentChunkCoordY = Mathf.RoundToInt(viewerPosition.y / meshWorldSize);
 
-        // Loop through all visiblechunk Vector2
+        // Loop through all visible chunks Vector2
         for (int yOffset = -chunksVisibleInViewDst; yOffset <= chunksVisibleInViewDst; yOffset++)
         {
             for (int xOffset = -chunksVisibleInViewDst; xOffset <= chunksVisibleInViewDst; xOffset++)
             {
                 // Loop through Dictionary to find chunk coordinates
                 Vector2 viewedChunkCoord = new Vector2(currentChunkCoordX + xOffset, currentChunkCoordY + yOffset);
-                if (!alreadyUpdatedChunkCoords.Contains(viewedChunkCoord))
+                if (alreadyUpdatedChunkCoords.Contains(viewedChunkCoord)) continue;
+                
+                // Found an instantiated Chunk, call UpdateTerrain Chunk
+                if (terrainChunkDictionary.ContainsKey(viewedChunkCoord))
                 {
-                    // Found an instantiated Chunk, call UpdateTerrain Chunk
-                    if (terrainChunkDictionary.ContainsKey(viewedChunkCoord))
-                    {
-                        terrainChunkDictionary[viewedChunkCoord].UpdateTerrainChunk();
-                    }
-                    else
-                    {
-                        // Didn't find an existing chunk -> create a new one and add it to our Dictionary
-                        TerrainChunk newChunk = new TerrainChunk(viewedChunkCoord, heightMapSettings, meshSettings,
-                            biomeSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial,
-                            _waterMeshPrefab);
-                        terrainChunkDictionary.Add(viewedChunkCoord, newChunk);
-                        newChunk.onVisibilityChanged += OnTerrainChunkVisibilityChanged; // Subscribe to Event
-                        newChunk.Load();
-                    }
+                    terrainChunkDictionary[viewedChunkCoord].UpdateTerrainChunk();
+                }
+                else if (MaxMapSize == 0 
+                         || (Mathf.Abs(viewedChunkCoord.x) <= MaxMapSize 
+                             && Mathf.Abs(viewedChunkCoord.y) <= MaxMapSize)) // Limit MapGeneration. 0 = Infinite
+                {
+                    // Didn't find an existing chunk -> create a new one and add it to our Dictionary
+                    TerrainChunk newChunk = new TerrainChunk(viewedChunkCoord, heightMapSettings, meshSettings,
+                        biomeSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial,
+                        _waterMeshPrefab);
+                    terrainChunkDictionary.Add(viewedChunkCoord, newChunk);
+                    newChunk.onVisibilityChanged += OnTerrainChunkVisibilityChanged; // Subscribe to Event
+                    newChunk.Load();
                 }
             }
         }

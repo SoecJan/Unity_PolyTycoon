@@ -8,10 +8,23 @@ public class TooltipHandle : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
 	#region Attributes
 
-	[SerializeField] private Vector3 _offset;
+	[SerializeField] protected Vector3 _offset;
 	[SerializeField] private RectTransform _tipTransform;
 	[SerializeField] private float _timeUntilDisplay = 1f;
 	private Coroutine _coroutine;
+
+	public RectTransform TipTransform
+	{
+		get => _tipTransform;
+		set => _tipTransform = value;
+	}
+
+	public float TimeUntilDisplay
+	{
+		get => _timeUntilDisplay;
+		set => _timeUntilDisplay = value;
+	}
+
 	#endregion
 
 	void Start()
@@ -20,13 +33,16 @@ public class TooltipHandle : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 	#region Methods
 	void LateUpdate()
 	{
-		_tipTransform.position = Input.mousePosition + _offset;
+		if (TipTransform)
+		{
+			TipTransform.position = Input.mousePosition + _offset;
+		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData)
 	{
 		if (_coroutine != null) StopCoroutine(_coroutine);
-		_tipTransform.gameObject.SetActive(false);
+		TipTransform.gameObject.SetActive(false);
 	}
 	#endregion
 
@@ -37,8 +53,8 @@ public class TooltipHandle : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
 	private IEnumerator DisplayToolTip()
 	{
-		yield return new WaitForSeconds(_timeUntilDisplay);
-		_tipTransform.gameObject.SetActive(true);
+		yield return new WaitForSeconds(TimeUntilDisplay);
+		TipTransform.gameObject.SetActive(true);
 		_coroutine = null;
 	}
 }

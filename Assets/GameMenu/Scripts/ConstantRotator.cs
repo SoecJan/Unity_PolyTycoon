@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ConstantRotator : MonoBehaviour
 {
@@ -14,7 +12,8 @@ public class ConstantRotator : MonoBehaviour
 
 	void Update()
 	{
-		_rotatedTransform.eulerAngles += _rotationAxis * Time.deltaTime;
-		_rotatedTransform.eulerAngles = new Vector3(_rotatedTransform.eulerAngles.x % 360, _rotatedTransform.eulerAngles.y % 360, _rotatedTransform.eulerAngles.z % 360);
+		Vector3 scalar = (_rotationAxis * Time.deltaTime);
+		_rotatedTransform.eulerAngles = _rotatedTransform.eulerAngles + scalar;
+//		_rotatedTransform.eulerAngles = new Vector3(_rotatedTransform.eulerAngles.x % 360, _rotatedTransform.eulerAngles.y % 360, _rotatedTransform.eulerAngles.z % 360);
 	}
 }

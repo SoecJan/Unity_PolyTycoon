@@ -72,7 +72,10 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         if (BuildingManager != null)
         {
             SimpleMapPlaceable simpleMapPlaceable = BuildingManager.GetNode(position);
-            return simpleMapPlaceable ? ((PathFindingNode) simpleMapPlaceable) : null;
+            if (simpleMapPlaceable && (simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate).Equals(position))
+            {
+                return (PathFindingNode) simpleMapPlaceable;
+            }
         }
         return null;
     }
@@ -127,7 +130,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     /// <summary>
     /// Cleans up on this object after it has been destroyed
     /// </summary>
-    void OnDestroy()
+    protected void OnDestroy()
     {
         // Remove this instance from the neighbors
         if (!IsPlaced) return;

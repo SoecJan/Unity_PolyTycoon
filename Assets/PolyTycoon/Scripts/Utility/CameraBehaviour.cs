@@ -11,6 +11,7 @@ public class CameraBehaviour : MonoBehaviour
 {
     private Transform _transform; //camera transform
     private Transform _parentTransform; //parent transform
+    private int _maxCameraPosition;
     
     // Movement speeds
     [SerializeField] private float _keyboardMovementSpeed = 5f; //speed with keyboard movement
@@ -67,10 +68,10 @@ public class CameraBehaviour : MonoBehaviour
 
     private bool IsBorderScreenInput()
     {
-        bool leftRect = MouseInput.x <= _screenBorderInputWidth;
-        bool rightRect = MouseInput.x >= Screen.width -_screenBorderInputWidth;
-        bool downRect = MouseInput.y <= _screenBorderInputWidth;
-        bool upRect = MouseInput.y >= Screen.height - _screenBorderInputWidth;
+        bool leftRect = MouseInput.x <= _screenBorderInputWidth && MouseInput.x >= 0;
+        bool rightRect = MouseInput.x >= Screen.width -_screenBorderInputWidth && MouseInput.x < Screen.width;
+        bool downRect = MouseInput.y <= _screenBorderInputWidth && MouseInput.y >= 0;
+        bool upRect = MouseInput.y >= Screen.height - _screenBorderInputWidth && MouseInput.y < Screen.height;
         return leftRect || rightRect || downRect || upRect;
     }
     
@@ -86,6 +87,7 @@ public class CameraBehaviour : MonoBehaviour
     {
         _transform = transform;
         _parentTransform = _transform.parent;
+        _maxCameraPosition = FindObjectOfType<TerrainGenerator>().MaxMapSize * 45 + 25;
         PauseMenueController._onActivation += delegate(bool value) { enabled = !value; };
         InputFieldUtility._onInputFieldSelect += delegate { enabled = false; };
         InputFieldUtility._onInputFieldDeselect += delegate { enabled = true; };
@@ -162,9 +164,26 @@ public class CameraBehaviour : MonoBehaviour
 
         if (desiredMove == default(Vector3)) return;
         desiredMove *= Time.unscaledDeltaTime;
+        
+        
+        Vector3 futurePosition = (moveTransform.position + desiredMove);
+        if (futurePosition.x > _maxCameraPosition)
+        {
+            desiredMove = new Vector3(_maxCameraPosition - moveTransform.position.x, 0, desiredMove.z);
+        } else if (futurePosition.x < -_maxCameraPosition)
+        {
+            desiredMove = new Vector3(-(moveTransform.position.x + _maxCameraPosition), 0, desiredMove.z);
+        }
+        if (futurePosition.z > _maxCameraPosition)
+        {
+            desiredMove = new Vector3(desiredMove.x, 0, _maxCameraPosition - moveTransform.position.z);
+        } else if (futurePosition.z < -_maxCameraPosition)
+        {
+            desiredMove = new Vector3(desiredMove.x, 0, -(moveTransform.position.z + _maxCameraPosition));
+        }
+        
         desiredMove = Quaternion.Euler(new Vector3(0f, moveTransform.eulerAngles.y, 0f)) * desiredMove;
         desiredMove = moveTransform.InverseTransformDirection(desiredMove);
-
         moveTransform.Translate(desiredMove, Space.Self);
     }
 

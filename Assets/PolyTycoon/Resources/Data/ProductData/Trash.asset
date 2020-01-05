@@ -17,3 +17,5 @@ MonoBehaviour:
   _description: Smelly stuff.
   _productionTime: 20
   _neededProduct: []
+  _basePrice: 1000
+  _randomPriceFactor: 0.5

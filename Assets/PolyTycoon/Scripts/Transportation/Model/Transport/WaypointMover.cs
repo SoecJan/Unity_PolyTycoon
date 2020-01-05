@@ -161,19 +161,21 @@ public class WaypointMoverController
     private IEnumerator MoveStraight(Vector3 targetPosition)
     {
         _moverTransform.LookAt(targetPosition);
+        float acceleration = Time.deltaTime;
         // Cache mover position
         Vector3 currentPosition = _moverTransform.position;
         // Current Difference
         Vector3 difference = targetPosition - currentPosition;
         Vector3 direction = difference.normalized;
         // Next Position
-        Vector3 futurePosition = currentPosition + (direction * _currentSpeed * Time.deltaTime);
+        Vector3 futurePosition = currentPosition + (Time.deltaTime * _currentSpeed * direction);
         Vector3 futureDifference = targetPosition - futurePosition;
 
         while (difference.magnitude > futureDifference.magnitude)
         {
+            _currentSpeed = Mathf.Min(_currentSpeed + acceleration, _maxSpeed);
             difference = targetPosition - currentPosition; // Difference Current to Target
-            currentPosition = currentPosition + (direction * _currentSpeed * Time.deltaTime); // Next Position
+            currentPosition += (Time.deltaTime * _currentSpeed * direction); // Next Position
             futureDifference = targetPosition - currentPosition; // Difference Next To Target
             _moverTransform.position = currentPosition; // Set Mover Position
             yield return null;
@@ -211,9 +213,11 @@ public class WaypointMoverController
     private IEnumerator MoveCurve(WayPoint currentWayPoint, Vector3 vecA, Vector3 vecB, Vector3 vecC)
     {
         Vector3 currentPosition = _moverTransform.position;
+        float deceleration = Time.deltaTime;
         float progress = 0f;
         while (progress < 1f)
         {
+            _currentSpeed = Mathf.Max(_currentSpeed - deceleration, currentWayPoint.Radius * 2f);
             // Get Angle on a circle with given radius and distance driven
             float circumferenceDistanceToAngle = GetAngle(currentWayPoint.Radius, Time.deltaTime * _currentSpeed);
             // Add to the progress that was already made

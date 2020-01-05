@@ -43,6 +43,10 @@ public class CityManager : MonoBehaviour, ICityManager
     private void AddRandomCity()
     {
         AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, 0.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(45.5f, 0f, 0.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(-45.5f, 0f, 0.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, 45.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, -45.5f));
     }
 
     public CityPlaceable GetCity(string cityName)
@@ -67,14 +71,7 @@ public class CityManager : MonoBehaviour, ICityManager
     private void OnPlacementPositionFound(object cityToPlaceObject)
     {
         CityToPlace cityToPlace = (CityToPlace) cityToPlaceObject;
-//        Debug.Log(cityToPlace.Position + ": " + cityToPlace.CityPlaceableNeededSpaces.Count + ", " + _groundPlacementController.IsPlaceable(cityToPlace.Position, cityToPlace.CityPlaceableNeededSpaces));
-//        foreach (NeededSpace neededSpace in cityToPlace.CityPlaceableNeededSpaces)
-//        {
-//            Debug.Log(neededSpace.UsedCoordinate);
-//        }
-        CityPlaceable city = Instantiate(cityToPlace.CityPlaceable);
-        city.transform.position = cityToPlace.Position;
-
+        CityPlaceable city = Instantiate(cityToPlace.CityPlaceable, cityToPlace.Position, Quaternion.identity);
         if (!_placementManager.PlaceObject(city)) return;
         
         _placedCities.Add(city);
@@ -83,7 +80,7 @@ public class CityManager : MonoBehaviour, ICityManager
             _cityWorldToScreenUi.gameObject,
             city.gameObject.transform, new Vector3(0, 50f, 0));
         CityWorldToScreenUi worldToScreenUi = uiGameObject.UiTransform.gameObject.GetComponent<CityWorldToScreenUi>();
-        worldToScreenUi.Text = city.BuildingName;
+        worldToScreenUi.City = city;
     }
 
     CityToPlace PlacePendingCity(CityToPlace cityToPlace)

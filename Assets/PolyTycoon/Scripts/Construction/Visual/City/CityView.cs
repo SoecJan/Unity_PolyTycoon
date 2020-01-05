@@ -39,6 +39,7 @@ public class CityView : AbstractUi
 
 			CityBuilding.CityPlaceable().Outline.enabled = true;
 			_titleText.text = CityBuilding.CityPlaceable().BuildingName;
+			
 			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable());
 			foreach (ProductData neededProduct in cityPlaceable.ReceivedProductList())
 			{
@@ -47,11 +48,14 @@ public class CityView : AbstractUi
 				amountProductView.Text(cityPlaceable.ReceiverStorage(neededProduct));
 			}
 
-			ProductStorage producedProductStorage = ((IProductEmitter) CityBuilding.CityPlaceable()).EmitterStorage();
-			AmountProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
-			producedProductView.ProductData = producedProductStorage.StoredProductData;
-			producedProductView.Text(producedProductStorage);
-			
+			IProductEmitter productEmitter = (IProductEmitter) CityBuilding.CityPlaceable();
+			foreach (ProductData productData in productEmitter.EmittedProductList())
+			{
+				AmountProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
+				producedProductView.ProductData = productData;
+				producedProductView.Text(productEmitter.EmitterStorage(productData));
+			}
+
 			StartCoroutine(UpdateUi());
 			SetVisible(true);
 		}

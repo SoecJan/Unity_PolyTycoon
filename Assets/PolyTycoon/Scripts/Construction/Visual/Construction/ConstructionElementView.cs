@@ -1,5 +1,6 @@
 ﻿using System;
 using TMPro;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,9 +20,6 @@ public class ConstructionElementView : MonoBehaviour
 	{
 		if (!placementManager) placementManager = FindObjectOfType<PlacementManager>();
 		PlacementManager._onObjectPlacement += this.OnObjectPlacement;
-		{
-			
-		};
 		_buildingSelectToggle.onValueChanged.AddListener(OnClick);
 	}
 
@@ -37,6 +35,10 @@ public class ConstructionElementView : MonoBehaviour
 			_mapPlaceable = value;
 			_buildingImage.sprite = _mapPlaceable.ConstructionUiSprite;
 			_buildingNameText.text = _mapPlaceable.BuildingName;
+			if (!GetComponent<TooltipText>())
+			{
+				gameObject.AddComponent<TooltipText>().Text = _mapPlaceable.BuildingName + "\n" + value.BuildingPrice;
+			}
 		}
 	}
 

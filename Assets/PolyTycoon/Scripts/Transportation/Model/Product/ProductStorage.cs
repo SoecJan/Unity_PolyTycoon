@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 
 /// <summary>
@@ -9,6 +10,7 @@ public class ProductStorage
 {
     #region Attributes
 
+    private System.Action<ProductStorage, int> _onAmountChange;
     [SerializeField] private ProductData _storedProductData;
     [SerializeField] private int _maxAmount;
     [SerializeField] private int _storedAmount;
@@ -71,6 +73,12 @@ public class ProductStorage
         get => _baseGrowthValue;
 
         set => _baseGrowthValue = value;
+    }
+
+    public Action<ProductStorage, int> OnAmountChange
+    {
+        get => _onAmountChange;
+        set => _onAmountChange = value;
     }
 
     #endregion

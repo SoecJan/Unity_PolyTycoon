@@ -183,7 +183,7 @@ public class BuildingManager : IBuildingManager
         }
     }
 
-    private void OnPlaceableClick(SimpleMapPlaceable mapPlaceable)
+    public void OnPlaceableClick(SimpleMapPlaceable mapPlaceable)
     {
         Debug.Log("Placeable clicked: " + mapPlaceable.BuildingName);
         if (_routeCreateController && _routeCreateController.VisibleObject.activeSelf)

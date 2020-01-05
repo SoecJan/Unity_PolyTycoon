@@ -37,8 +37,8 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
     #region Attributes
 
     private static List<int> _usedNamesList; // Used indices for city names. Needed for finding unique names.
-    private static MoneyUiController _moneyUiController; // Controller that handles the players money
     private Dictionary<ProductData, ProductStorage> _receivedProducts; // Products that can be received by this city
+    private Dictionary<ProductData, int> _productPrices;
     private List<ProductStorage> _emittedProducts; // Products this city emits
 
     [SerializeField] private CityMainBuilding _mainBuilding; // The main building that is target of pathfinding
@@ -111,12 +111,16 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
             _usedNamesList = new List<int>();
         if ("".Equals(BuildingName))
             BuildingName = GetUniqueCityName();
+        _receivedProducts = new Dictionary<ProductData, ProductStorage>();
+        _emittedProducts = new List<ProductStorage>();
+        FillEmittedProducts();
+        FillReceivedProducts();
     }
 
     public override void Start()
     {
         base.Start();
-        if (!_moneyUiController) _moneyUiController = FindObjectOfType<MoneyUiController>();
+
         // Add child components if there are none
         if (ChildMapPlaceables.Count == 0)
         {
@@ -133,10 +137,16 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
 
         // Initialize data structures
         _paths = new Dictionary<PathFindingNode, Path>();
-        _receivedProducts = new Dictionary<ProductData, ProductStorage>();
-        _emittedProducts = new List<ProductStorage>();
-        FillEmittedProducts();
-        FillReceivedProducts();
+        _productPrices = new Dictionary<ProductData, int>();
+        ProductManager productManager = FindObjectOfType<ProductManager>();
+        foreach (ProductData productData in productManager.Products)
+        {
+            _productPrices.Add(productData,
+                (int) (productData.BasePrice *
+                       Random.Range(1 - productData.RandomPriceFactor, 1 + productData.RandomPriceFactor)));
+        }
+
+        ;
         TimeScaleUi._onDayOver += ProductAmountReset;
     }
 
@@ -146,16 +156,16 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
         foreach (ProductStorage productStorage in _receivedProducts.Values)
         {
             Debug.Log(productStorage.StoredProductData.ProductName + " _receivedProducts: " + productStorage.Amount);
-            int difference = productStorage.Amount;
-            _moneyUiController.AddMoney(difference * 100);
+//            int difference = productStorage.Amount;
+//            _moneyUiController.AddMoney(difference * 100);
             productStorage.Amount = 0;
         }
 
         foreach (ProductStorage productStorage in _emittedProducts)
         {
             int difference = productStorage.MaxAmount - productStorage.Amount;
-            Debug.Log(productStorage.StoredProductData.ProductName + " _emittedProducts: " + productStorage.Amount + ", " + difference);
-            _moneyUiController.AddMoney(difference * 100);
+//            Debug.Log(productStorage.StoredProductData.ProductName + " _emittedProducts: " + productStorage.Amount + ", " + difference);
+//            _moneyUiController.AddMoney(difference * 100);
             productStorage.Amount = productStorage.MaxAmount;
         }
     }
@@ -192,7 +202,12 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
         foreach (ProductData product in _producedProducts)
         {
             int amount = Random.Range(3, 7);
-            _emittedProducts.Add(new ProductStorage(product, amount, amount));
+            ProductStorage storage = new ProductStorage(product, amount, amount);
+//            storage.OnAmountChange += (productStorage, i) =>
+//            {
+//                _moneyUiController.AddMoney(_productPrices[productStorage.StoredProductData] * i);
+//            };
+            _emittedProducts.Add(storage);
         }
     }
 
@@ -213,8 +228,12 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
                 }
                 else
                 {
-                    _receivedProducts.Add(neededProduct.Product,
-                        new ProductStorage(neededProduct.Product, neededProduct.Amount));
+                    ProductStorage storage = new ProductStorage(neededProduct.Product, neededProduct.Amount);
+                    storage.OnAmountChange += (productStorage, i) =>
+                    {
+                        _moneyUiController.AddMoney(_productPrices[productStorage.StoredProductData] * i);
+                    };
+                    _receivedProducts.Add(neededProduct.Product, storage);
                 }
             }
         }

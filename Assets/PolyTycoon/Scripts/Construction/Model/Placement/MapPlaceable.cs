@@ -24,9 +24,11 @@ public interface IMapPlaceable
 /// </summary>
 public abstract class MapPlaceable : MonoBehaviour, IMapPlaceable
 {
-    [SerializeField] private Sprite _constructionUiSprite;
+    [SerializeField] private Sprite _constructionUiSprite; // Sprite used for construction ui
     [SerializeField] private string _buildingName; // Name of this building
-    [SerializeField] protected bool _isHighlightable = true;
+    [SerializeField] private int _buildingPrice;
+    [SerializeField] protected bool _isHighlightable = true; // Used when object is selected
+    protected static MoneyUiController _moneyUiController; // Controller that handles the players money
     
     public Sprite ConstructionUiSprite => _constructionUiSprite;
     public string BuildingName { get => _buildingName; set => _buildingName = value; }
@@ -34,8 +36,15 @@ public abstract class MapPlaceable : MonoBehaviour, IMapPlaceable
 
     public Outline Outline { get; private set; }
 
+    public int BuildingPrice
+    {
+        get => _buildingPrice;
+        set => _buildingPrice = value;
+    }
+
     public virtual void Start()
     {
+        if (!_moneyUiController) _moneyUiController = FindObjectOfType<MoneyUiController>();
         Outline = GetComponent<Outline>();
         if (Outline || !_isHighlightable) return;
         Outline = gameObject.AddComponent<Outline>();

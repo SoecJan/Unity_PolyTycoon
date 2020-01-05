@@ -107,6 +107,8 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         IsPlaced = true;
         ThreadsafePosition = transform.position;
+        if (_moneyUiController)
+            _moneyUiController.SpendMoney(this.BuildingPrice);
     }
 
     /// <summary>

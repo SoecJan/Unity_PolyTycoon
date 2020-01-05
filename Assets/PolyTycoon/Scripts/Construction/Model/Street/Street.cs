@@ -8,6 +8,18 @@ public class Street : PathFindingConnector
 {
 	#region Methods
 	
+	protected new void OnDestroy()
+	{
+		base.OnDestroy();
+		foreach (PathFindingNode neighborNode in NeighborNodes)
+		{
+			if (neighborNode is Street connector)
+			{
+				connector.UpdateOrientation();
+			}
+		}
+	}
+	
 	protected override PathFindingNode AdjacentNodes(int i)
 	{
 		PathFindingNode node = base.AdjacentNodes(i);
