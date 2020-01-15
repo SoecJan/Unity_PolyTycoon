@@ -13,35 +13,42 @@ public interface ITransport
     /// <summary>
     /// The current amount of products loaded
     /// </summary>
-    int CurrentCapacity { get; } 
+    int CurrentCapacity { get; }
+
     /// <summary>
     /// The maximum amount of products that can be loaded
     /// </summary>
-    int MaxCapacity { get; set; } 
+    int MaxCapacity { get; set; }
+
     /// <summary>
     /// Time it takes to transfer the TransferAmount of items
     /// </summary>
     float TransferTime { get; set; }
+
     /// <summary>
     /// Amount of items loaded in one timeslot
     /// </summary>
-    int TransferAmount { get; set; } 
+    int TransferAmount { get; set; }
+
     /// <summary>
     /// The storage of a specified product
     /// </summary>
     /// <param name="productData">The specified product for getting the associated storage</param>
     /// <returns>Storage instance of the specified product</returns>
     ProductStorage TransportStorage(ProductData productData);
+
     /// <summary>
     /// List of products that are currently in storage
     /// </summary>
     List<ProductData> LoadedProducts { get; }
+
     /// <summary>
     /// Product loading logic - coroutine
     /// </summary>
     /// <param name="transportRouteElement">The current element that contains the <see cref="TransportRouteSetting"/></param>
     /// <returns></returns>
     IEnumerator Load(TransportRouteElement transportRouteElement);
+
     /// <summary>
     /// Product unloading logic - coroutine
     /// </summary>
@@ -93,7 +100,7 @@ public class TransportVehicleController : ITransport
             if (isUnload || !isEmitterProducingProduct) continue;
 
             Debug.Log(setting.ToString());
-            
+
             if (!_transporterStorage.ContainsKey(setting.ProductData))
             {
                 _transporterStorage.Add(setting.ProductData, new ProductStorage(setting.ProductData)
@@ -131,7 +138,7 @@ public class TransportVehicleController : ITransport
             bool hasProductLoaded = _transporterStorage.ContainsKey(setting.ProductData);
             // if: setting is for loading, receiver not in need of the product or the truck has none of the product
             if (isLoad || !isLoadedProductReceiver || !hasProductLoaded) continue;
-            
+
             Debug.Log(setting.ToString());
 
             ProductStorage receiverStorage = consumer.ReceiverStorage(setting.ProductData);
@@ -162,6 +169,7 @@ public class TransportVehicleController : ITransport
 public class TransportVehicle : MonoBehaviour
 {
     #region Attributes
+
     private TransportVehicleController _transportController; // Logic of this class
     private TransportRoute _transportRoute; // Route this vehicle drives on
     private RouteMover _routeMover; // Mover for the visual representation
@@ -179,11 +187,13 @@ public class TransportVehicle : MonoBehaviour
         get => _transportController.MaxCapacity;
         set => _transportController.MaxCapacity = value;
     }
+
     public string VehicleName
     {
         get => _transportController.VehicleName;
         set => _transportController.VehicleName = value;
     }
+
     public float MaxSpeed
     {
         get => _transportController.MaxSpeed;
@@ -245,7 +255,7 @@ public class TransportVehicle : MonoBehaviour
         Outline.OutlineWidth = 5f;
         Outline.enabled = false;
     }
-    
+
     void OnMouseOver()
     {
         if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
@@ -253,9 +263,10 @@ public class TransportVehicle : MonoBehaviour
             OnClickAction(this);
         }
     }
-    
-    private int Modulo(int x, int m) {
-        return (x%m + m)%m;
+
+    private int Modulo(int x, int m)
+    {
+        return (x % m + m) % m;
     }
 
     private void OnArrive()
@@ -273,7 +284,7 @@ public class TransportVehicle : MonoBehaviour
         int routeIndex = Modulo((_routeMover.PathIndex - 1), _transportRoute.TransportRouteElements.Count);
         TransportRouteElement element = _transportRoute.TransportRouteElements[routeIndex];
         yield return _transportController.Unload(element);
-        
+
         // Load Products
         routeIndex = (_routeMover.PathIndex) % _transportRoute.TransportRouteElements.Count;
         element = _transportRoute.TransportRouteElements[routeIndex];

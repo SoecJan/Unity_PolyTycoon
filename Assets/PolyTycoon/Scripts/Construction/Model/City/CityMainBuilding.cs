@@ -40,6 +40,11 @@ public class CityMainBuilding : PathFindingTarget, IProductReceiver, IProductEmi
 
     #region Methods
 
+    void Start()
+    {
+        
+    }
+    
     protected override void Initialize()
     {
         base.Initialize();

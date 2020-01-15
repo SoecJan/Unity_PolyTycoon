@@ -91,6 +91,8 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
         return ChildMapPlaceables.Count * 3;
     }
 
+    public System.Action<bool> onVisibilityChange;
+
     /// <summary>
     /// The Main Building that is the target of PathFinding for this city
     /// </summary>
@@ -145,9 +147,9 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
                 (int) (productData.BasePrice *
                        Random.Range(1 - productData.RandomPriceFactor, 1 + productData.RandomPriceFactor)));
         }
-
-        ;
         TimeScaleUi._onDayOver += ProductAmountReset;
+        
+        GetComponentInChildren<Renderer>().gameObject.AddComponent<OnVisibilityChangeCallback>().OnVisibilityChange += isVisible => onVisibilityChange?.Invoke(isVisible);
     }
 
     private void ProductAmountReset(int day)

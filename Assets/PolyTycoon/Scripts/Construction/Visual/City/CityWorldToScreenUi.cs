@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,7 @@ public class CityWorldToScreenUi : MonoBehaviour, IPointerEnterHandler, IPointer
     private void Start()
     {
         this._animator = GetComponent<Animator>();
+        this._visibleGameObject.SetActive(false);
     }
 
     public string Text
@@ -32,6 +34,11 @@ public class CityWorldToScreenUi : MonoBehaviour, IPointerEnterHandler, IPointer
             _cityPlaceable = value;
             Text = value.BuildingName;
             StartCoroutine(UpdateProductUi(value));
+            this._cityPlaceable.onVisibilityChange += isVisible =>
+            {
+                this._visibleGameObject.SetActive(isVisible); 
+//                Debug.Log(this._cityPlaceable.BuildingName + ": " + isVisible);
+            };
         }
     }
 
