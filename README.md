@@ -1,21 +1,23 @@
 # Unity PolyTycoon
-This is a hobbyist/self study project. Using Unity to create a clone of a transport tycoon genre game.
-
-Trello: https://trello.com/b/bPIOa4Pt/polytycoon
+A transport tycoon game that helps me to learn the Unity Engine.
 
 # Getting Started
-1. Clone this repository.
-2. Open the root folder using Unity 2019.1.0f2 or later. 
-3. Add packages from Package Manager:
-    - LightWeightRenderPipeline (LWRP)
-    - RenderPipeline Core Library
-    - ShaderGraph
-    - PostProcessing Stack
-4. Add assets from Unity Asset Store:
-    - JSON.Net
+## Take an in-depth look
+1. [Download git](https://git-scm.com/)
+2. [Download Unity 2019.1.13f1](https://unity3d.com/de/get-unity/download) or later
+3. Clone this repository.
+4. Use Unity to open the root folder. It contains the Assets and ProjectSettings folders.
+5. Add packages from Package Manager:
+    - Core RP Library 5.7.2+
+    - Lightweight RP 5.7.2+
+    - PostProcessing 2.1.7+
+6. Run PolyTycoon
+
+or
+[Download a compiled version](https://github.com/SoecJan/soecjan.github.io/releases/tag/polytycoon_v1.0-alpha) 
 
 
-# Past
+# Progress
 
 06.2018 - Start of this project, getting used to Unity and Visual Studio/Resharper
 
@@ -29,8 +31,6 @@ Trello: https://trello.com/b/bPIOa4Pt/polytycoon
 
 11.2018 - Moved the project to this repository, fix problems
 
-12.2018 - Break due to university
-
 03.2019 - Updated ui design, added proper curve animations for trucks
 
 04.2019 - New 3D models, train, plane and ship transportation and pathfinding, storage buildings
@@ -39,20 +39,15 @@ Trello: https://trello.com/b/bPIOa4Pt/polytycoon
 
 07.2019 - Bugfixes, Code Refactorings and new Route Creation UI
 
-08.2019 - New Mill building and class/code documentation
+08.2019 - New 3D models and updated class/code documentation
 
-# Future Plans
+11.2019 - Code refactoring and ui upgrade to TextMeshPro
 
-## Transport System
-- Visuals: Loaded products visible
+12.2019 - Cashflow & construction update
 
-## Traffic System
-- Stopping on intersections
-- Slow down behind slower vehicles
+[Trello](https://trello.com/b/bPIOa4Pt/polytycoon)
 
-## Progression System
-- Unlock new buildings and vehicles
-- Bigger supply chains require better vehicles
+# Acknowledgments
 
-## Terrain Generation
-- Mesh optimization
+- Sebastian Lague for his Terrain Generator and video series
+- Chris Nolet for creating the Quick Outline Unity Asset

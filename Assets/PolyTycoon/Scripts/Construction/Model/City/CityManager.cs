@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 /// <summary>
@@ -87,7 +88,7 @@ public class CityManager : MonoBehaviour, ICityManager
     {
         while (!_placementManager.TerrainGenerator.IsReady())
         {
-//            Debug.Log("Not Ready");
+            Thread.Sleep(500);
         }
 
         return MoveToPlaceablePosition(cityToPlace);

@@ -36,7 +36,11 @@ public class CityWorldToScreenUi : MonoBehaviour, IPointerEnterHandler, IPointer
             StartCoroutine(UpdateProductUi(value));
             this._cityPlaceable.onVisibilityChange += isVisible =>
             {
-                this._visibleGameObject.SetActive(isVisible); 
+                if (this._visibleGameObject)
+                {
+                    this._visibleGameObject.SetActive(isVisible); 
+                }
+                
 //                Debug.Log(this._cityPlaceable.BuildingName + ": " + isVisible);
             };
         }
