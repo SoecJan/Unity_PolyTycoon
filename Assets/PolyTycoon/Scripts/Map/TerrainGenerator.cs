@@ -91,8 +91,9 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
     private float _terrainHeightTolerance = 0.01f;
 
     [SerializeField] private float m_terrainAlignOffset = -0.01f;
-
     [SerializeField] private GameObject _waterMeshPrefab;
+
+    private TreeManager _treeManager;
 
     #endregion
 
@@ -378,6 +379,8 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
     // Called at the start
     void Start()
     {
+        _treeManager = FindObjectOfType<TreeManager>();
+        
         textureSettings.ApplyToMaterial(mapMaterial);
         textureSettings.UpdateMeshHeights(mapMaterial, heightMapSettings.minHeight, heightMapSettings.maxHeight);
 
@@ -472,6 +475,7 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
                         _waterMeshPrefab);
                     terrainChunkDictionary.Add(viewedChunkCoord, newChunk);
                     newChunk.onVisibilityChanged += OnTerrainChunkVisibilityChanged; // Subscribe to Event
+                    newChunk.onVisibilityChanged += _treeManager.PlaceTrees;
                     newChunk.Load();
                 }
             }

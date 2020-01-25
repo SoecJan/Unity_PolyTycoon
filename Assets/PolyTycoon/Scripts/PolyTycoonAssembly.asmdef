@@ -1,0 +1,27 @@
+{
+    "name": "PolyTycoonAssembly",
+    "references": [
+        "OutlineAssembly",
+        "Unity.TextMeshPro",
+        "GameMenuAssembly",
+        "ResourceDataAssembly"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "LinuxStandalone32",
+        "LinuxStandalone64",
+        "LinuxStandaloneUniversal",
+        "WindowsStandalone32",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

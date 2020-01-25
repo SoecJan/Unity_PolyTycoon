@@ -149,7 +149,6 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     {
         base.OnPlacement();
         if (BuildingManager == null) BuildingManager = FindObjectOfType<PlacementManager>().BuildingManager;
-        TraversalOffset = transform.position;
         NeighborNodes = new PathFindingNode[NeighborCount];
         TotalNodeCount += 1;
         FindNeighborNodes();

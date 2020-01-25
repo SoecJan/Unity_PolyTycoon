@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,7 +36,16 @@ public interface IPathNode
 public abstract class PathFindingTarget : PathFindingNode, IPathNode
 {
 	private Dictionary<PathFindingNode, Path> _paths; // Paths for the IPathNode Interface
-	
+
+	private void OnDrawGizmos()
+	{
+		Gizmos.color = new Color(1, 1, 0, 0.75F);
+		WayPoint wayPoint = this.GetTraversalVectors(-1, 1);
+		Gizmos.DrawLine(wayPoint.TraversalVectors[0], wayPoint.TraversalVectors[1]);
+		wayPoint = this.GetTraversalVectors(1, -1);
+		Gizmos.DrawLine(wayPoint.TraversalVectors[0], wayPoint.TraversalVectors[1]);
+	}
+
 	protected override void Initialize()
     {
 	    base.Initialize();
@@ -74,7 +84,13 @@ public abstract class PathFindingTarget : PathFindingNode, IPathNode
     {
 	    _paths.Remove(targetNode);
     }
-    
+
+    public override void OnPlacement()
+    {
+	    base.OnPlacement();
+	    TraversalOffset = UsedCoordinates[0].UsedCoordinate + transform.position;
+    }
+
     public override WayPoint GetTraversalVectors(int fromDirection, int toDirection)
 	{
 		// Start Points

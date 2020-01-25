@@ -328,7 +328,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
     /// </summary>
     /// <param name="placeableObject"></param>
     /// <returns></returns>
-    private bool PlaceObject(SimpleMapPlaceable placeableObject)
+    public bool PlaceObject(SimpleMapPlaceable placeableObject)
     {
         // Get all needed references
         float objectBottomHeight = placeableObject.GetHeight() / 2f;

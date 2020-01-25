@@ -24,7 +24,7 @@ public class TerrainChunk
 	int colliderLODIndex;
 
 	HeightMap heightMap;
-	bool heightMapReceived;
+	public bool heightMapReceived;
 	int previousLODIndex = -1;
 	bool hasSetCollider;
 	public static float maxViewDst;

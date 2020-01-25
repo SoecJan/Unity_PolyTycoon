@@ -27,6 +27,7 @@ public abstract class PathFindingConnector : PathFindingNode
     {
         base.OnPlacement();
         transform.name = GetType().ToString() + ": " + transform.position.ToString();
+        TraversalOffset = transform.position;
     }
     
     public override bool IsTraversable()

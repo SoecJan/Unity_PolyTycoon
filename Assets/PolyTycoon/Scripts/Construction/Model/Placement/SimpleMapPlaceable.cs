@@ -24,6 +24,8 @@ public interface ISimpleMapPlaceable
     /// Is called by <see cref="BuildingManager"/> after successful placement of this MapPlaceable.
     /// </summary>
     void OnPlacement();
+
+    GameObject gameObject { get; }
 }
 
 /// <summary>
@@ -141,6 +143,12 @@ public class NeededSpace
 {
     [SerializeField] private Vector3Int _usedCoordinate; // The relative offset from the origin
     [SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland; // The suitable ground type
+
+    public NeededSpace(Vector3Int usedCoordinate, TerrainGenerator.TerrainType terrainType)
+    {
+        this._usedCoordinate = usedCoordinate;
+        this._terrainType = terrainType;
+    }
 
     public NeededSpace(NeededSpace neededSpace, Vector3Int offset)
     {

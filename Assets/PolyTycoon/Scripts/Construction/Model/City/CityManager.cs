@@ -73,7 +73,11 @@ public class CityManager : MonoBehaviour, ICityManager
     {
         CityToPlace cityToPlace = (CityToPlace) cityToPlaceObject;
         CityPlaceable city = Instantiate(cityToPlace.CityPlaceable, cityToPlace.Position, Quaternion.identity);
-        if (!_placementManager.PlaceObject(city)) return;
+        if (!_placementManager.PlaceObject(city))
+        {
+            Destroy(city.gameObject);
+            return;
+        }
         
         _placedCities.Add(city);
             
@@ -96,6 +100,7 @@ public class CityManager : MonoBehaviour, ICityManager
 
     private CityToPlace MoveToPlaceablePosition(CityToPlace cityToPlace)
     {
+        int stepSize = 2;
         int targetXMove = 0;
         int targetYMove = 0;
         int currentXMove = 0;
@@ -108,14 +113,14 @@ public class CityManager : MonoBehaviour, ICityManager
             // Move one step at a time
             if (currentXMove > 0)
             {
-                cityToPlace.Translate(direction, 0, 0);
+                cityToPlace.Translate(direction * stepSize, 0, 0);
                 currentXMove--;
                 continue;
             }
 
             if (currentYMove > 0)
             {
-                cityToPlace.Translate(0, 0, direction);
+                cityToPlace.Translate(0, 0, direction * stepSize);
                 currentYMove--;
                 continue;
             }

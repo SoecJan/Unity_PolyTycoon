@@ -58,10 +58,13 @@ public class VehicleManager : MonoBehaviour, IVehicleManager
         transportVehicle.Sprite = transportVehicleData.Sprite;
         transportVehicle.RouteMover = routeMover;
 
-        WaypointMoverFollower _waypointMoverFollower = rootGameObject.AddComponent<WaypointMoverFollower>();
-//        _waypointMoverFollower.ParentMover = routeMover;
-        _waypointMoverFollower.MoverTransform = Instantiate(Resources.Load<GameObject>("Prefabs/Transportation/Vehicle/Trailer/ContainerTrailer")).transform;
-        _waypointMoverFollower.MoverTransform.position = position;
+        if (transportVehicleData.PathType.Equals(PathType.Rail))
+        {
+            WaypointMoverFollower _waypointMoverFollower = rootGameObject.AddComponent<WaypointMoverFollower>();
+            _waypointMoverFollower.MoverTransform = Instantiate(Resources.Load<GameObject>("Prefabs/Transportation/Vehicle/Trailer/ContainerTrailer")).transform;
+            _waypointMoverFollower.MoverTransform.position = position;
+        }
+        
 
         InstancedVehicleList.Add(rootGameObject);
         return transportVehicle;
