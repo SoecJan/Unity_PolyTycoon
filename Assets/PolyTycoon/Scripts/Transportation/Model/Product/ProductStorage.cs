@@ -14,8 +14,6 @@ public class ProductStorage
     [SerializeField] private ProductData _storedProductData;
     [SerializeField] private int _maxAmount;
     [SerializeField] private int _storedAmount;
-    [SerializeField] private BiomeGenerator.Biome _growthBiome;
-    [SerializeField] private float _baseGrowthValue = 0.5f;
 
     #endregion
 
@@ -57,28 +55,27 @@ public class ProductStorage
     public int Amount
     {
         get => _storedAmount;
-
-        set => _storedAmount = value;
-    }
-
-    public BiomeGenerator.Biome GrowthBiome
-    {
-        get => _growthBiome;
-
-        set => _growthBiome = value;
-    }
-
-    public float BaseGrowthValue
-    {
-        get => _baseGrowthValue;
-
-        set => _baseGrowthValue = value;
     }
 
     public Action<ProductStorage, int> OnAmountChange
     {
         get => _onAmountChange;
         set => _onAmountChange = value;
+    }
+
+    public void SetAmount(int amount)
+    {
+        if (amount > this._maxAmount) throw new OverflowException();
+        int difference = amount - this._storedAmount;
+        this._storedAmount = amount;
+        OnAmountChange?.Invoke(this, difference);
+    }
+    
+    public void Add(int amount)
+    {
+        if (this._storedAmount + amount > this._maxAmount) throw new OverflowException();
+        this._storedAmount += amount;
+        OnAmountChange?.Invoke(this, amount);
     }
 
     #endregion
@@ -100,8 +97,8 @@ public class ProductStorage
         {
             StoredProductData = this._storedProductData,
             MaxAmount = this._maxAmount,
-            Amount = this._storedAmount
         };
+        storage.Add(this._storedAmount);
         return storage;
     }
 

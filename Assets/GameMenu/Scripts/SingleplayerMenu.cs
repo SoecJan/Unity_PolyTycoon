@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,10 +10,12 @@ public class SingleplayerMenu : AbstractUi
     [Header("Navigation")]
     [SerializeField] private Button _backButton;
     [SerializeField] private Button _playButton;
-    [Header("Settings")]
-    [SerializeField] private Button _settingBackButton;
-    [SerializeField] private Button _settingNextButton;
-    [SerializeField] private Animator _animator;
+
+    [SerializeField] private Slider _mapSizeSlider;
+    [SerializeField] private TMP_Text _mapSizeText;
+    [SerializeField] private TMP_InputField _budgetInputField;
+    [SerializeField] private Image _playerColorInput;
+    [SerializeField] private Button _playerColorChangeButton;
 
     private PlayMenue _playMenu;
 
@@ -22,13 +25,32 @@ public class SingleplayerMenu : AbstractUi
         _playMenu = FindObjectOfType<PlayMenue>();
         _backButton.onClick.AddListener(OnBackClick);
         _playButton.onClick.AddListener(OnPlayClick);
-        _settingBackButton.onClick.AddListener(delegate
+        _mapSizeText.text = "Map size: " + ((_mapSizeSlider.value < _mapSizeSlider.maxValue) ? _mapSizeSlider.value.ToString() : "Infinite");
+        _mapSizeSlider.onValueChanged.AddListener(delegate(float value)
         {
-            _animator.SetTrigger("Back");
+            _mapSizeText.text = "Map size: " + ((value < _mapSizeSlider.maxValue) ? value.ToString() : "Infinite");
         });
-        _settingNextButton.onClick.AddListener(delegate
+        _budgetInputField.onValueChanged.AddListener(delegate(string value) { Debug.Log(value); });
+        
+        _playerColorInput.color = Color.blue;
+        _playerColorChangeButton.onClick.AddListener(delegate
         {
-            _animator.SetTrigger("Next");
+            if (_playerColorInput.color.Equals(Color.blue))
+            {
+                _playerColorInput.color = Color.red;
+            }
+            else if (_playerColorInput.color.Equals(Color.red))
+            {
+                _playerColorInput.color = Color.green;
+            }
+            else if (_playerColorInput.color.Equals(Color.green))
+            {
+                _playerColorInput.color = Color.cyan;
+            }
+            else if (_playerColorInput.color.Equals(Color.cyan))
+            {
+                _playerColorInput.color = Color.blue;
+            }
         });
     }
 

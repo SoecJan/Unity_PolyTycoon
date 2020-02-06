@@ -56,9 +56,7 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
 
     const float
         viewerMoveThresholdForChunkUpdate = 25f; // Distance for the viewer to travel until chunkupdate is invoked
-
-    private static int[] availableMapSizes = new int[] {};
-    private int _maxMapSize = 1;
+    private int _maxMapSize = 5;
 
     const float sqrViewerMoveThresholdForChunkUpdate =
         viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
@@ -380,7 +378,7 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
     void Start()
     {
         _treeManager = FindObjectOfType<TreeManager>();
-        
+        if (!textureSettings) textureSettings = Resources.Load<TextureData>("Data/TerrainGenerator/Default Texture");
         textureSettings.ApplyToMaterial(mapMaterial);
         textureSettings.UpdateMeshHeights(mapMaterial, heightMapSettings.minHeight, heightMapSettings.maxHeight);
 
@@ -395,6 +393,7 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
     {
         if (focus)
         {
+            if (!textureSettings) textureSettings = Resources.Load<TextureData>("Data/TerrainGenerator/Default Texture");
             textureSettings.ApplyToMaterial(mapMaterial);
         }
     }
@@ -466,8 +465,8 @@ public class TerrainGenerator : MonoBehaviour, ITerrainGenerator
                     terrainChunkDictionary[viewedChunkCoord].UpdateTerrainChunk();
                 }
                 else if (MaxMapSize == 0 
-                         || (Mathf.Abs(viewedChunkCoord.x) <= MaxMapSize 
-                             && Mathf.Abs(viewedChunkCoord.y) <= MaxMapSize)) // Limit MapGeneration. 0 = Infinite
+                         || (Mathf.Abs(viewedChunkCoord.x) < MaxMapSize 
+                             && Mathf.Abs(viewedChunkCoord.y) < MaxMapSize)) // Limit MapGeneration. 0 = Infinite
                 {
                     // Didn't find an existing chunk -> create a new one and add it to our Dictionary
                     TerrainChunk newChunk = new TerrainChunk(viewedChunkCoord, heightMapSettings, meshSettings,

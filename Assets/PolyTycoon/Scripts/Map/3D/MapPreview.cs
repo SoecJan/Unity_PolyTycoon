@@ -16,6 +16,7 @@ public class MapPreview : MonoBehaviour {
 
     public Material terrainMaterial;
 
+    [SerializeField] Vector2 _sampleCentre = Vector2.zero;
     [Range(0, MeshSettings.numSupportedLODs - 1)]
     public int editorPreviewLOD;
     public bool autoUpdate;
@@ -28,7 +29,7 @@ public class MapPreview : MonoBehaviour {
     public void DrawMapInEditor() {
         textureData.ApplyToMaterial(terrainMaterial);
         textureData.UpdateMeshHeights(terrainMaterial, heightMapSettings.minHeight, heightMapSettings.maxHeight);
-        HeightMap heightMap = HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine, heightMapSettings, Vector2.zero);
+        HeightMap heightMap = HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine, heightMapSettings, _sampleCentre);
 
         if (drawMode == DrawMode.NoiseMap) {
             DrawTexture(TextureGenerator.TextureFromHeightMap(heightMap));

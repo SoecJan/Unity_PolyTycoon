@@ -1,18 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 /// <summary>
 /// This interface describes the functionality of a MapPlaceable.
 /// </summary>
 public interface IMapPlaceable
 {
-    /// <summary>
-    /// The sprite that is displayed to the user and associated with this MapPlaceable
-    /// </summary>
-    Sprite ConstructionUiSprite { get; }
-    /// <summary>
-    /// The name that is associated with this MapPlaceable
-    /// </summary>
-    string BuildingName { get; }
     /// <summary>
     /// If the associated MapPlaceable can be dragged to created multiple instances in one line.
     /// </summary>
@@ -24,27 +17,32 @@ public interface IMapPlaceable
 /// </summary>
 public abstract class MapPlaceable : MonoBehaviour, IMapPlaceable
 {
-    [SerializeField] private Sprite _constructionUiSprite; // Sprite used for construction ui
-    [SerializeField] private string _buildingName; // Name of this building
-    [SerializeField] private int _buildingPrice;
     [SerializeField] protected bool _isHighlightable = true; // Used when object is selected
-    protected static MoneyUiController _moneyUiController; // Controller that handles the players money
+
+    protected Renderer childRenderer; // Create a new instance of the material
+    protected static readonly int IsPlacedProperty = Shader.PropertyToID("_IsPlaced");
+    protected static readonly int IsPlaceableProperty = Shader.PropertyToID("_IsPlaceable");
     
-    public Sprite ConstructionUiSprite => _constructionUiSprite;
-    public string BuildingName { get => _buildingName; set => _buildingName = value; }
     public bool IsDraggable { get; set; }
+    
+    protected Material RendererMaterial { get; set; }
+
+    public bool IsPlaceable
+    {
+        set => RendererMaterial.SetFloat(IsPlaceableProperty, value ? 1f : 0f);
+    }
 
     public Outline Outline { get; private set; }
 
-    public int BuildingPrice
+    public virtual void Awake()
     {
-        get => _buildingPrice;
-        set => _buildingPrice = value;
+        childRenderer = GetComponentInChildren<Renderer>();
+        RendererMaterial = new Material(childRenderer.material);
+        childRenderer.material = RendererMaterial;
     }
 
     public virtual void Start()
     {
-        if (!_moneyUiController) _moneyUiController = FindObjectOfType<MoneyUiController>();
         Outline = GetComponent<Outline>();
         if (Outline || !_isHighlightable) return;
         Outline = gameObject.AddComponent<Outline>();

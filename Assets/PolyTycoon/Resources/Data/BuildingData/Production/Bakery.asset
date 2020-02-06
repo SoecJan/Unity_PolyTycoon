@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 724e99a09aa7921429f3d5a756aff306, type: 3}
+  m_Name: Bakery
+  m_EditorClassIdentifier: 
+  _constructionSprite: {fileID: 21300000, guid: f2e434f834f69d04bb02615f4bc453e4,
+    type: 3}
+  _buildingName: Bakery
+  _description: Turns Flour and Water into Bread
+  _buildingPrice: 12000
+  _prefab: {fileID: 1232592947860612, guid: 65973fea64ef22f4fbbc501027a19e9d, type: 3}
+  _producedProduct: {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28, type: 2}

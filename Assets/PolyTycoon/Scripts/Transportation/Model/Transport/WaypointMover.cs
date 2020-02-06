@@ -194,7 +194,11 @@ public class WaypointMoverController
         Vector3 firstTraversalVector = currentWayPoint.TraversalVectors[0];
         Vector3 secondTraversalVector = currentWayPoint.TraversalVectors[1];
 
-        yield return MoveStraight(CurrentWaypointIndex == 0 ? firstTraversalVector : secondTraversalVector);
+        if (CurrentWaypointIndex == 0)
+        {
+            yield return MoveStraight(firstTraversalVector);
+        }
+        yield return MoveStraight(secondTraversalVector);
     }
 
     private IEnumerator MoveStraight(Vector3 targetPosition)

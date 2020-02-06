@@ -89,7 +89,7 @@ public class TransportVehicleController : ITransport
     /// <returns></returns>
     public IEnumerator Load(TransportRouteElement transportRouteElement)
     {
-        if (!(transportRouteElement.FromNode is IProductEmitter producer)) yield break;
+        if (!(transportRouteElement.FromNode.gameObject.GetComponent<IProductEmitter>() is IProductEmitter producer)) yield break;
 //        Debug.Log(producer.EmitterStorage().StoredProductData.ProductName);
         // Search unloading settings and execute them
         foreach (TransportRouteSetting setting in transportRouteElement.RouteSettings)
@@ -103,8 +103,10 @@ public class TransportVehicleController : ITransport
 
             if (!_transporterStorage.ContainsKey(setting.ProductData))
             {
-                _transporterStorage.Add(setting.ProductData, new ProductStorage(setting.ProductData)
-                    {MaxAmount = MaxCapacity, Amount = 0});
+                ProductStorage productStorage = new ProductStorage(setting.ProductData)
+                    {MaxAmount = MaxCapacity};
+                productStorage.SetAmount(0);
+                _transporterStorage.Add(setting.ProductData, productStorage);
             }
 
             // Handle actual unloading process
@@ -119,8 +121,8 @@ public class TransportVehicleController : ITransport
                 }
 
                 loadAmount--;
-                emitterStorage.Amount -= TransferAmount;
-                truckStorage.Amount += TransferAmount;
+                emitterStorage.Add(-TransferAmount);
+                truckStorage.Add(TransferAmount);
                 yield return new WaitForSeconds(TransferTime);
             }
         }
@@ -150,9 +152,8 @@ public class TransportVehicleController : ITransport
                    receiverStorage.Amount < receiverStorage.MaxAmount)
             {
                 unloadAmount--;
-                truckStorage.Amount -= TransferAmount;
-                receiverStorage.Amount += TransferAmount;
-                receiverStorage.OnAmountChange?.Invoke(receiverStorage, TransferAmount);
+                truckStorage.Add(-TransferAmount);
+                receiverStorage.Add(TransferAmount);
                 yield return new WaitForSeconds(TransferTime);
             }
 

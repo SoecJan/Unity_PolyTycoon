@@ -44,12 +44,13 @@ public class ProductManager : MonoBehaviour, IProductManager
         {
             if (product.ProductName.Equals(productName))
             {
-                return new ProductStorage
+                ProductStorage output = new ProductStorage
                 {
                     StoredProductData = product,
                     MaxAmount = maxAmount,
-                    Amount = 0
                 };
+                output.SetAmount(0);
+                return output;
             }
         }
 

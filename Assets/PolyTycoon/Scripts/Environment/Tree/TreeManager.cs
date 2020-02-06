@@ -38,7 +38,6 @@ public class TreeManager : MonoBehaviour
     private void OnTreePositionFound(object positions)
     {
         Vector3[] treePositions = (Vector3[]) positions;
-        Debug.Log(treePositions);
         foreach (Vector3 treePosition in treePositions)
         {
             SimpleMapPlaceable go = Instantiate(_treeBehaviour, treePosition, Quaternion.identity);

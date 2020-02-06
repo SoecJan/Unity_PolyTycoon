@@ -163,8 +163,8 @@ public class RouteCreationSettingsManager
 
     public void LoadRouteElementSettings(TransportRouteElement transportRouteElement)
     {
-        string fromText = transportRouteElement.FromNode ? transportRouteElement.FromNode.BuildingName : "None";
-        string toText = transportRouteElement.ToNode ? transportRouteElement.ToNode.BuildingName : "None";
+        string fromText = transportRouteElement.FromNode ? transportRouteElement.FromNode.name : "None";
+        string toText = transportRouteElement.ToNode ? transportRouteElement.ToNode.name : "None";
         _loadAtText.text = "Load at " + fromText;
         _unloadAtText.text = "Unload at " + toText;
 

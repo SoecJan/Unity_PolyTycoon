@@ -33,21 +33,13 @@ public class CityManager : MonoBehaviour, ICityManager
         AddRandomCity();
     }
 
-//    void Update()
-//    {
-//        if (Input.GetKeyDown(KeyCode.K))
-//        {
-//            AddRandomCity(); // Debugging
-//        }
-//    }
-
     private void AddRandomCity()
     {
         AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, 0.5f));
-        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(45.5f, 0f, 0.5f));
-        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(-45.5f, 0f, 0.5f));
-        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, 45.5f));
-        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, -45.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(46.5f, 0f, 0.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(-46.5f, 0f, 0.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, 46.5f));
+        AddCity(_possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)], new Vector3(0.5f, 0f, -46.5f));
     }
 
     public CityPlaceable GetCity(string cityName)

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 /// <summary>
@@ -7,19 +8,6 @@ using Debug = UnityEngine.Debug;
 public class Street : PathFindingConnector
 {
 	#region Methods
-	
-	protected new void OnDestroy()
-	{
-		base.OnDestroy();
-		foreach (PathFindingNode neighborNode in NeighborNodes)
-		{
-			if (neighborNode is Street connector)
-			{
-				connector.UpdateOrientation();
-			}
-		}
-	}
-	
 	protected override PathFindingNode AdjacentNodes(int i)
 	{
 		PathFindingNode node = base.AdjacentNodes(i);

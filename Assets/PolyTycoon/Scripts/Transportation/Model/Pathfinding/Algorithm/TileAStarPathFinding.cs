@@ -34,7 +34,7 @@ public class TileAStarPathFinding : AbstractPathFindingAlgorithm
                 return new Vector2Int((int)waterPosition.x, (int)waterPosition.z);
             }
         }
-        throw new NotSupportedException("No NeededSpace with the " + _terrainType + " terrain type found in " + simpleMapPlaceable.BuildingName);
+        throw new NotSupportedException("No NeededSpace with the " + _terrainType + " terrain type found in " + simpleMapPlaceable.name);
     }
 
     public override Path FindPath(PathFindingNode startNode, PathFindingNode endNode)

@@ -2,12 +2,12 @@
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-
 public class ConstructionChoiceView : AbstractUi
 {
 	#region Attributes
 
 	private PlacementManager _placementManager;
+	private ConstructionElementView _constructionElementViewPrefab;
 	
 	[Header("Navigation")]
 	[SerializeField] private Button _exitButton;
@@ -16,7 +16,7 @@ public class ConstructionChoiceView : AbstractUi
 	[Header("Scroll View")] 
 	[SerializeField] private Toggle _infrastructureButton;
 	[SerializeField] private Toggle _productionButton;
-	[SerializeField] private ConstructionElementView _constructionElementViewPrefab;
+	
 	[SerializeField] private ToggleGroup _constructionElementToggleGroup;
 	[SerializeField] private RectTransform _scrollViewContent;
 	#endregion
@@ -27,37 +27,43 @@ public class ConstructionChoiceView : AbstractUi
 		_placementManager = FindObjectOfType<PlacementManager>();
 		_exitButton.onClick.AddListener(delegate { SetVisible(false); });
 		_showButton.onClick.AddListener(delegate { SetVisible(!VisibleObject.activeSelf); });
-		CreateElementViews(_placementManager.InfrastructurePlaceables);
+		
+		_constructionElementViewPrefab = Resources.Load<ConstructionElementView>(PathUtil.Get("ConstructionElementView"));
+		BuildingData[] _productionBuildingData = Resources.LoadAll<BuildingData>("Data/BuildingData/Production");
+		BuildingData[] _infrastructureBuildingData = Resources.LoadAll<BuildingData>("Data/BuildingData/Infrastructure");
+		CreateElementViews(_infrastructureBuildingData);
 		
 		_infrastructureButton.onValueChanged.AddListener(delegate(bool value)
 		{
 			if (!value) return;
-			for (int i = 0; i < _scrollViewContent.childCount; i++)
-			{
-				Destroy(_scrollViewContent.GetChild(i).gameObject);
-			}
-			CreateElementViews(_placementManager.InfrastructurePlaceables);
+			ClearElementViews();
+			CreateElementViews(_infrastructureBuildingData);
 		});
 		_productionButton.onValueChanged.AddListener(delegate(bool value)
 		{
 			if (!value) return;
-			for (int i = 0; i < _scrollViewContent.childCount; i++)
-			{
-				Destroy(_scrollViewContent.GetChild(i).gameObject);
-			}
-			CreateElementViews(_placementManager.ProductionPlaceables);
+			ClearElementViews();
+			CreateElementViews(_productionBuildingData);
 		});
 		_infrastructureButton.isOn = true;
 	}
 
-	private void CreateElementViews(MapPlaceable[] placeables)
+	private void CreateElementViews(BuildingData[] buildingDataArray)
 	{
-		foreach (MapPlaceable mapPlaceable in placeables)
+		foreach (BuildingData buildingData in buildingDataArray)
 		{
 			ConstructionElementView constructionChoiceView = GameObject.Instantiate(_constructionElementViewPrefab, _scrollViewContent);
-			constructionChoiceView.MapPlaceable = mapPlaceable;
+			constructionChoiceView.BuildingData = buildingData;
 			constructionChoiceView.BuildingSelectToggle.group = _constructionElementToggleGroup;
 			constructionChoiceView.BuildingSelectToggle.isOn = false;
+		}
+	}
+
+	private void ClearElementViews()
+	{
+		for (int i = 0; i < _scrollViewContent.childCount; i++)
+		{
+			Destroy(_scrollViewContent.GetChild(i).gameObject);
 		}
 	}
 	

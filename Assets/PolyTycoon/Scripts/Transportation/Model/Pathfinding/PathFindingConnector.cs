@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -29,7 +31,7 @@ public abstract class PathFindingConnector : PathFindingNode
         transform.name = GetType().ToString() + ": " + transform.position.ToString();
         TraversalOffset = transform.position;
     }
-    
+
     public override bool IsTraversable()
     {
         return true;
@@ -41,49 +43,68 @@ public abstract class PathFindingConnector : PathFindingNode
         bool horizontalStreet = !AdjacentNodes(0) && !AdjacentNodes(2) && AdjacentNodes(3) && AdjacentNodes(1);
         return !(verticalStreet || horizontalStreet); // Only corner rails are nodes
     }
-    
+
     public virtual void UpdateOrientation()
     {
-        if (AdjacentNodes(1) || AdjacentNodes(3))
-        {
-            transform.eulerAngles = Vector3.zero;
-        }
-        
-        bool verticalNode = AdjacentNodes(0) || AdjacentNodes(2);
-        if (verticalNode)
-        {
-            _straightTransform.gameObject.SetActive(true);
-            _cornerTransform.gameObject.SetActive(false);
-            _tIntersectionTransform.gameObject.SetActive(false);
-            _intersectionTransform.gameObject.SetActive(false);
-            transform.eulerAngles = new Vector3(0f, 90f, 0f);
-        }
+        Boolean[] nodes =
+            {AdjacentNodes(0) != null, AdjacentNodes(1) != null, AdjacentNodes(2) != null, AdjacentNodes(3) != null};
+        int connectedNodes = nodes.Count(c => c); // The amount of connected nodes
 
-        for (int i = 0; i < 4; i++)
+        if (connectedNodes <= 2)
         {
-            bool cornerNode = AdjacentNodes(i) && AdjacentNodes((i+1) % 4);
-            if (!cornerNode) continue;
-            _straightTransform.gameObject.SetActive(false);
-            _cornerTransform.gameObject.SetActive(true);
-            _tIntersectionTransform.gameObject.SetActive(false);
-            _intersectionTransform.gameObject.SetActive(false);
-            transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
-            break;
-        }
-        
-        for (int i = 0; i < 4; i++)
+            if (!(nodes[0] || nodes[1] || nodes[2] || nodes[3])) // None connected
+            {
+                _straightTransform.gameObject.SetActive(true);
+                _cornerTransform.gameObject.SetActive(false);
+                _tIntersectionTransform.gameObject.SetActive(false);
+                _intersectionTransform.gameObject.SetActive(false);
+                transform.eulerAngles = Vector3.zero;
+            }
+            else if ((nodes[0] || nodes[2]) && !(nodes[1] || nodes[3])) // Straight
+            {
+                _straightTransform.gameObject.SetActive(true);
+                _cornerTransform.gameObject.SetActive(false);
+                _tIntersectionTransform.gameObject.SetActive(false);
+                _intersectionTransform.gameObject.SetActive(false);
+                transform.eulerAngles = new Vector3(0f, 90f, 0f);
+            }
+            else if ((nodes[1] || nodes[3]) && !(nodes[0] || nodes[2])) // Straight
+            {
+                _straightTransform.gameObject.SetActive(true);
+                _cornerTransform.gameObject.SetActive(false);
+                _tIntersectionTransform.gameObject.SetActive(false);
+                _intersectionTransform.gameObject.SetActive(false);
+                transform.eulerAngles = Vector3.zero;
+            }
+            else // Corner
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bool cornerNode = nodes[i] && nodes[(i + 1) % 4];
+                    if (!cornerNode) continue;
+                    _straightTransform.gameObject.SetActive(false);
+                    _cornerTransform.gameObject.SetActive(true);
+                    _tIntersectionTransform.gameObject.SetActive(false);
+                    _intersectionTransform.gameObject.SetActive(false);
+                    transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
+                    break;
+                }
+            }
+        } else if (connectedNodes == 3) // 3-way
         {
-            bool cornerNode = AdjacentNodes((i+2) % 4) && AdjacentNodes(i) && AdjacentNodes((i+1) % 4);
-            if (!cornerNode) continue;
-            _straightTransform.gameObject.SetActive(false);
-            _cornerTransform.gameObject.SetActive(false);
-            _tIntersectionTransform.gameObject.SetActive(true);
-            _intersectionTransform.gameObject.SetActive(false);
-            transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
-            break;
+            for (int i = 0; i < 4; i++)
+            {
+                bool cornerNode = nodes[(i + 2) % 4] && nodes[i] && nodes[(i + 1) % 4];
+                if (!cornerNode) continue;
+                _straightTransform.gameObject.SetActive(false);
+                _cornerTransform.gameObject.SetActive(false);
+                _tIntersectionTransform.gameObject.SetActive(true);
+                _intersectionTransform.gameObject.SetActive(false);
+                transform.eulerAngles = new Vector3(0f, 90f, 0f) * (i);
+                break;
+            }
         }
-
-        if (AdjacentNodes(0) && AdjacentNodes(1) && AdjacentNodes(2) && AdjacentNodes(3))
+        else // 4-way
         {
             _straightTransform.gameObject.SetActive(false);
             _cornerTransform.gameObject.SetActive(false);

@@ -8,7 +8,7 @@ public class ConstructionElementView : MonoBehaviour
 {
 	#region Attributes
 	private static PlacementManager placementManager;
-	private MapPlaceable _mapPlaceable;
+	private BuildingData _buildingData;
 	[Header("Visuals")]
 	[SerializeField] private Toggle _buildingSelectToggle;
 	[SerializeField] private Image _buildingImage;
@@ -30,25 +30,25 @@ public class ConstructionElementView : MonoBehaviour
 
 	public Toggle BuildingSelectToggle => _buildingSelectToggle;
 
-	public MapPlaceable MapPlaceable {
+	public BuildingData BuildingData {
 		set {
-			_mapPlaceable = value;
-			_buildingImage.sprite = _mapPlaceable.ConstructionUiSprite;
-			_buildingNameText.text = _mapPlaceable.BuildingName;
+			_buildingData = value;
+			_buildingImage.sprite = _buildingData.ConstructionSprite;
+			_buildingNameText.text = _buildingData.BuildingName;
 			if (!GetComponent<TooltipText>())
 			{
-				gameObject.AddComponent<TooltipText>().Text = _mapPlaceable.BuildingName + "\n" + value.BuildingPrice;
+				gameObject.AddComponent<TooltipText>().Text = _buildingData.BuildingName + "\n" + value.BuildingPrice;
 			}
 		}
 	}
 
-	void OnObjectPlacement(MapPlaceable mapPlaceable)
+	void OnObjectPlacement(BuildingData buildingData)
 	{
-		if (!mapPlaceable)
+		if (!buildingData)
 		{
 			_buildingSelectToggle.isOn = false;
 		}
-		else if (mapPlaceable.ConstructionUiSprite.Equals(_buildingImage.sprite))
+		else if (buildingData.BuildingName.Equals(_buildingNameText.text))
 		{
 			_buildingSelectToggle.isOn = false;
 		} 
@@ -57,7 +57,7 @@ public class ConstructionElementView : MonoBehaviour
 	private void OnClick(bool value)
 	{
 		if (!value) return;
-		placementManager.PlaceableObjectPrefab = _mapPlaceable;
+		placementManager.PlaceableObjectPrefab = _buildingData;
 	}
 	#endregion
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -38,7 +39,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     protected bool _isClickable;
     [SerializeField]
     private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
-    [SerializeField] private Vector3 _threadsafePosition;
+    private Vector3 _threadsafePosition;
     #endregion
 
     #region Default Methods
@@ -46,9 +47,12 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     /// <summary>
     /// Gets the static reference to BuildingManager instance
     /// </summary>
-    void Awake()
+    public override void Awake()
     {
+        base.Awake();
         Initialize();
+        RendererMaterial.SetFloat(IsPlacedProperty, 0f);
+        childRenderer.material = RendererMaterial;
     }
 
     protected abstract void Initialize();
@@ -109,8 +113,8 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         IsPlaced = true;
         ThreadsafePosition = transform.position;
-        if (_moneyUiController)
-            _moneyUiController.SpendMoney(this.BuildingPrice);
+        RendererMaterial.SetFloat(IsPlacedProperty, 1f);
+        childRenderer.material = RendererMaterial;
     }
 
     /// <summary>

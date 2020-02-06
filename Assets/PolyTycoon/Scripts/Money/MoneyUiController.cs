@@ -27,6 +27,7 @@ public class MoneyUiController : MonoBehaviour
     private void Start()
     {
         _moneyController = new MoneyController();
+        PlacementManager._onObjectPlacement += buildingData => { if (buildingData) SpendMoney(buildingData.BuildingPrice); };
     }
 
     public bool SpendMoney(long amount)

@@ -25,8 +25,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     public const int Right = 1;
     public const int Down = 2;
     public const int Left = 3;
-
-    [SerializeField]
+    
     private PathFindingNode[] neighborNodes; // Array that holds the reference to the next reachable Node.
 
     #endregion
@@ -89,7 +88,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         if (BuildingManager == null) BuildingManager = FindObjectOfType<PlacementManager>().BuildingManager;
     }
 
-    void OnDrawGizmos()
+    protected void OnDrawGizmos()
     {
         Vector3 position;
         foreach (NeededSpace coordinate in UsedCoordinates)

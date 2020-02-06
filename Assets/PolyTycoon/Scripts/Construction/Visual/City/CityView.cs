@@ -38,7 +38,7 @@ public class CityView : AbstractUi
 			}
 
 			CityBuilding.CityPlaceable().Outline.enabled = true;
-			_titleText.text = CityBuilding.CityPlaceable().BuildingName;
+			_titleText.text = CityBuilding.CityPlaceable().name;
 			
 			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable());
 			foreach (ProductData neededProduct in cityPlaceable.ReceivedProductList())

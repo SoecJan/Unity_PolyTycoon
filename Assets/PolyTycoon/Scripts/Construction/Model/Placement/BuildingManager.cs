@@ -43,9 +43,7 @@ public class BuildingManager : IBuildingManager
     private static FactoryView _factoryView;
     private static CityView _cityView;
     private static StorageContainerView _storageContainerView;
-
-    private Dictionary<Vector3, SimpleMapPlaceable>
-        _placedBuildingDictionary; // A dict of all placed Object in the map. Used to avoid collisions.
+    private Dictionary<Vector3, SimpleMapPlaceable> _placedBuildingDictionary; // A dict of all placed Object in the map. Used to avoid collisions.
 
     #endregion
 
@@ -185,7 +183,7 @@ public class BuildingManager : IBuildingManager
 
     public void OnPlaceableClick(SimpleMapPlaceable mapPlaceable)
     {
-        Debug.Log("Placeable clicked: " + mapPlaceable.BuildingName);
+        Debug.Log("Placeable clicked: " + mapPlaceable.name);
         if (_routeCreateController && _routeCreateController.VisibleObject.activeSelf)
         {
             CityBuilding cityBuilding = mapPlaceable as CityBuilding;
@@ -198,9 +196,10 @@ public class BuildingManager : IBuildingManager
             return;
         }
 
-        if (mapPlaceable is Factory)
+        Factory factory = mapPlaceable.gameObject.GetComponent<Factory>();
+        if (factory)
         {
-            _factoryView.Factory = (Factory) mapPlaceable;
+            _factoryView.Factory = factory;
         }
         else if (mapPlaceable is ICityBuilding)
         {

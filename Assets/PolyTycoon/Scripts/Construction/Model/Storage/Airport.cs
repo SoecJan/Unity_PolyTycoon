@@ -56,7 +56,6 @@ public class Airport : AbstractStorageContainer
         {
             case LANDING:
                 return _landingWayPoints;
-                break;
             case TAKEOFF:
                 return _takeoffWayPoints;
             default:

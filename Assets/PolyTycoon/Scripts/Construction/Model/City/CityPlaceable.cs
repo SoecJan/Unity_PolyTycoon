@@ -45,6 +45,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
     [SerializeField] private List<ProductData> _producedProducts; // The products produced by this city
 
     private Dictionary<PathFindingNode, Path> _paths; // Paths that were found to and from this city
+    private static MoneyUiController _moneyUiController;
 
     #endregion
 
@@ -111,8 +112,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
     {
         if (_usedNamesList == null)
             _usedNamesList = new List<int>();
-        if ("".Equals(BuildingName))
-            BuildingName = GetUniqueCityName();
+        name = GetUniqueCityName();
         _receivedProducts = new Dictionary<ProductData, ProductStorage>();
         _emittedProducts = new List<ProductStorage>();
         FillEmittedProducts();
@@ -160,7 +160,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
             Debug.Log(productStorage.StoredProductData.ProductName + " _receivedProducts: " + productStorage.Amount);
 //            int difference = productStorage.Amount;
 //            _moneyUiController.AddMoney(difference * 100);
-            productStorage.Amount = 0;
+            productStorage.SetAmount(0);
         }
 
         foreach (ProductStorage productStorage in _emittedProducts)
@@ -168,7 +168,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
             int difference = productStorage.MaxAmount - productStorage.Amount;
 //            Debug.Log(productStorage.StoredProductData.ProductName + " _emittedProducts: " + productStorage.Amount + ", " + difference);
 //            _moneyUiController.AddMoney(difference * 100);
-            productStorage.Amount = productStorage.MaxAmount;
+            productStorage.SetAmount(productStorage.MaxAmount);
         }
     }
 
@@ -233,6 +233,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
                     ProductStorage storage = new ProductStorage(neededProduct.Product, neededProduct.Amount);
                     storage.OnAmountChange += (productStorage, i) =>
                     {
+                        if (!_moneyUiController) _moneyUiController = FindObjectOfType<MoneyUiController>();
                         _moneyUiController.AddMoney(_productPrices[productStorage.StoredProductData] * i);
                     };
                     _receivedProducts.Add(neededProduct.Product, storage);

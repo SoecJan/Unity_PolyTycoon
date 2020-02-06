@@ -10,7 +10,7 @@ using Vector3 = UnityEngine.Vector3;
 
 public interface IPlacementManager
 {
-    MapPlaceable PlaceableObjectPrefab { set; }
+    BuildingData PlaceableObjectPrefab { set; }
     BuildingManager BuildingManager { get; }
     TerrainGenerator TerrainGenerator { get; set; }
     bool PlaceObject(ComplexMapPlaceable complexMapPlaceable);
@@ -26,9 +26,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 {
     #region Attributes
 
-    public static System.Action<MapPlaceable> _onObjectPlacement;
-    [SerializeField] private MapPlaceable[] _infrastructurePlaceables; // Objects that can be placed
-    [SerializeField] private MapPlaceable[] _productionPlaceables; // Objects that can be placed
+    public static System.Action<BuildingData> _onObjectPlacement;
 
     [SerializeField]
     private TerrainGenerator _terrainGenerator; // Needed to check the ground belpw a building before placement
@@ -40,6 +38,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 
     private Camera _mainCamera;
     private UserInformationPopup _userInformationPopup;
+    private BuildingData _buildingData;
     private MapPlaceable _currentPlaceableObject; // Object that is being placed
     private List<MapPlaceable> _draggedGameObjects;
     private bool _isDragging;
@@ -48,12 +47,13 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 
     #region Getter & Setter
 
-    public MapPlaceable PlaceableObjectPrefab
+    public BuildingData PlaceableObjectPrefab
     {
         set
         {
+            _buildingData = value;
             if (_currentPlaceableObject && value) Destroy(_currentPlaceableObject);
-            _currentPlaceableObject = Instantiate(value);
+            _currentPlaceableObject = Instantiate(value.Prefab.GetComponent<MapPlaceable>());
         }
     }
 
@@ -65,10 +65,6 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 
         set => _terrainGenerator = value;
     }
-
-    public MapPlaceable[] InfrastructurePlaceables => _infrastructurePlaceables;
-
-    public MapPlaceable[] ProductionPlaceables => _productionPlaceables;
 
     #endregion
 
@@ -96,6 +92,28 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
     {
         if (_currentPlaceableObject == null) return;
 
+        if (_currentPlaceableObject is SimpleMapPlaceable placeable)
+        {
+            placeable.IsPlaceable = IsPlaceable(placeable.transform.position, placeable.UsedCoordinates);
+        }
+        else if (_currentPlaceableObject is ComplexMapPlaceable complexMapPlaceable)
+        {
+            foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
+            {
+                simpleMapPlaceable.IsPlaceable = IsPlaceable(simpleMapPlaceable.transform.position,
+                    simpleMapPlaceable.UsedCoordinates);
+            }
+        }
+
+        foreach (MapPlaceable mapPlaceable in _draggedGameObjects)
+        {
+            SimpleMapPlaceable simpleMapPlaceable = mapPlaceable as SimpleMapPlaceable;
+            if (simpleMapPlaceable)
+            {
+                mapPlaceable.IsPlaceable = IsPlaceable(mapPlaceable.transform.position, simpleMapPlaceable.UsedCoordinates);
+            }
+        }
+
         MoveObject();
         RotateObject();
         HandleInput();
@@ -116,27 +134,26 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
         Vector3 position = new Vector3(Mathf.Round(hitInfo.point.x), 0.2572412f + 0.5f, Mathf.Round(hitInfo.point.z)) +
                            _offsetVec3;
         // Check position change
-        if (Math.Abs(position.x - _currentPlaceableObject.transform.position.x) > 0.5f ||
-            Math.Abs(position.z - _currentPlaceableObject.transform.position.z) > 0.5f)
+        if (Math.Abs(position.x - _currentPlaceableObject.transform.position.x) < 0.5f ||
+            Math.Abs(position.z - _currentPlaceableObject.transform.position.z) < 0.5f)
         {
             SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
+            Transform objectTransform = _currentPlaceableObject.transform;
             if (mapPlaceable && mapPlaceable.IsDraggable && _isDragging)
             {
-                Vector3 currentPlaceablePosition = _currentPlaceableObject.transform.position;
                 if (_draggedGameObjects.Count == 0)
                 {
-                    _draggedGameObjects.Add(Instantiate(_currentPlaceableObject,
-                        _currentPlaceableObject.transform.position,
-                        _currentPlaceableObject.transform.rotation));
+                    _draggedGameObjects.Add(Instantiate(_currentPlaceableObject, objectTransform.position,
+                        objectTransform.rotation));
                 }
                 else
                 {
                     Vector3 start = _draggedGameObjects[0].transform.position;
                     Vector3 end = position;
-
                     Vector3 difference = end - start;
                     int x = Mathf.RoundToInt(difference.x);
                     int z = Mathf.RoundToInt(difference.z);
+
                     int neededCount = Mathf.Abs(x) + Mathf.Abs(z);
 
                     // Remove Objects until neededCount is met
@@ -149,77 +166,31 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
                     // Add Objects until neededCount is met
                     while (_draggedGameObjects.Count < neededCount)
                     {
-                        _draggedGameObjects.Add(Instantiate(_currentPlaceableObject,
-                            _currentPlaceableObject.transform.position,
-                            _currentPlaceableObject.transform.rotation));
+                        _draggedGameObjects.Add(Instantiate(_currentPlaceableObject, objectTransform.position,
+                            objectTransform.rotation));
                     }
 
-                    Vector3 positionToPlace = start;
-                    if (x > z)
+                    for (int i = 1; i < _draggedGameObjects.Count; i++)
                     {
-                        for (int i = 1; i < _draggedGameObjects.Count; i++)
+                        MapPlaceable draggedObject = _draggedGameObjects[i];
+                        if (x != 0)
                         {
-                            MapPlaceable draggedObject = _draggedGameObjects[i];
-                            if (x != 0)
-                            {
-                                Vector3 direction = x > 0 ? Vector3.right : Vector3.left;
-                                positionToPlace = positionToPlace + direction;
-                                draggedObject.transform.position = positionToPlace;
-                                x = x > 0 ? x - 1 : x + 1;
-                            }
-                            else if (z != 0)
-                            {
-                                Vector3 direction = z > 0 ? Vector3.forward : Vector3.back;
-                                positionToPlace = positionToPlace + direction;
-                                draggedObject.transform.position = positionToPlace;
-                                z = z > 0 ? z - 1 : z + 1;
-                            }
+                            Vector3 direction = x > 0 ? Vector3.right : Vector3.left;
+                            start += direction;
+                            draggedObject.transform.position = start;
+                            x = x > 0 ? x - 1 : x + 1;
+                        }
+                        else if (z != 0)
+                        {
+                            Vector3 direction = z > 0 ? Vector3.forward : Vector3.back;
+                            start += direction;
+                            draggedObject.transform.position = start;
+                            z = z > 0 ? z - 1 : z + 1;
                         }
                     }
-                    else
-                    {
-                        for (int i = 1; i < _draggedGameObjects.Count; i++)
-                        {
-                            MapPlaceable draggedObject = _draggedGameObjects[i];
-                            if (z != 0)
-                            {
-                                Vector3 direction = z > 0 ? Vector3.forward : Vector3.back;
-                                positionToPlace = positionToPlace + direction;
-                                draggedObject.transform.position = positionToPlace;
-                                z = z > 0 ? z - 1 : z + 1;
-                            }
-                            else if (x != 0)
-                            {
-                                Vector3 direction = x > 0 ? Vector3.right : Vector3.left;
-                                positionToPlace = positionToPlace + direction;
-                                draggedObject.transform.position = positionToPlace;
-                                x = x > 0 ? x - 1 : x + 1;
-                            }
-                        }
-                    }
-
-
-//                    if (!_draggedGameObjects.ContainsKey(key))
-//                    {
-//                        // Add a new draggable to _draggedGameObject
-//                        Transform currentPlaceableTransform = _currentPlaceableObject.transform;
-//                        MapPlaceable draggedObject = Instantiate(_currentPlaceableObject,
-//                            currentPlaceableTransform.position,
-//                            currentPlaceableTransform.rotation);
-//                        _draggedGameObjects.Add(key, draggedObject);
-//                    }
                 }
             }
         }
-
-//        foreach (SimpleMapPlaceable previewGameObject in _draggedGameObjects.Values)
-//        {
-//            Transform previewGameObjectTransform = previewGameObject.transform;
-//            Vector3 previewGameObjectPosition = previewGameObjectTransform.position;
-//            previewGameObjectPosition =
-//                new Vector3(previewGameObjectPosition.x, 0.2572412f + 0.5f, previewGameObjectPosition.z);
-//            previewGameObjectTransform.position = previewGameObjectPosition;
-//        }
 
         _currentPlaceableObject.transform.position = position;
     }
@@ -246,13 +217,14 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
             {
                 for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
                 {
-                    SimpleMapPlaceable previewObject =
-                        _draggedGameObjects[i].GetComponent<SimpleMapPlaceable>();
-                    if (!PlaceObject(previewObject))
+                    SimpleMapPlaceable previewObject = _draggedGameObjects[i].GetComponent<SimpleMapPlaceable>();
+                    if (PlaceObject(previewObject))
                     {
-                        Destroy(previewObject.gameObject);
-                        _onObjectPlacement?.Invoke(null);
-                    }
+                        _onObjectPlacement?.Invoke(_buildingData);
+                        continue;
+                    };
+                    Destroy(previewObject.gameObject);
+                    _onObjectPlacement?.Invoke(null);
                 }
 
                 _draggedGameObjects.Clear();
@@ -271,7 +243,13 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
                 _onObjectPlacement?.Invoke(null);
             }
 
-            _onObjectPlacement?.Invoke(_currentPlaceableObject);
+            // Successful placement of the building
+            _onObjectPlacement?.Invoke(_buildingData);
+
+            Factory factory = _currentPlaceableObject.gameObject.GetComponent<Factory>();
+            if (factory) factory.BuildingData = _buildingData;
+
+            _buildingData = null;
             _currentPlaceableObject = null;
             _isDragging = false;
         }
@@ -292,6 +270,7 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 
         Destroy(_currentPlaceableObject.gameObject);
         _onObjectPlacement?.Invoke(null);
+        _buildingData = null;
         _currentPlaceableObject = null;
         _isDragging = false;
     }
@@ -361,7 +340,6 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
     {
         bool freeSpace = BuildingManager.IsPlaceable(position, neededSpaces);
         bool terrainFlat = IsSuitableTerrain(position, neededSpaces);
-//        Debug.Log(placeableNotNull + "; " + freeSpace + "; " + terrainFlat);
         return freeSpace && terrainFlat;
     }
 
@@ -378,20 +356,6 @@ public class PlacementManager : MonoBehaviour, IPlacementManager
 
         return true;
     }
-
-//	private Dictionary<BiomeGenerator.Biome, float> GetBiomeValue(SimpleMapPlaceable mapPlaceable)
-//	{
-//		TerrainChunk terrainChunk = GetChunk(mapPlaceable.transform.position.x, mapPlaceable.transform.position.z);
-//		Vector2 pos = new Vector2(Mathf.FloorToInt(mapPlaceable.transform.position.x + 22.5f), Mathf.FloorToInt(mapPlaceable.transform.position.z + 22.5f));
-//		Dictionary<BiomeGenerator.Biome, float> biomeValueDictionary = new Dictionary<BiomeGenerator.Biome, float>();
-//		foreach (BiomeGenerator.Biome existingBiome in Enum.GetValues(typeof(BiomeGenerator.Biome)))
-//		{
-//			if (existingBiome.Equals(BiomeGenerator.Biome.None)) continue;
-//			BiomeData biomeData = terrainChunk.GetBiomeData(existingBiome);
-//			biomeValueDictionary.Add(existingBiome, biomeData.ArrayData[(int)pos.x, (int)pos.y]);
-//		}
-//		return biomeValueDictionary;
-//	}
 
     #endregion
 }

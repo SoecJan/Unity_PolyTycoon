@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,12 +32,13 @@ public interface IPathNode
 /// An endpoint.
 /// The Pathfinding algorithm finds Paths from and to PathFindingTargets using <see cref="PathFindingConnector"/>.
 /// </summary>
-public abstract class PathFindingTarget : PathFindingNode, IPathNode
+public class PathFindingTarget : PathFindingNode, IPathNode
 {
 	private Dictionary<PathFindingNode, Path> _paths; // Paths for the IPathNode Interface
 
 	private void OnDrawGizmos()
 	{
+		base.OnDrawGizmos();
 		Gizmos.color = new Color(1, 1, 0, 0.75F);
 		WayPoint wayPoint = this.GetTraversalVectors(-1, 1);
 		Gizmos.DrawLine(wayPoint.TraversalVectors[0], wayPoint.TraversalVectors[1]);
@@ -47,11 +47,11 @@ public abstract class PathFindingTarget : PathFindingNode, IPathNode
 	}
 
 	protected override void Initialize()
-    {
-	    base.Initialize();
+	{
+		base.Initialize();
 	    _paths = new Dictionary<PathFindingNode, Path>(); 
 	    _isClickable = true; // PathFindingTargets can be clicked on by the user to get more information about status
-    }
+	}
     
     public override bool IsTraversable()
     {
@@ -88,6 +88,7 @@ public abstract class PathFindingTarget : PathFindingNode, IPathNode
     public override void OnPlacement()
     {
 	    base.OnPlacement();
+
 	    TraversalOffset = UsedCoordinates[0].UsedCoordinate + transform.position;
     }
 

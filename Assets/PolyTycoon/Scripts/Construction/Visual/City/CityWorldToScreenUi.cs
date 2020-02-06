@@ -32,24 +32,19 @@ public class CityWorldToScreenUi : MonoBehaviour, IPointerEnterHandler, IPointer
         set
         {
             _cityPlaceable = value;
-            Text = value.BuildingName;
-            StartCoroutine(UpdateProductUi(value));
+            Text = value.name;
+            UpdateProductUi();
             this._cityPlaceable.onVisibilityChange += isVisible =>
             {
-                if (this._visibleGameObject)
-                {
-                    this._visibleGameObject.SetActive(isVisible); 
-                }
-                
-//                Debug.Log(this._cityPlaceable.BuildingName + ": " + isVisible);
+                if (!this._visibleGameObject) return;
+                this._visibleGameObject.SetActive(isVisible);
             };
         }
     }
 
-    private IEnumerator UpdateProductUi(CityPlaceable city)
+    private void UpdateProductUi()
     {
-        yield return new WaitForSeconds(1);
-        foreach (ProductData productData in city.ReceivedProductList())
+        foreach (ProductData productData in _cityPlaceable.ReceivedProductList())
         {
             ProductView productView = Instantiate(_productViewPrefab, _productViewParent);
             productView.ProductButton.onClick.AddListener(OnClick);
