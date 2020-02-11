@@ -101,9 +101,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2714610015041936781}
-  - component: {fileID: 2608842190173395901}
   - component: {fileID: 2687006616159768051}
   - component: {fileID: 7881058599519922494}
+  - component: {fileID: 8715805409763122601}
   m_Layer: 10
   m_Name: FarmBuilding4x5
   m_TagString: Building
@@ -127,18 +127,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2608842190173395901
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2712658858217016447}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9835222ab110bfd44bd24fdaca31e4cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &2687006616159768051
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -164,8 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b9ac992972c41d3835a6618363ece48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buildingName: Farm
-  _buildingPrice: 100
   _isHighlightable: 1
   _usedCoordinates:
   - _usedCoordinate: {x: -2, y: 0, z: -1}
@@ -208,8 +194,18 @@ MonoBehaviour:
     _terrainType: 3
   - _usedCoordinate: {x: 2, y: 0, z: 1}
     _terrainType: 3
-  _threadsafePosition: {x: 0, y: 0, z: 0}
-  neighborNodes: []
+--- !u!114 &8715805409763122601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2712658858217016447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5eef5f6b5644d03abcbd852b7de6f79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8010401238158321383
 PrefabInstance:
   m_ObjectHideFlags: 0

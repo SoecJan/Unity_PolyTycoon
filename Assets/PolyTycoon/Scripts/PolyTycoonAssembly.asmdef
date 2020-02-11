@@ -3,8 +3,7 @@
     "references": [
         "OutlineAssembly",
         "Unity.TextMeshPro",
-        "GameMenuAssembly",
-        "ResourceDataAssembly"
+        "GameMenuAssembly"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

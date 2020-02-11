@@ -28,9 +28,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8115770913936585436}
-  - component: {fileID: 2802115039470380016}
   - component: {fileID: 8469902000279531985}
   - component: {fileID: 5893706300592016848}
+  - component: {fileID: 6452627407351785854}
   m_Layer: 0
   m_Name: Mill
   m_TagString: Untagged
@@ -55,18 +55,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2802115039470380016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8115770913936585439}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9835222ab110bfd44bd24fdaca31e4cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &8469902000279531985
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -92,8 +80,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b9ac992972c41d3835a6618363ece48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buildingName: Mill
-  _buildingPrice: 6000
   _isHighlightable: 1
   _usedCoordinates:
   - _usedCoordinate: {x: 0, y: 0, z: 0}
@@ -104,8 +90,18 @@ MonoBehaviour:
     _terrainType: 3
   - _usedCoordinate: {x: 0, y: 0, z: 1}
     _terrainType: 3
-  _threadsafePosition: {x: 0, y: 0, z: 0}
-  neighborNodes: []
+--- !u!114 &6452627407351785854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8115770913936585439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5eef5f6b5644d03abcbd852b7de6f79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1776354240621188244
 PrefabInstance:
   m_ObjectHideFlags: 0
