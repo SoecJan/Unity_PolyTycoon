@@ -160,11 +160,11 @@ public class PlacementView : MonoBehaviour
             for (int i = _draggedGameObjects.Count - 1; i >= 0; i--)
             {
                 SimpleMapPlaceable previewObject = _draggedGameObjects[i].GetComponent<SimpleMapPlaceable>();
-                if (_placementController.PlaceObject(previewObject))
+                if (!_placementController.PlaceObject(previewObject))
                 {
-                    continue;
-                };
-                GameObject.Destroy(previewObject.gameObject);
+                    GameObject.Destroy(previewObject.gameObject);
+                }
+                
             }
             _draggedGameObjects.Clear();
         }

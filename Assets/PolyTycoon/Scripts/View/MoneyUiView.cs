@@ -1,39 +1,49 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 
 public class MoneyUiView : MonoBehaviour
 {
-    private MoneyController _moneyController;
+    private MoneyController _moneyMoneyController;
     [SerializeField] private TMP_Text _moneyText;
     [SerializeField] private MoneyAnimationBehaviour _cashFlowAnimationObject;
 
+    public MoneyController MoneyController
+    {
+        get => _moneyMoneyController;
+        set => _moneyMoneyController = value;
+    }
+
+    private void Awake()
+    {
+        MoneyController = new MoneyController();
+    }
+
     private void Start()
     {
-        _moneyController = new MoneyController();
-        PlacementController._onObjectPlacement += buildingData => { if (buildingData) SpendMoney(buildingData.BuildingPrice); };
+        MoneyController.OnValueChange += delegate(long oldValue, long newValue)
+        {
+            long difference = newValue - oldValue;
+            _moneyText.text = MoneyController.Money();
+
+            // Animation
+            MoneyAnimationBehaviour cashflowAnimation = Instantiate(_cashFlowAnimationObject, transform);
+            cashflowAnimation.Text.text = (difference < 0 ? "- " : "+ ") + difference + "€";
+            Animator cashflowAnimator = cashflowAnimation.GetComponent<Animator>();
+            cashflowAnimator.SetTrigger(difference < 0 ? "NegativeCashflow" : "PositiveCashflow");
+        };
+        PlacementController._onObjectPlacement += delegate(BuildingData buildingData)
+        {
+            Debug.Log("Object Placement Cost: " + (buildingData ? -buildingData.BuildingPrice : 0));
+            if (buildingData) ChangeValueBy(-buildingData.BuildingPrice);
+        };
     }
 
-    public bool SpendMoney(long amount)
+    public bool ChangeValueBy(long amount)
     {
-        if (amount == 0) return true;
-        if (amount > _moneyController.MoneyAmount) return false;
-        _moneyController.MoneyAmount -= amount;
-        _moneyText.text = _moneyController.Money();
-        MoneyAnimationBehaviour cashflowAnimation = Instantiate(_cashFlowAnimationObject, transform);
-        cashflowAnimation.Text.text = "- " + amount + "€";
-        Animator cashflowAnimator = cashflowAnimation.GetComponent<Animator>();
-        cashflowAnimator.SetTrigger("NegativeCashflow");
+        if (amount == 0) return true; // Needed for cities that are free for the player
+        if (MoneyController.MoneyAmount - amount < 0) return false;
+        MoneyController.MoneyAmount += amount;
         return true;
-    }
-
-    public void AddMoney(long amount)
-    {
-        if (amount == 0) return;
-        _moneyController.MoneyAmount += amount;
-        _moneyText.text = _moneyController.Money();
-        MoneyAnimationBehaviour cashflowAnimation = Instantiate(_cashFlowAnimationObject, transform);
-        cashflowAnimation.Text.text = "+ " + amount + "€";
-        Animator cashflowAnimator = cashflowAnimation.GetComponent<Animator>();
-        cashflowAnimator.SetTrigger("PositiveCashflow");
     }
 }

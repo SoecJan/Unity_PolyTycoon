@@ -201,10 +201,11 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
                 else
                 {
                     ProductStorage storage = new ProductStorage(neededProduct.Product, neededProduct.Amount);
-                    storage.OnAmountChange += (productStorage, i) =>
+                    storage.OnAmountChange += delegate(ProductStorage productStorage, int i)
                     {
                         if (!_moneyUiView) _moneyUiView = FindObjectOfType<MoneyUiView>();
-                        _moneyUiView.AddMoney(_productPrices[productStorage.StoredProductData] * i);
+                        if (i <= 0) return; // Because the player gets Money by delivery and does not loose money on restock
+                        _moneyUiView.ChangeValueBy(_productPrices[productStorage.StoredProductData] * i);
                     };
                     _receivedProducts.Add(neededProduct.Product, storage);
                 }

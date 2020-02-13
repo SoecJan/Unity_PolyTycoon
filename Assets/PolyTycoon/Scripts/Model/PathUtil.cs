@@ -8,11 +8,11 @@ public static class PathUtil
     private const string buildingDataFolder = dataFolder + "BuildingData/";
     private const string buildingDataInfrastructureFolder = buildingDataFolder + "Infrastructure/";
     private const string buildingDataProductionFolder = buildingDataFolder + "Production/";
-    
+
     private const string productDataFolder = dataFolder + "ProductData/";
-    
+
     private const string settingsFolder = dataFolder + "Settings/";
-    
+
     private const string transportVehicleDataFolder = dataFolder + "TransportVehicleData/";
 
     // Materials Folder
@@ -58,11 +58,11 @@ public static class PathUtil
             case "Water":
             case "Wheat":
                 return productDataFolder + name;
-            
+
             // Data/TransportVehicleData
             case "TransportVehicleData":
                 return transportVehicleDataFolder;
-            
+
             // Materials
             case "TerrainMeshMaterial":
                 return materialFolder + name;
@@ -127,6 +127,7 @@ public static class PathUtil
             // Prefabs/UI/
             case "CashflowAnimation":
             case "TextToolTip":
+            case "BarChartValueView":
                 return uiFolder + name;
         }
 
