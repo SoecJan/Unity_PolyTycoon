@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f2c08584ccd9224ebe17a91ae35e4bf, type: 3}
   m_Name: Storage
   m_EditorClassIdentifier: 
-  _constructionSprite: {fileID: 21300000, guid: c5842cfdce85d2f48a462bf77bbe2d7e,
+  _constructionSprite: {fileID: 21300000, guid: bea2defb7698b60419806955cbd03077,
     type: 3}
   _buildingName: Storage
   _description: A place to store everything
   _buildingPrice: 8000
-  _prefab: {fileID: 0}
+  _prefab: {fileID: 4235370410258421916, guid: dba7e24b1288752499121760837fbfe9, type: 3}

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class PlacementView : MonoBehaviour
 {
-    private PlacementController _placementController;
+    private IPlacementController _placementController;
 
     [SerializeField] private LayerMask _buildingsMask; // Needed to determine the objects to place _buildings on
     [SerializeField] private Vector3 _offsetVec3 = new Vector3(0.5f, 0, 0.5f); // Needed to align _buildings correctly
@@ -31,7 +31,7 @@ public class PlacementView : MonoBehaviour
         set
         {
             _placementController.PlaceableObjectPrefab = value;
-            if (_currentPlaceableObject && value) GameObject.Destroy(_currentPlaceableObject);
+            if (_currentPlaceableObject && value) GameObject.Destroy(_currentPlaceableObject.gameObject);
             _currentPlaceableObject = GameObject.Instantiate(value.Prefab.GetComponent<MapPlaceable>());
         }
     }
@@ -124,9 +124,6 @@ public class PlacementView : MonoBehaviour
         }
         else if (_isDragging && Input.GetMouseButtonUp(0))
         {
-            Debug.Log("Should not be Null");
-            Debug.Log(_placementController.PlaceableObjectPrefab);
-            
             ProductProcessorBehaviour productProcessorBehaviour = _currentPlaceableObject.gameObject.GetComponent<ProductProcessorBehaviour>();
             if (productProcessorBehaviour) productProcessorBehaviour.BuildingData = _placementController.PlaceableObjectPrefab;
             
@@ -164,7 +161,6 @@ public class PlacementView : MonoBehaviour
                 {
                     GameObject.Destroy(previewObject.gameObject);
                 }
-                
             }
             _draggedGameObjects.Clear();
         }

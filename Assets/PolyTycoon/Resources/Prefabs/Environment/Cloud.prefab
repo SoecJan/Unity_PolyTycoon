@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6424498580554266720}
   - component: {fileID: 6424498580554266735}
   m_Layer: 0
-  m_Name: CloudPrefab
+  m_Name: Cloud
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 1.5
+  _resetDistance: 45
   _direction: {x: 1, y: 0, z: 0}
 --- !u!1 &6424498581287537068
 GameObject:
@@ -4763,7 +4764,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9bdef1d4fc1fb4848a64532b6cf13f9c, type: 3}
+  - {fileID: 2100000, guid: 311313efa011949e98b6761d652ad13c, type: 2}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0

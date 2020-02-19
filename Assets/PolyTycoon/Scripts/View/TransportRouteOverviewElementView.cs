@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class TransportRouteOverviewElementView : MonoBehaviour
 {
 	private static TransportRouteCreationView _transportRouteCreationView;
-	private static TransportRouteManager _transportRouteManager;
+	private static ITransportRouteManager _transportRouteManager;
 	private TransportRoute _transportRoute;
 
 	[Header("Navigation")]

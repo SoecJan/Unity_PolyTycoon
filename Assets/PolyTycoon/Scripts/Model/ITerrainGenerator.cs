@@ -2,6 +2,12 @@ using UnityEngine;
 
 public interface ITerrainGenerator
 {
+    float TerrainPlaceableHeight { get;  }
+
+    void Update();
+
+    bool IsReady(Vector3 position);
+    
     /// <summary>
     /// Translates a worldcoordinate to a ChunkVec2 that can be used in GetTerrainChunk(Vec2)
     /// </summary>

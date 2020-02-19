@@ -34,7 +34,7 @@ public class MoneyUiView : MonoBehaviour
         };
         PlacementController._onObjectPlacement += delegate(BuildingData buildingData)
         {
-            Debug.Log("Object Placement Cost: " + (buildingData ? -buildingData.BuildingPrice : 0));
+//            Debug.Log("Object Placement Cost: " + (buildingData ? -buildingData.BuildingPrice : 0));
             if (buildingData) ChangeValueBy(-buildingData.BuildingPrice);
         };
     }

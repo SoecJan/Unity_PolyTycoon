@@ -6,26 +6,27 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private Transform _terrainViewer;
 
     private ThreadedDataRequester _threadedDataRequester;
-    private TerrainGenerator _terrainGenerator;
-    private PlacementController _placementController;
-    private BuildingManager _buildingManager;
+    private ITerrainGenerator _terrainGenerator;
+    private IPlacementController _placementController;
+    private IBuildingManager _buildingManager;
 
-    private CityManager _cityCityManager;
-    private TreeManager _treeManager;
+    private ICityManager _cityCityManager;
+    private ITreeManager _treeManager;
 
-    private VehicleManager _vehicleManager;
-    private TransportRouteManager _transportRouteManager;
+    private IVehicleManager _vehicleManager;
+    private ITransportRouteManager _transportRouteManager;
+
+    private ProgressionManager _progressionManager;
 
     private void Start()
     {
+        _progressionManager = new ProgressionManager();
         _vehicleManager = new VehicleManager();
         if (_gameSettings == null)
         {
             _gameSettings = Resources.Load<GameSettings>(PathUtil.Get("GameSettings"));
         }
-        
         _threadedDataRequester = new ThreadedDataRequester();
-        
 
         // Terrain Generator
         MeshSettings meshSettings = Resources.Load<MeshSettings>(PathUtil.Get("MeshSettings"));
@@ -47,49 +48,55 @@ public class GameHandler : MonoBehaviour
         set => _gameSettings = value;
     }
 
+    public ProgressionManager ProgressionManager
+    {
+        get => _progressionManager;
+        set => _progressionManager = value;
+    }
+
     public ThreadedDataRequester ThreadedDataRequester
     {
         get => _threadedDataRequester;
         set => _threadedDataRequester = value;
     }
 
-    public TerrainGenerator TerrainGenerator
+    public ITerrainGenerator TerrainGenerator
     {
         get => _terrainGenerator;
         set => _terrainGenerator = value;
     }
 
-    public VehicleManager VehicleManager
+    public IVehicleManager VehicleManager
     {
         get => _vehicleManager;
         set => _vehicleManager = value;
     }
 
-    public TransportRouteManager TransportRouteManager
+    public ITransportRouteManager TransportRouteManager
     {
         get => _transportRouteManager;
         set => _transportRouteManager = value;
     }
 
-    public PlacementController PlacementController
+    public IPlacementController PlacementController
     {
         get => _placementController;
         set => _placementController = value;
     }
 
-    public BuildingManager BuildingManager
+    public IBuildingManager BuildingManager
     {
         get => _buildingManager;
         set => _buildingManager = value;
     }
 
-    public CityManager CityManager
+    public ICityManager CityManager
     {
         get => _cityCityManager;
         set => _cityCityManager = value;
     }
 
-    public TreeManager TreeManager
+    public ITreeManager TreeManager
     {
         get => _treeManager;
         set => _treeManager = value;

@@ -1,12 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public interface ITransportRouteManager
-{
-    void RemoveTransportRoute(TransportRoute transportRoute);
-    void CreateTransportRoute(TransportVehicleData transportVehicleData, List<TransportRouteElement> transportRouteElements);
-}
-
 /// <summary>
 /// Handles <see cref="TransportRouteCreationView"/> and <see cref="TransportRouteOverviewView"/> interaction.
 /// </summary>
@@ -36,13 +30,14 @@ public class TransportRouteManager : ITransportRouteManager
 
     #region Methods
 
-    public TransportRouteManager(PathFinder pathFinder, VehicleManager vehicleManager)
+    public TransportRouteManager(PathFinder pathFinder, IVehicleManager vehicleManager)
     {
+        this._vehicleManager = vehicleManager;
+        this._pathFinder = pathFinder;
+        
         this._routeCreationView = GameObject.FindObjectOfType<TransportRouteCreationView>();
         this._transportRouteOverview = GameObject.FindObjectOfType<TransportRouteOverviewView>();
         this._userPopup = GameObject.FindObjectOfType<UserNotificationView>();
-        this._vehicleManager = vehicleManager;
-        this._pathFinder = pathFinder;
     }
 
     private void Reset()

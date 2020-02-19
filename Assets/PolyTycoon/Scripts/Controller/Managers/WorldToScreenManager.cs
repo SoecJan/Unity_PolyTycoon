@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WorldToScreenManager : MonoBehaviour
+public class WorldToScreenManager : MonoBehaviour, IWorldToScreenManager
 {
-
 	[SerializeField] private Button _vibilityButton;
 	[SerializeField] private GameObject _visibleGameObject;
 

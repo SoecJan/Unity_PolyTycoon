@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,6 +9,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
 {
     #region Attributes
 
+    public static System.Action<int, CityPlaceable> _OnCityLevelChange;
     private static List<int> _usedNamesList; // Used indices for city names. Needed for finding unique names.
     private Dictionary<ProductData, ProductStorage> _receivedProducts; // Products that can be received by this city
     private Dictionary<ProductData, int> _productPrices;
@@ -20,6 +20,8 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
 
     private Dictionary<PathFindingNode, Path> _paths; // Paths that were found to and from this city
     private static MoneyUiView _moneyUiView;
+    private int _level = 0;
+    private int _experiencePoints;
 
     #endregion
 
@@ -78,6 +80,18 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
         set => _mainBuilding = value;
     }
 
+    public int Level
+    {
+        get => _level;
+        set => _level = value;
+    }
+
+    public int ExperiencePoints
+    {
+        get => _experiencePoints;
+        set => _experiencePoints = value;
+    }
+
     #endregion
 
     #region Methods
@@ -121,23 +135,27 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
                 (int) (productData.BasePrice *
                        Random.Range(1 - productData.RandomPriceFactor, 1 + productData.RandomPriceFactor)));
         }
+
         TimeScaleView._onDayOver += ProductAmountReset;
-        
-        GetComponentInChildren<Renderer>().gameObject.AddComponent<OnVisibilityChangeCallback>().OnVisibilityChange += isVisible => onVisibilityChange?.Invoke(isVisible);
+
+        GetComponentInChildren<Renderer>().gameObject.AddComponent<OnVisibilityChangeCallback>().OnVisibilityChange +=
+            isVisible => onVisibilityChange?.Invoke(isVisible);
     }
 
     private void ProductAmountReset(int day)
     {
         // TODO: Add Value to each product 
+        int difference = 0;
         foreach (ProductStorage productStorage in _receivedProducts.Values)
         {
-            Debug.Log(productStorage.StoredProductData.ProductName + " _receivedProducts: " + productStorage.Amount);
+//            Debug.Log(productStorage.StoredProductData.ProductName + " _receivedProducts: " + productStorage.Amount);
+            difference += productStorage.Amount;
             productStorage.SetAmount(0);
         }
 
         foreach (ProductStorage productStorage in _emittedProducts)
         {
-            int difference = productStorage.MaxAmount - productStorage.Amount;
+            difference += productStorage.MaxAmount - productStorage.Amount;
             productStorage.SetAmount(productStorage.MaxAmount);
         }
     }
@@ -175,11 +193,8 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
         {
             int amount = Random.Range(3, 7);
             ProductStorage storage = new ProductStorage(product, amount, amount);
-//            storage.OnAmountChange += (productStorage, i) =>
-//            {
-//                _moneyUiController.AddMoney(_productPrices[productStorage.StoredProductData] * i);
-//            };
             _emittedProducts.Add(storage);
+            storage.OnAmountChange += OnAmountChange;
         }
     }
 
@@ -204,12 +219,25 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
                     storage.OnAmountChange += delegate(ProductStorage productStorage, int i)
                     {
                         if (!_moneyUiView) _moneyUiView = FindObjectOfType<MoneyUiView>();
-                        if (i <= 0) return; // Because the player gets Money by delivery and does not loose money on restock
+                        if (i <= 0)
+                            return; // Because the player gets Money by delivery and does not loose money on restock
                         _moneyUiView.ChangeValueBy(_productPrices[productStorage.StoredProductData] * i);
                     };
+                    storage.OnAmountChange += OnAmountChange;
                     _receivedProducts.Add(neededProduct.Product, storage);
                 }
             }
+        }
+    }
+
+    private void OnAmountChange(ProductStorage productStorage, int change)
+    {
+        if (change <= 0) return;
+        ExperiencePoints += change;
+        if (GetLevelFromExp(ExperiencePoints, Level) > Level)
+        {
+            Level = (int) GetLevelFromExp(ExperiencePoints, Level);
+            _OnCityLevelChange?.Invoke(Level, this);
         }
     }
 
@@ -250,4 +278,9 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
     }
 
     #endregion
+
+    public static float GetLevelFromExp(int experiencePoints, int currentLevel)
+    {
+        return (experiencePoints / 10f * (1 + currentLevel));
+    }
 }

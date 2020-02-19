@@ -17,7 +17,7 @@ public class TransportRouteCreationView : AbstractUi
     [SerializeField] private Button _createButton;
     [SerializeField] private Button _applyButton;
     [Header("Controller")]
-    [SerializeField] private TransportRouteManager _transportRouteManager;
+    [SerializeField] private ITransportRouteManager _transportRouteManager;
     [SerializeField] private RouteCreationVehicleChoiceSubView vehicleChoiceSubView;
     [SerializeField] private RouteCreationStationManager _stationManager;
     [SerializeField] private RouteCreationSettingsManager _settingsController;

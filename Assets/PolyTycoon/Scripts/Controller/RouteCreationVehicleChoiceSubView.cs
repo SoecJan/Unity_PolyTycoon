@@ -83,7 +83,7 @@ public class RouteCreationVehicleChoiceSubView
 
     private void FillVehicleView()
     {
-        VehicleManager vehicleManager = Object.FindObjectOfType<GameHandler>().VehicleManager;
+        IVehicleManager vehicleManager = Object.FindObjectOfType<GameHandler>().VehicleManager;
         foreach (TransportVehicleData transportVehicleData in vehicleManager.VehicleList)
         {
             VehicleOptionView vehicleOptionObject = GameObject.Instantiate(_vehicleOptionViewPrefab, _vehicleChoiceScrollViewTransform);

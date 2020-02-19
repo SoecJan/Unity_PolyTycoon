@@ -1,16 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class TreeManager
+public class TreeManager : ITreeManager
 {
     private GameObject _treeModel;
-    private PlacementController _placementController;
-    private CityManager _cityManager;
+    private IPlacementController _placementController;
+    private ICityManager _cityManager;
 
     // Start is called before the first frame update
-    public TreeManager(PlacementController placementController)
+    public TreeManager(IPlacementController placementController)
     {
         _placementController = placementController;
         _treeModel = Resources.Load<GameObject>(PathUtil.Get("Tree"));
@@ -33,14 +31,18 @@ public class TreeManager
         TreeBehaviour treeBehaviour = (TreeBehaviour) threadsafePlaceable.MapPlaceable;
         treeBehaviour.transform.position = threadsafePlaceable.Position;
         treeBehaviour.gameObject.name = "Tree: " + threadsafePlaceable.Position;
-        foreach (NeededSpace neededSpace in treeBehaviour.UsedCoordinates)
+        foreach (NeededSpace neededSpace in threadsafePlaceable.NeededSpaces)
         {
             GameObject go = GameObject.Instantiate(_treeModel, neededSpace.UsedCoordinate + threadsafePlaceable.Position, Quaternion.identity, treeBehaviour.transform);
         }
         if (!_placementController.PlaceObject(treeBehaviour))
         {
-            Debug.LogError("TreeBehaviour not placeable at " + threadsafePlaceable.Position);
             GameObject.Destroy(treeBehaviour.gameObject);
         }
+    }
+
+    public Texture2D GetRandomForrestBlueprint()
+    {
+        return Resources.Load<Texture2D>(PathUtil.Get("ForrestBlueprint"));
     }
 }

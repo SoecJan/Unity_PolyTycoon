@@ -25,7 +25,7 @@ public class PathFinder : IPathFinder
 {
     private Dictionary<PathType, AbstractPathFindingAlgorithm> _pathFindingAlgorithms;
 
-    public PathFinder(TerrainGenerator terrainGenerator)
+    public PathFinder(ITerrainGenerator terrainGenerator)
     {
         _pathFindingAlgorithms = new Dictionary<PathType, AbstractPathFindingAlgorithm>
         {

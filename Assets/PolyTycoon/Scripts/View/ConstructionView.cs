@@ -6,7 +6,7 @@ public class ConstructionView : AbstractUi
 {
 	#region Attributes
 
-	private PlacementController _placementController;
+	private IPlacementController _placementController;
 	private ConstructionElementView _constructionElementViewPrefab;
 	
 	[Header("Navigation")]

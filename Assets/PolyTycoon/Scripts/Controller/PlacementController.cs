@@ -3,13 +3,6 @@ using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
-public interface IPlacementController
-{
-    BuildingData PlaceableObjectPrefab { set; }
-    bool PlaceObject(ComplexMapPlaceable complexMapPlaceable);
-    bool IsPlaceable(Vector3 position, List<NeededSpace> neededSpaces);
-}
-
 /// <summary>
 /// This class handles all user input to place a <see cref="SimpleMapPlaceable"/> inside the Map.
 /// Collisions are handled by <see cref="BuildingManager"/>.
@@ -20,8 +13,8 @@ public class PlacementController : IPlacementController
     #region Attributes
 
     public static System.Action<BuildingData> _onObjectPlacement;
-    private BuildingManager _buildingManager;
-    private TerrainGenerator _terrainGenerator; // Needed to check the ground below a building before placement
+    private IBuildingManager _buildingManager;
+    private ITerrainGenerator _terrainGenerator; // Needed to check the ground below a building before placement
     private BuildingData _buildingData;
     #endregion
 
@@ -40,7 +33,7 @@ public class PlacementController : IPlacementController
 
     #region Default Methods
 
-    public PlacementController(BuildingManager buildingManager, TerrainGenerator terrainGenerator)
+    public PlacementController(IBuildingManager buildingManager, ITerrainGenerator terrainGenerator)
     {
         _buildingManager = buildingManager;
         _terrainGenerator = terrainGenerator;
@@ -112,7 +105,6 @@ public class PlacementController : IPlacementController
             return false;
         }
         _onObjectPlacement?.Invoke(_buildingData);
-        _buildingData = null;
         return true;
     }
 

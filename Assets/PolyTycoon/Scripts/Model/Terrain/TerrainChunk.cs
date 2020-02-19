@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 // Wraps all MeshData in one Object
 public class TerrainChunk
@@ -132,14 +133,21 @@ public class TerrainChunk
     {
         // Tree Placement
         GameHandler gameHandler = GameObject.FindObjectOfType<GameHandler>();
-        TreeManager treeManager = gameHandler.TreeManager;
-        TreeBehaviour treeBehaviour = treeManager.GetRandomTree();
+        ITreeManager treeManager = gameHandler.TreeManager;
+
+        Texture2D forrestBlueprint = treeManager.GetRandomForrestBlueprint();
+        
+        GameObject gameObject = new GameObject("Tree");
+        TreeBehaviour treeBehaviour = gameObject.AddComponent<TreeBehaviour>();
+        treeBehaviour.UsedCoordinates = new List<NeededSpace>();
+        
         ThreadsafePlaceable treeToPlace =
             new ThreadsafePlaceable(treeBehaviour,
                 new Vector3(this.sampleCentre.x + 0.5f, 0f, this.sampleCentre.y + 0.5f));
+        Color32[] pixels = forrestBlueprint.GetPixels32();
         ThreadedDataRequester.RequestData(
-            () => ThreadsafePlacementManager.MoveToPlaceablePosition(gameHandler.PlacementController,
-                gameHandler.TerrainGenerator, treeToPlace), gameHandler.TreeManager.OnTreePositionFound);
+            () => ThreadsafePlacementManager.FindForrestPosition(gameHandler.PlacementController,
+                gameHandler.TerrainGenerator, treeToPlace, pixels), gameHandler.TreeManager.OnTreePositionFound);
     }
 
     void OnMeshDataReceived(object meshDataObject)

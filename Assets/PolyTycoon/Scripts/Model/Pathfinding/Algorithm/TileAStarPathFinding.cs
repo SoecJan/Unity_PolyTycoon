@@ -5,9 +5,9 @@ using UnityEngine;
 public class TileAStarPathFinding : AbstractPathFindingAlgorithm
 {
     private TerrainGenerator.TerrainType _terrainType;
-    private TerrainGenerator _terrainGenerator;
+    private ITerrainGenerator _terrainGenerator;
 
-    public TileAStarPathFinding(TerrainGenerator terrainGenerator, TerrainGenerator.TerrainType terrainType)
+    public TileAStarPathFinding(ITerrainGenerator terrainGenerator, TerrainGenerator.TerrainType terrainType)
     {
         _terrainGenerator = terrainGenerator;
         TerrainType = terrainType;

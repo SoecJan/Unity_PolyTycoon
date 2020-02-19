@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 public static class PathUtil
 {
@@ -14,6 +15,9 @@ public static class PathUtil
     private const string settingsFolder = dataFolder + "Settings/";
 
     private const string transportVehicleDataFolder = dataFolder + "TransportVehicleData/";
+
+    // Blueprint Folder
+    private const string blueprintFolder = "Blueprints/";
 
     // Materials Folder
     private const string materialFolder = "Materials/";
@@ -45,9 +49,25 @@ public static class PathUtil
     {
         switch (name)
         {
+            // Blueprints
+            case "ForrestBlueprint":
+                return blueprintFolder + name;
+
             // Data/BuildingData/
             case "Infrastructure": return buildingDataInfrastructureFolder;
             case "Production": return buildingDataProductionFolder;
+            case "Street":
+            case "Rail":
+            case "Airport":
+            case "Harbor":
+            case "Storage":
+            case "Trainstation":
+                return buildingDataInfrastructureFolder + name;
+            case "Farm":
+            case "Mill":
+            case "Bakery":
+            case "Pump":
+                return buildingDataProductionFolder + name;
 
             // Data/ProductData/
             case "Bread":

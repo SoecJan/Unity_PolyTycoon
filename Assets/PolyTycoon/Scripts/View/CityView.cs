@@ -20,6 +20,7 @@ public class CityView : AbstractUi
 	[SerializeField] private RectTransform _neededProductScrollView;
 	[SerializeField] private RectTransform _producedProductScrollView;
 	[SerializeField] private AmountProductView _productUiPrefab;
+	[SerializeField] private Slider _slider;
 	#endregion
 
 	#region Getter & Setter
@@ -38,7 +39,7 @@ public class CityView : AbstractUi
 			}
 
 			CityBuilding.CityPlaceable().Outline.enabled = true;
-			_titleText.text = CityBuilding.CityPlaceable().name;
+			_titleText.text = CityBuilding.CityPlaceable().name + "\nLevel: " + CityBuilding.CityPlaceable().Level;
 			
 			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable());
 			foreach (ProductData neededProduct in cityPlaceable.ReceivedProductList())
@@ -77,18 +78,21 @@ public class CityView : AbstractUi
 	{
 		while (_cityBuilding != null)
 		{
+			CityPlaceable cityPlaceable = _cityBuilding.CityPlaceable();
 			for (int i = 0; i < _neededProductScrollView.childCount; i++)
 			{
 				AmountProductView productView = _neededProductScrollView.transform.GetChild(i).GetComponent<AmountProductView>();
-				ProductStorage productStorage = ((IProductReceiver)_cityBuilding.CityPlaceable()).ReceiverStorage(productView.ProductData);
+				ProductStorage productStorage = ((IProductReceiver)cityPlaceable).ReceiverStorage(productView.ProductData);
 				productView.Text(productStorage);
 			}
 			for (int i = 0; i < _producedProductScrollView.childCount; i++)
 			{
 				AmountProductView productView = _producedProductScrollView.transform.GetChild(i).GetComponent<AmountProductView>();
-				ProductStorage productStorage = ((IProductEmitter)_cityBuilding.CityPlaceable()).EmitterStorage();
+				ProductStorage productStorage = ((IProductEmitter)cityPlaceable).EmitterStorage();
 				productView.Text(productStorage);
 			}
+
+			_slider.value = CityPlaceable.GetLevelFromExp(cityPlaceable.ExperiencePoints, cityPlaceable.Level) / (cityPlaceable.Level + 1f);
 			yield return new WaitForSeconds(1);
 		}
 	}

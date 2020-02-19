@@ -1,13 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public interface IProductManager
-{
-    ProductData GetRandomProduct();
-    ProductData GetProduct(string productName);
-    ProductStorage GetProductStorage(string productName, int maxAmount);
-}
-
 public class ProductManager : MonoBehaviour, IProductManager
 {
     #region Attributes

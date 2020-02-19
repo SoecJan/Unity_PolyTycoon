@@ -1,15 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BarChartView : MonoBehaviour
 {
+    [SerializeField] private Canvas _visibleObject;
+    [SerializeField] private Button _visibilityToggle;
+    [SerializeField] private Button _closeButton;
     private BarChartValueView _barChartValueViewPrefab;
     private List<BarChartValueView> _barChartValueElements;
     private BarChartController _barChartController;
     [SerializeField] private RectTransform _graphTransform;
     [SerializeField] private Color[] _colors;
     private int _maxDisplayedValue;
+
+    [SerializeField] private RectTransform _maxValueLineTransform;
+    [SerializeField] private TMP_Text _maxValueLineText;
 
     void Start()
     {
@@ -19,6 +27,9 @@ public class BarChartView : MonoBehaviour
         _barChartValueViewPrefab = Resources.Load<BarChartValueView>(PathUtil.Get("BarChartValueView"));
         _barChartValueElements = new List<BarChartValueView>();
         _barChartController.OnValueChange += OnValueEmitted;
+        
+        _visibilityToggle.onClick.AddListener(delegate { _visibleObject.enabled = !_visibleObject.enabled; });
+        _closeButton.onClick.AddListener(delegate { _visibleObject.enabled = false; });
     }
 
     void OnValueEmitted(BarChartValue barChartValue)
@@ -39,5 +50,8 @@ public class BarChartView : MonoBehaviour
             barChartValueElement.SetMaxValue(_maxDisplayedValue);
             barChartValueElement.UpdateChart();
         }
+        
+        _maxValueLineTransform.anchoredPosition = new Vector2(0, (int) _graphTransform.rect.height);
+        _maxValueLineText.text = _maxDisplayedValue + "€";
     }
 }
