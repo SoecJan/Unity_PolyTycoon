@@ -18,4 +18,5 @@ MonoBehaviour:
   _description: Turns Flour and Water into Bread
   _buildingPrice: 12000
   _prefab: {fileID: 1232592947860612, guid: 65973fea64ef22f4fbbc501027a19e9d, type: 3}
+  _buildingCategory: 1
   _producedProduct: {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28, type: 2}

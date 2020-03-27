@@ -18,4 +18,5 @@ MonoBehaviour:
   _description: Turns Wheat into Flour
   _buildingPrice: 7500
   _prefab: {fileID: 8115770913936585439, guid: e42829bc6b53fcd499c6b57688b8713b, type: 3}
+  _buildingCategory: 1
   _producedProduct: {fileID: 11400000, guid: 87937c70aeb5c6c4293c156ba4e1a307, type: 2}

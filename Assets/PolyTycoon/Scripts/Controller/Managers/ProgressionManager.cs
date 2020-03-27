@@ -3,8 +3,12 @@ using UnityEngine;
 
 public class ProgressionManager
 {
+    private int _highestCityLevel = -1;
     private Dictionary<int, ProductData[]> _productProgressionElements;
     private Dictionary<int, BuildingData[]> _buildingProgressionElements;
+
+    public System.Action<ProductData> onProductUnlock;
+    public System.Action<BuildingData[]> onBuildingUnlock;
 
     public ProgressionManager()
     {
@@ -14,6 +18,11 @@ public class ProgressionManager
         FillBuildingProgression();
         CityPlaceable._OnCityLevelChange += delegate(int level, CityPlaceable placeable)
         {
+            if (level <= _highestCityLevel)
+            {
+                return;
+            }
+            _highestCityLevel = level;
             if (!_productProgressionElements.ContainsKey(level))
             {
                 // This Level has been reached by another city
@@ -35,6 +44,32 @@ public class ProgressionManager
                 foreach (ProductData productData in progressionElement)
                 {
                     Debug.Log("You unlocked: " + productData.ProductName);
+                    onProductUnlock?.Invoke(productData);
+                }
+            }
+            
+            if (!_buildingProgressionElements.ContainsKey(level))
+            {
+                // This Level has been reached by another city
+                // Determine current Max level
+                // Choose random products from these levels or increase current demand
+            }
+            else if (_buildingProgressionElements[level].Length == 0)
+            {
+                _buildingProgressionElements.Remove(level);
+                // There are no unlocks for this level
+                // increase current Demand
+            }
+            else
+            {
+                BuildingData[] progressionElement = _buildingProgressionElements[level];
+                // Add new products to the needed products
+                // Maybe drop some old ones?
+                // Show Player the unlocked products
+                onBuildingUnlock?.Invoke(progressionElement);
+                foreach (BuildingData buildingData in progressionElement)
+                {
+                    Debug.Log("You unlocked: " + buildingData.BuildingName);
                 }
             }
         };
@@ -49,7 +84,7 @@ public class ProgressionManager
             Resources.Load<BuildingData>(PathUtil.Get("Mill"))
         };
         _buildingProgressionElements.Add(0, levelOneData);
-        
+
         BuildingData[] levelTwoData = new[]
         {
             Resources.Load<BuildingData>(PathUtil.Get("Bakery")),
@@ -71,7 +106,7 @@ public class ProgressionManager
             Resources.Load<BuildingData>(PathUtil.Get("Storage"))
         };
         _buildingProgressionElements.Add(3, levelFourData);
-        
+
         BuildingData[] levelFiveData = new[]
         {
             Resources.Load<BuildingData>(PathUtil.Get("Airport")),

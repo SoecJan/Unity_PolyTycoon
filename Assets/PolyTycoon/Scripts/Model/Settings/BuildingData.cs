@@ -8,6 +8,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "BuildingData", menuName = "PolyTycoon/BuildingData", order = 1)]
 public class BuildingData : ScriptableObject
 {
+	public enum BuildingCategory {
+		Infrastructure, Production
+	};
 	#region Attributes
 	[Header("General")]
 	[Tooltip("The construction sprite displayed to the player")]
@@ -20,6 +23,8 @@ public class BuildingData : ScriptableObject
 	[SerializeField] private int _buildingPrice;
 
 	[SerializeField] private GameObject _prefab;
+
+	[SerializeField] private BuildingCategory _buildingCategory = BuildingCategory.Infrastructure;
 	#endregion
 
 	#region Getter & Setter
@@ -52,6 +57,12 @@ public class BuildingData : ScriptableObject
 	{
 		get => _buildingPrice;
 		set => _buildingPrice = value;
+	}
+
+	public BuildingCategory Category
+	{
+		get => _buildingCategory;
+		set => _buildingCategory = value;
 	}
 
 	#endregion

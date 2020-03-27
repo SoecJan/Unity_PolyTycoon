@@ -140,6 +140,7 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
 
         GetComponentInChildren<Renderer>().gameObject.AddComponent<OnVisibilityChangeCallback>().OnVisibilityChange +=
             isVisible => onVisibilityChange?.Invoke(isVisible);
+        _OnCityLevelChange?.Invoke(Level, this);
     }
 
     private void ProductAmountReset(int day)
@@ -281,6 +282,9 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
 
     public static float GetLevelFromExp(int experiencePoints, int currentLevel)
     {
-        return (experiencePoints / 10f * (1 + currentLevel));
+        // 0 <= (0 * 0 * 100) = 0
+        // 5 <= (5 * 5 * 100) = 2500
+        // 10 <= (10 * 10 * 100) = 10000
+        return experiencePoints <= (currentLevel * currentLevel * 100) ? currentLevel : currentLevel + 1;
     }
 }

@@ -18,4 +18,5 @@ MonoBehaviour:
   _description: A farm to watch your crops grow
   _buildingPrice: 4000
   _prefab: {fileID: 2712658858217016447, guid: b9ebfd718b054904682b49d2851a5ae3, type: 3}
+  _buildingCategory: 1
   _producedProduct: {fileID: 11400000, guid: 16044fb5c98cc1246a06bf469737162e, type: 2}
