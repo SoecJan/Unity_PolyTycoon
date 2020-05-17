@@ -6059,7 +6059,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1326251434}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1001 &329454215
 PrefabInstance:
@@ -8093,14 +8093,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1f2a6b04bb116419f1ca054c77dea5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  products:
-  - {fileID: 11400000, guid: 16044fb5c98cc1246a06bf469737162e, type: 2}
-  - {fileID: 11400000, guid: 87937c70aeb5c6c4293c156ba4e1a307, type: 2}
-  - {fileID: 11400000, guid: d4d28d3d95941cc4a8bcbd665a363e28, type: 2}
-  - {fileID: 11400000, guid: 06fb8c233c970324f8a2f146ee94b7ce, type: 2}
-  - {fileID: 11400000, guid: 481aafaf9623bc84f857b6587f327264, type: 2}
-  - {fileID: 11400000, guid: f62fbac9bf329b64f93e949fa30b6287, type: 2}
-  - {fileID: 11400000, guid: 9ca4505eaeacf044badfce69885bb94a, type: 2}
+  products: []
 --- !u!114 &438139134 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1456204779155326739, guid: 1299d60f761bf9340961a89536fa7684,
@@ -8314,7 +8307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 349328346}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1001 &458831452
 PrefabInstance:
@@ -10948,7 +10941,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 107661308}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1 &607943793
 GameObject:
@@ -14086,7 +14079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1850941709}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1 &773925764
 GameObject:
@@ -20008,7 +20001,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1858473583}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1001 &1115400376
 PrefabInstance:
@@ -21820,7 +21813,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 408627423}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1 &1218545331
 GameObject:
@@ -21873,7 +21866,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1495964434}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1 &1218575530
 GameObject:
@@ -23710,7 +23703,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1495964434}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1001 &1264028674
 PrefabInstance:
@@ -23905,7 +23898,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1850941709}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1001 &1271414553
 PrefabInstance:
@@ -25661,7 +25654,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 524148857}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1 &1326251433
 GameObject:
@@ -26774,7 +26767,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1326251434}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1001 &1371028997
 PrefabInstance:
@@ -30032,7 +30025,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 1858473583}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!114 &1599992587 stripped
 MonoBehaviour:
@@ -36976,7 +36969,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 408627423}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1001 &1892446267
 PrefabInstance:
@@ -38612,7 +38605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _offset: {x: 0, y: 0, z: 0}
-  _tipTransform: {fileID: 524148857}
+  _tipTransform: {fileID: 0}
   _timeUntilDisplay: 1
 --- !u!1 &1992190405
 GameObject:
