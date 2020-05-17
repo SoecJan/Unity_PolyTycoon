@@ -17,3 +17,5 @@ MonoBehaviour:
   _description: Can be used to make flour.
   _productionTime: 5
   _neededProduct: []
+  _basePrice: 100
+  _randomPriceFactor: 0.25

@@ -19,3 +19,5 @@ MonoBehaviour:
   _neededProduct:
   - product: {fileID: 11400000, guid: 16044fb5c98cc1246a06bf469737162e, type: 2}
     amount: 4
+  _basePrice: 3000
+  _randomPriceFactor: 0.5

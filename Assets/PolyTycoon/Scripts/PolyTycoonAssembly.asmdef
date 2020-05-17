@@ -1,0 +1,32 @@
+{
+    "name": "PolyTycoonAssembly",
+    "references": [
+        "OutlineAssembly",
+        "Unity.TextMeshPro",
+        "GameMenuAssembly"
+    ],
+    "includePlatforms": [
+        "Android",
+        "BJM",
+        "Editor",
+        "iOS",
+        "LinuxStandalone64",
+        "Lumin",
+        "macOSStandalone",
+        "PS4",
+        "Switch",
+        "tvOS",
+        "WSA",
+        "WebGL",
+        "WindowsStandalone32",
+        "WindowsStandalone64",
+        "XboxOne"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": []
+}
