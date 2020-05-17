@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/PolyTycoon.unity
+    guid: f21937c310e8e874db612d867bdb9798
   m_configObjects: {}

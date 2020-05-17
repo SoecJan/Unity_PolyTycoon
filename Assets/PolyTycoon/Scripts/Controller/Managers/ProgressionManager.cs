@@ -81,7 +81,15 @@ public class ProgressionManager
         {
             Resources.Load<BuildingData>(PathUtil.Get("Street")),
             Resources.Load<BuildingData>(PathUtil.Get("Farm")),
-            Resources.Load<BuildingData>(PathUtil.Get("Mill"))
+            Resources.Load<BuildingData>(PathUtil.Get("Mill")),
+            // Test purpose
+            Resources.Load<BuildingData>(PathUtil.Get("Bakery")),
+            Resources.Load<BuildingData>(PathUtil.Get("Pump")),
+            Resources.Load<BuildingData>(PathUtil.Get("Rail")),
+            Resources.Load<BuildingData>(PathUtil.Get("Trainstation")),
+            Resources.Load<BuildingData>(PathUtil.Get("Harbor")),
+            Resources.Load<BuildingData>(PathUtil.Get("Storage")),
+            Resources.Load<BuildingData>(PathUtil.Get("Airport")),
         };
         _buildingProgressionElements.Add(0, levelOneData);
 

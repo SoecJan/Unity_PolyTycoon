@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f2c08584ccd9224ebe17a91ae35e4bf, type: 3}
-  m_Name: Aiirport
+  m_Name: Airport
   m_EditorClassIdentifier: 
   _constructionSprite: {fileID: 21300000, guid: a16adbeb6b5072a489f58d50a04e38c8,
     type: 3}
@@ -18,3 +18,4 @@ MonoBehaviour:
   _description: A place to land
   _buildingPrice: 35000
   _prefab: {fileID: 7452019145012359190, guid: f18cbb5f605141c4eaf7fb146eb20801, type: 3}
+  _buildingCategory: 0

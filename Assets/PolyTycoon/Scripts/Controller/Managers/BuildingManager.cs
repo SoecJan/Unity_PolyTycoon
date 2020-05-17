@@ -40,6 +40,11 @@ public class BuildingManager : IBuildingManager
         return Vector3Int.RoundToInt(position - (Vector3.one / 2f)); // Prevents rounding errors
     }
 
+    public SimpleMapPlaceable GetMapPlaceable(Vector3 position)
+    {
+        return this._placedBuildingDictionary[position];
+    }
+    
     public PathFindingNode GetNode(Vector3 position)
     {
         Vector3 positionVector = TransformPosition(position);
