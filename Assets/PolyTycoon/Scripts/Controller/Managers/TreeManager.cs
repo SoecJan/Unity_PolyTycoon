@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class TreeManager : ITreeManager
 {
+    private GameObject _grassModel;
     private GameObject _treeModel;
     private IPlacementController _placementController;
     private ICityManager _cityManager;
@@ -11,6 +12,7 @@ public class TreeManager : ITreeManager
     public TreeManager(IPlacementController placementController)
     {
         _placementController = placementController;
+        _grassModel = Resources.Load<GameObject>(PathUtil.Get("Grass"));
         _treeModel = Resources.Load<GameObject>(PathUtil.Get("Tree"));
     }
 
@@ -33,7 +35,16 @@ public class TreeManager : ITreeManager
         treeBehaviour.gameObject.name = "Tree: " + threadsafePlaceable.Position;
         foreach (NeededSpace neededSpace in threadsafePlaceable.NeededSpaces)
         {
-            GameObject go = GameObject.Instantiate(_treeModel, neededSpace.UsedCoordinate + threadsafePlaceable.Position, Quaternion.identity, treeBehaviour.transform);
+            GameObject prefab = null;
+            if (neededSpace.TerrainType == TerrainGenerator.TerrainType.Coast)
+            {
+                prefab = _grassModel;
+            }
+            else
+            {
+                prefab = _treeModel;
+            }
+            GameObject go = GameObject.Instantiate(prefab, neededSpace.UsedCoordinate + threadsafePlaceable.Position, Quaternion.identity, treeBehaviour.transform);
         }
         if (!_placementController.PlaceObject(treeBehaviour))
         {

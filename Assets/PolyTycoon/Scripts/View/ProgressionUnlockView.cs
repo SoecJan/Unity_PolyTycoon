@@ -37,8 +37,6 @@ public class ProgressionUnlockView : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
             ProgressionUnlockViewElement unlockViewElement =
                 Instantiate(_unlockElementPrefab, _unlockedParentTransform);
-            Debug.Log(unlockedBuilding.BuildingName);
-            Debug.Log(unlockViewElement.Image);
             unlockViewElement.Image.sprite = unlockedBuilding.ConstructionSprite;
             _unlockElements.Add(unlockViewElement);
         }

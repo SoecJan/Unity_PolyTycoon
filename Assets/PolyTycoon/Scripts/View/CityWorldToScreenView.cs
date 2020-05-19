@@ -47,7 +47,6 @@ public class CityWorldToScreenView : MonoBehaviour, IPointerEnterHandler, IPoint
         foreach (ProductData productData in _cityPlaceable.ReceivedProductList())
         {
             ProductView productView = Instantiate(_productViewPrefab, _productViewParent);
-            Debug.Log(productView.ProductButton);
             productView.ProductButton.onClick.AddListener(OnClick);
             productView.ProductData = productData;
             TooltipText tooltipText = productView.gameObject.AddComponent<TooltipText>();

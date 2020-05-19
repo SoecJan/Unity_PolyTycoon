@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using Random = System.Random;
 
 public static class ThreadsafePlacementManager
 {
@@ -13,10 +14,20 @@ public static class ThreadsafePlacementManager
             Thread.Sleep(50);
         }
 
-        List<NeededSpace> neededSpaces = new List<NeededSpace>
+        List<NeededSpace> flatLandNeededSpace = new List<NeededSpace>
         {
             new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Flatland)
         };
+        List<NeededSpace> hillNeededSpace = new List<NeededSpace>
+        {
+            new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Hill)
+        };
+        List<NeededSpace> coastNeededSpace = new List<NeededSpace>
+        {
+            new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Coast)
+        };
+
+
 
         double sqrt = Math.Sqrt(placementTexture.Length);
         for (int i = 0; i < placementTexture.Length; i++)
@@ -27,12 +38,19 @@ public static class ThreadsafePlacementManager
             float density = color.grayscale;
             Vector3Int relativePosition = new Vector3Int(x, 0, y);
             if (density <= 0.1f &&
-                placementController.IsPlaceable(relativePosition + placeable.Position, neededSpaces))
+                placementController.IsPlaceable(relativePosition + placeable.Position, flatLandNeededSpace))
             {
-                placeable.NeededSpaces.Add(new NeededSpace(relativePosition,
-                    TerrainGenerator.TerrainType.Flatland));
+                placeable.NeededSpaces.Add(new NeededSpace(relativePosition, TerrainGenerator.TerrainType.Flatland));
+            } else if (density <= 0.6f && placementController.IsPlaceable(relativePosition + placeable.Position, hillNeededSpace))
+            {
+                placeable.NeededSpaces.Add(new NeededSpace(relativePosition, TerrainGenerator.TerrainType.Hill));
+            } else if (density <= 0.6f &&
+                       placementController.IsPlaceable(relativePosition + placeable.Position, coastNeededSpace))
+            {
+                placeable.NeededSpaces.Add(new NeededSpace(relativePosition, TerrainGenerator.TerrainType.Coast));
             }
         }
+
         return placeable;
     }
 

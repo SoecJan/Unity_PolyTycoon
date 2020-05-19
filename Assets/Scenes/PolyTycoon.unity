@@ -12094,6 +12094,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c677763857638f449e9cc9e37618e8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _terrainMaterial: {fileID: 2100000, guid: 15d0d4659299d6d4ca8fe98f4b773841, type: 2}
   _buildingsMask:
     serializedVersion: 2
     m_Bits: 256
