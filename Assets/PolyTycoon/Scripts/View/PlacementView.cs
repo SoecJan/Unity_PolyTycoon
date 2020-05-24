@@ -5,8 +5,10 @@ using UnityEngine.EventSystems;
 
 public class PlacementView : MonoBehaviour
 {
+    private GameHandler _gameHandler;
     private IPlacementController _placementController;
-
+    private Renderer _gridDisplayRenderer;
+    [SerializeField] private Material _terrainMaterial;
     [SerializeField] private LayerMask _buildingsMask; // Needed to determine the objects to place _buildings on
     [SerializeField] private Vector3 _offsetVec3 = new Vector3(0.5f, 0, 0.5f); // Needed to align _buildings correctly
     [SerializeField] private KeyCode _rotateHotKey = KeyCode.R; // Needed to rotate a selected Building
@@ -18,9 +20,12 @@ public class PlacementView : MonoBehaviour
     private bool _isDragging;
 
     void Start()
-    {
-        _placementController = FindObjectOfType<GameHandler>().PlacementController;
-
+    { 
+        _gameHandler = FindObjectOfType<GameHandler>();
+        TerrainChunk terrainChunk =  _gameHandler.TerrainGenerator.GetChunk(0, 0);
+        _gridDisplayRenderer = terrainChunk.meshObject.GetComponent<Renderer>();
+        OnPlacement();
+        _placementController = _gameHandler.PlacementController;
         _draggedGameObjects = new List<MapPlaceable>();
         _userNotificationView = GameObject.FindObjectOfType<UserNotificationView>();
         _mainCamera = Camera.main;
@@ -33,6 +38,7 @@ public class PlacementView : MonoBehaviour
             _placementController.PlaceableObjectPrefab = value;
             if (_currentPlaceableObject && value) GameObject.Destroy(_currentPlaceableObject.gameObject);
             _currentPlaceableObject = GameObject.Instantiate(value.Prefab.GetComponent<MapPlaceable>());
+            _gridDisplayRenderer.sharedMaterial.SetFloat("_Boolean_ShowGrid", 1f);
         }
     }
 
@@ -49,6 +55,7 @@ public class PlacementView : MonoBehaviour
     {
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hitInfo, Mathf.Infinity, _buildingsMask)) return;
+        _gridDisplayRenderer.sharedMaterial.SetVector("_Vector3_GridCullingPosition", hitInfo.point);
         hitInfo.point -= new Vector3(_offsetVec3.x, _offsetVec3.y, _offsetVec3.z);
 
         Vector3 currentPosition = _currentPlaceableObject.transform.position;
@@ -56,60 +63,60 @@ public class PlacementView : MonoBehaviour
         movedTransform.position = position;
 
         // Check position change
-        if (Math.Abs(position.x - currentPosition.x) < 0.5f || Math.Abs(position.z - currentPosition.z) < 0.5f)
+        if (!(Math.Abs(position.x - currentPosition.x) < 0.5f) &&
+            !(Math.Abs(position.z - currentPosition.z) < 0.5f)) return;
+        
+        SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
+        Transform objectTransform = _currentPlaceableObject.transform;
+        
+        if (!mapPlaceable || !mapPlaceable.IsDraggable || !_isDragging) return;
+        
+        if (_draggedGameObjects.Count == 0)
         {
-            SimpleMapPlaceable mapPlaceable = _currentPlaceableObject.GetComponent<SimpleMapPlaceable>();
-            Transform objectTransform = _currentPlaceableObject.transform;
-            if (mapPlaceable && mapPlaceable.IsDraggable && _isDragging)
+            _draggedGameObjects.Add(GameObject.Instantiate(_currentPlaceableObject, objectTransform.position,
+                objectTransform.rotation));
+        }
+        else
+        {
+            Vector3 start = _draggedGameObjects[0].transform.position;
+            Vector3 end = position;
+            Vector3 difference = end - start;
+            int x = Mathf.RoundToInt(difference.x);
+            int z = Mathf.RoundToInt(difference.z);
+
+            int neededCount = Mathf.Abs(x) + Mathf.Abs(z);
+
+            // Remove Objects until neededCount is met
+            while (_draggedGameObjects.Count >= 1 && _draggedGameObjects.Count > neededCount)
             {
-                if (_draggedGameObjects.Count == 0)
+                GameObject.Destroy(_draggedGameObjects[_draggedGameObjects.Count - 1].gameObject);
+                _draggedGameObjects.RemoveAt(_draggedGameObjects.Count - 1);
+            }
+
+            // Add Objects until neededCount is met
+            while (_draggedGameObjects.Count < neededCount)
+            {
+                _draggedGameObjects.Add(GameObject.Instantiate(_currentPlaceableObject,
+                    objectTransform.position,
+                    objectTransform.rotation));
+            }
+
+            for (int i = 1; i < _draggedGameObjects.Count; i++)
+            {
+                MapPlaceable draggedObject = _draggedGameObjects[i];
+                if (x != 0)
                 {
-                    _draggedGameObjects.Add(GameObject.Instantiate(_currentPlaceableObject, objectTransform.position,
-                        objectTransform.rotation));
+                    Vector3 direction = x > 0 ? Vector3.right : Vector3.left;
+                    start += direction;
+                    draggedObject.transform.position = start;
+                    x = x > 0 ? x - 1 : x + 1;
                 }
-                else
+                else if (z != 0)
                 {
-                    Vector3 start = _draggedGameObjects[0].transform.position;
-                    Vector3 end = position;
-                    Vector3 difference = end - start;
-                    int x = Mathf.RoundToInt(difference.x);
-                    int z = Mathf.RoundToInt(difference.z);
-
-                    int neededCount = Mathf.Abs(x) + Mathf.Abs(z);
-
-                    // Remove Objects until neededCount is met
-                    while (_draggedGameObjects.Count >= 1 && _draggedGameObjects.Count > neededCount)
-                    {
-                        GameObject.Destroy(_draggedGameObjects[_draggedGameObjects.Count - 1].gameObject);
-                        _draggedGameObjects.RemoveAt(_draggedGameObjects.Count - 1);
-                    }
-
-                    // Add Objects until neededCount is met
-                    while (_draggedGameObjects.Count < neededCount)
-                    {
-                        _draggedGameObjects.Add(GameObject.Instantiate(_currentPlaceableObject,
-                            objectTransform.position,
-                            objectTransform.rotation));
-                    }
-
-                    for (int i = 1; i < _draggedGameObjects.Count; i++)
-                    {
-                        MapPlaceable draggedObject = _draggedGameObjects[i];
-                        if (x != 0)
-                        {
-                            Vector3 direction = x > 0 ? Vector3.right : Vector3.left;
-                            start += direction;
-                            draggedObject.transform.position = start;
-                            x = x > 0 ? x - 1 : x + 1;
-                        }
-                        else if (z != 0)
-                        {
-                            Vector3 direction = z > 0 ? Vector3.forward : Vector3.back;
-                            start += direction;
-                            draggedObject.transform.position = start;
-                            z = z > 0 ? z - 1 : z + 1;
-                        }
-                    }
+                    Vector3 direction = z > 0 ? Vector3.forward : Vector3.back;
+                    start += direction;
+                    draggedObject.transform.position = start;
+                    z = z > 0 ? z - 1 : z + 1;
                 }
             }
         }
@@ -128,8 +135,7 @@ public class PlacementView : MonoBehaviour
             if (productProcessorBehaviour) productProcessorBehaviour.BuildingData = _placementController.PlaceableObjectPrefab;
             
             DestroyOrPlaceObject();
-            _currentPlaceableObject = null;
-            _isDragging = false;
+            OnPlacement();
         }
 
         // Remove selected Object on right click
@@ -146,6 +152,12 @@ public class PlacementView : MonoBehaviour
         }
 
         GameObject.Destroy(_currentPlaceableObject.gameObject);
+        OnPlacement();
+    }
+
+    private void OnPlacement()
+    {
+        _gridDisplayRenderer.sharedMaterial.SetFloat("_Boolean_ShowGrid", 0f);
         _currentPlaceableObject = null;
         _isDragging = false;
     }

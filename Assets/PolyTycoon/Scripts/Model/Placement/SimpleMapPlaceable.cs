@@ -81,6 +81,17 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
             OnClickAction(this);
         }
     }
+
+    private void OnMouseEnter()
+    {
+        if (Outline) Outline.enabled = true;
+    }
+
+    private void OnMouseExit()
+    {
+        if (Outline) Outline.enabled = false;
+    }
+
     #endregion
 
     #region Getter & Setter

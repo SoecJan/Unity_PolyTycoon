@@ -118,6 +118,7 @@ public static class PathUtil
             case "Cloud":
             case "Tree":
             case "Lake":
+            case "Grass":
                 return environmentFolder + name;
 
             // Prefabs/Transportation/Create

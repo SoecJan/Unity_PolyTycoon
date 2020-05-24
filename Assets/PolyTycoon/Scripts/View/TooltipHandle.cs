@@ -15,7 +15,7 @@ public class TooltipHandle : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
 	public RectTransform TipTransform
 	{
-		get => _tipTransform;
+		get => (RectTransform) (_tipTransform == null ? transform : _tipTransform);
 		set => _tipTransform = value;
 	}
 

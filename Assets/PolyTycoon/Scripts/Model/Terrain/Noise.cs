@@ -60,7 +60,7 @@ public static class Noise
 				{
 					minLocalNoiseHeight = noiseHeight;
 				}
-				noiseMap[x, y] = Mathf.Round(noiseHeight);
+				noiseMap[x, y] = Mathf.Round(noiseHeight < 0.5f ? Mathf.Pow(noiseHeight, 2) : -noiseHeight);
 
 				float normalizedHeight = (noiseMap[x, y] + 1) / (maxPossibleHeight / 0.9f);
 				noiseMap[x, y] = Mathf.Clamp(normalizedHeight, 0, int.MaxValue);

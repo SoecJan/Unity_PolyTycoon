@@ -38,13 +38,24 @@ public class CityBuilding : SimpleMapPlaceable, ICityBuilding
 	#endregion
 
 	#region Methods
+	
+	private void OnMouseEnter()
+	{
+		if (_cityPlaceable.Outline) _cityPlaceable.Outline.enabled = true;
+	}
+
+	private void OnMouseExit()
+	{
+		if (_cityPlaceable.Outline) _cityPlaceable.Outline.enabled = false;
+	}
+	
 	protected override void Initialize()
 	{
 		_isClickable = true;
 		if (!_cityPlaceable && transform.parent) _cityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
 		RotateUsedCoords(transform.eulerAngles.y);
 	}
-	
+
 	public CityPlaceable CityPlaceable()
 	{
 		return _cityPlaceable;

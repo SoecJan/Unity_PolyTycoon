@@ -43,6 +43,8 @@ public class ProductProcessorView : AbstractUi
             if (value == _productProcessorBehaviour && VisibleObject.activeSelf) return;
             _productProcessorBehaviour = value;
             if (!_productProcessorBehaviour) return;
+            
+            Debug.Log(_productProcessorBehaviour.gameObject.name);
 
             _titleText.text = _productProcessorBehaviour.name;
             LoadNeededProducts();
@@ -58,7 +60,10 @@ public class ProductProcessorView : AbstractUi
     private void Start()
     {
         _defaultProductSprite = _productImage.sprite;
-        _exitButton.onClick.AddListener(delegate { SetVisible(false); });
+        _exitButton.onClick.AddListener(delegate
+        {
+            SetVisible(false);
+        });
     }
 
     private void LoadNeededProducts()
