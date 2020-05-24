@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -25,7 +26,12 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     public const int Right = 1;
     public const int Down = 2;
     public const int Left = 3;
-    
+
+    private List<ScheduledMover> _upScheduledMovers = null;
+    private List<ScheduledMover> _rightScheduledMovers = null;
+    private List<ScheduledMover> _downscheduledMovers = null;
+    private List<ScheduledMover> _leftscheduledMovers = null;
+
     private PathFindingNode[] neighborNodes; // Array that holds the reference to the next reachable Node.
 
     #endregion
@@ -34,6 +40,45 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     private static IBuildingManager BuildingManager { get; set; }
 
+    public void RegisterMover(ScheduledMover scheduledMover)
+    {
+        switch (scheduledMover.From)
+        {
+            case Up:
+                if (_upScheduledMovers == null)
+                {
+                    _upScheduledMovers = new List<ScheduledMover>();
+                }
+                _upScheduledMovers.Add(scheduledMover);
+                _upScheduledMovers.Sort();
+                break;
+            case Right:
+                if (_rightScheduledMovers == null)
+                {
+                    _rightScheduledMovers = new List<ScheduledMover>();
+                }
+                _rightScheduledMovers.Add(scheduledMover);
+                _rightScheduledMovers.Sort();
+                break;
+            case Down:
+                if (_downscheduledMovers == null)
+                {
+                    _downscheduledMovers = new List<ScheduledMover>();
+                }
+                _downscheduledMovers.Add(scheduledMover);
+                _downscheduledMovers.Sort();
+                break;
+            case Left:
+                if (_leftscheduledMovers == null)
+                {
+                    _leftscheduledMovers = new List<ScheduledMover>();
+                }
+                _leftscheduledMovers.Add(scheduledMover);
+                _leftscheduledMovers.Sort();
+                break;
+        }
+    }
+    
     public PathFindingNode[] NeighborNodes
     {
         get => neighborNodes;
@@ -119,6 +164,44 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
             Gizmos.color = coordinateGizmoColor;
             Gizmos.DrawSphere(position, 0.1f);
+            
+            Gizmos.color = Color.blue;
+
+            if (_upScheduledMovers != null)
+            {
+                Vector3 upPosition = (Vector3.forward/2f) + transform.position;
+                for (int i = 0; i < _upScheduledMovers.Count; i++)
+                {
+                    Gizmos.DrawSphere(upPosition + (i*(Vector3.up/2f)), 0.1f);
+                }
+            }
+
+            if (_rightScheduledMovers != null)
+            {
+                Vector3 rightPosition = (Vector3.right/2f) + transform.position;
+                for (int i = 0; i < _rightScheduledMovers.Count; i++)
+                {
+                    Gizmos.DrawSphere(rightPosition + (i*(Vector3.up/2f)), 0.1f);
+                }
+            }
+
+            if (_downscheduledMovers != null)
+            {
+                Vector3 downPosition = (Vector3.back/2f) + transform.position;
+                for (int i = 0; i < _downscheduledMovers.Count; i++)
+                {
+                    Gizmos.DrawSphere(downPosition + (i*(Vector3.up/2f)), 0.1f);
+                }
+            }
+
+            if (_leftscheduledMovers != null)
+            {
+                Vector3 leftPosition = (Vector3.left/2f) + transform.position;
+                for (int i = 0; i < _leftscheduledMovers.Count; i++)
+                {
+                    Gizmos.DrawSphere(leftPosition + (i*(Vector3.up/2f)), 0.1f);
+                }
+            }
         }
 
         position = gameObject.transform.position + UsedCoordinates[0].UsedCoordinate + (Vector3.up / 2);
@@ -213,4 +296,45 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     #endregion
 
     public abstract WayPoint GetTraversalVectors(int fromDirection, int toDirection);
+}
+
+public class ScheduledMover : IComparable<ScheduledMover>
+{
+    private WaypointMoverController _waypointMover;
+    private Vector3 _intersectionVec3;
+    private int _from;
+    private int _to;
+
+    public ScheduledMover(WaypointMoverController waypointMover, Vector3 intersectionVec3, int from, int to)
+    {
+        _waypointMover = waypointMover;
+        _intersectionVec3 = intersectionVec3;
+        _from = from;
+        _to = to;
+    }
+
+    public WaypointMoverController WaypointMover
+    {
+        get => _waypointMover;
+        set => _waypointMover = value;
+    }
+
+    public int From
+    {
+        get => _from;
+        set => _from = value;
+    }
+
+    public int To
+    {
+        get => _to;
+        set => _to = value;
+    }
+
+    public int CompareTo(ScheduledMover other)
+    {
+        float myDistance = (this.WaypointMover.MoverTransform.position - this._intersectionVec3).magnitude;
+        float otherDistance = (other.WaypointMover.MoverTransform.position - this._intersectionVec3).magnitude;
+        return myDistance > otherDistance ? 1 : myDistance < otherDistance ? -1 : 0;
+    }
 }

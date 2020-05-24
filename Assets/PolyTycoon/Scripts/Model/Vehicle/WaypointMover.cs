@@ -181,8 +181,8 @@ public class WaypointMoverController
                     yield return MoveCurve(currentWayPoint); // Move along a specified corner
                     break;
             }
-        
             CurrentWaypointIndex = (CurrentWaypointIndex + 1);
+            RegisterAtNode();
         }
         _waiting = true;
         OnArrive?.Invoke();
@@ -286,6 +286,21 @@ public class WaypointMoverController
         }
 
         MoverTransform.position = vecC;
+    }
+
+    private void RegisterAtNode()
+    {
+        if (_waypointList == null || CurrentWaypointIndex >= _waypointList.Count || CurrentWaypointIndex == -1) return;
+//        Debug.Log(_waypointList);
+//        Debug.Log(CurrentWaypointIndex);
+//        Debug.Log(_waypointList[CurrentWaypointIndex].Node);
+//        Debug.Log(_waypointList[_currentWaypointIndex].Node.ThreadsafePosition);
+        Vector3Int fromVec3 = Vector3Int.RoundToInt((this._moverTransform.position - _waypointList[CurrentWaypointIndex].Node.ThreadsafePosition).normalized);
+        int from = AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
+//        Vector3Int toVec3 = Vector3Int.RoundToInt((this._moverTransform.position - _waypointList[CurrentWaypointIndex].Node.ThreadsafePosition).normalized);
+//        int to = AbstractPathFindingAlgorithm.DirectionVectorToInt(toVec3);
+        _waypointList[CurrentWaypointIndex].Node.RegisterMover(
+            new ScheduledMover(this, _waypointList[CurrentWaypointIndex].Node.ThreadsafePosition, from, -1));
     }
 }
 
