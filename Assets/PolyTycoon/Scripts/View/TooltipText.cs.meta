@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c5b14d9e9c808544d9773dc08b0ae934
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _tipTransform: {instanceID: 0}
+  - _tipObject: {fileID: 4784772855694884222, guid: aa47453a48808834290f6e58045b2060,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

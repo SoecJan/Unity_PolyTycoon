@@ -17,3 +17,5 @@ MonoBehaviour:
   _description: Tasteless fluid.
   _productionTime: 10
   _neededProduct: []
+  _basePrice: 300
+  _randomPriceFactor: 0.5
