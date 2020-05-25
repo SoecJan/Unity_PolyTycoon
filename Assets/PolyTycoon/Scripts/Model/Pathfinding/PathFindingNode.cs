@@ -40,45 +40,6 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     private static IBuildingManager BuildingManager { get; set; }
 
-    public void RegisterMover(ScheduledMover scheduledMover)
-    {
-        switch (scheduledMover.From)
-        {
-            case Up:
-                if (_upScheduledMovers == null)
-                {
-                    _upScheduledMovers = new List<ScheduledMover>();
-                }
-                _upScheduledMovers.Add(scheduledMover);
-                _upScheduledMovers.Sort();
-                break;
-            case Right:
-                if (_rightScheduledMovers == null)
-                {
-                    _rightScheduledMovers = new List<ScheduledMover>();
-                }
-                _rightScheduledMovers.Add(scheduledMover);
-                _rightScheduledMovers.Sort();
-                break;
-            case Down:
-                if (_downscheduledMovers == null)
-                {
-                    _downscheduledMovers = new List<ScheduledMover>();
-                }
-                _downscheduledMovers.Add(scheduledMover);
-                _downscheduledMovers.Sort();
-                break;
-            case Left:
-                if (_leftscheduledMovers == null)
-                {
-                    _leftscheduledMovers = new List<ScheduledMover>();
-                }
-                _leftscheduledMovers.Add(scheduledMover);
-                _leftscheduledMovers.Sort();
-                break;
-        }
-    }
-    
     public PathFindingNode[] NeighborNodes
     {
         get => neighborNodes;
@@ -240,6 +201,51 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     #region Infrastructure
 
+    public WaypointMoverController RegisterMover(ScheduledMover scheduledMover)
+    {
+        Debug.Log("Register from: " + scheduledMover.From);
+        List<ScheduledMover> list = GetListFromNode(scheduledMover.From == null ? scheduledMover.WaypointMover.MoverTransform.position : scheduledMover.From.ThreadsafePosition);
+        list.Add(scheduledMover);
+        list.Sort();
+        
+        int frontMoverIndex = list.IndexOf(scheduledMover) - 1; // Get the transform of the mover in front
+        return frontMoverIndex >= 0 ? list[frontMoverIndex].WaypointMover : null;
+    }
+
+    private List<ScheduledMover> GetListFromNode(Vector3 previousPosition)
+    {
+        Vector3Int fromVec3 =
+            Vector3Int.RoundToInt((previousPosition - this.ThreadsafePosition).normalized);
+        int from = AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
+        
+        switch (from)
+        {
+            case Up:
+                return _upScheduledMovers ?? (_upScheduledMovers = new List<ScheduledMover>());
+            case Right:
+                return _rightScheduledMovers ?? (_rightScheduledMovers = new List<ScheduledMover>());
+            case Down:
+                return _downscheduledMovers ?? (_downscheduledMovers = new List<ScheduledMover>());
+            case Left:
+                return _leftscheduledMovers ?? (_leftscheduledMovers = new List<ScheduledMover>());
+        }
+
+        return null;
+    }
+
+    public void UnregisterMover(WaypointMoverController waypointMover, PathFindingNode previousNode)
+    {
+        List<ScheduledMover> list = GetListFromNode(previousNode == null ? waypointMover.MoverTransform.position : previousNode.ThreadsafePosition);
+        if (list == null) return;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (!list[i].WaypointMover.Equals(waypointMover)) continue;
+            Debug.Log("Removed at " + i.ToString());
+            list.RemoveAt(i);
+            return;
+        }
+    }
+    
     /// <summary>
     /// Finds NeighborNodes in all 4 directions and updates all found Nodes.
     /// </summary>
@@ -302,10 +308,10 @@ public class ScheduledMover : IComparable<ScheduledMover>
 {
     private WaypointMoverController _waypointMover;
     private Vector3 _intersectionVec3;
-    private int _from;
-    private int _to;
+    private PathFindingNode _from;
+    private PathFindingNode _to;
 
-    public ScheduledMover(WaypointMoverController waypointMover, Vector3 intersectionVec3, int from, int to)
+    public ScheduledMover(WaypointMoverController waypointMover, Vector3 intersectionVec3, PathFindingNode from, PathFindingNode to)
     {
         _waypointMover = waypointMover;
         _intersectionVec3 = intersectionVec3;
@@ -319,13 +325,13 @@ public class ScheduledMover : IComparable<ScheduledMover>
         set => _waypointMover = value;
     }
 
-    public int From
+    public PathFindingNode From
     {
         get => _from;
         set => _from = value;
     }
 
-    public int To
+    public PathFindingNode To
     {
         get => _to;
         set => _to = value;

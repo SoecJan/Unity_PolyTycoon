@@ -12,6 +12,7 @@ public class WaypointMoverController
     /// Magnitude of the vehicles velocity at the current moment
     /// </summary>
     private float _currentSpeed = 2f;
+
     /// <summary>
     /// Maximum speed this vehicle can reach
     /// </summary>
@@ -23,6 +24,11 @@ public class WaypointMoverController
     private Transform _moverTransform;
 
     /// <summary>
+    /// The Transform that is moving between this mover and an intersection. Set by registering at a PathfindingNode.
+    /// </summary>
+    private WaypointMoverController _frontMover;
+
+    /// <summary>
     /// Determines if the current speed should be adjusted
     /// </summary>
     private bool _hasEngine = true;
@@ -31,6 +37,7 @@ public class WaypointMoverController
     /// The List of Waypoints containing the path information
     /// </summary>
     private List<WayPoint> _waypointList;
+
     /// <summary>
     /// The current index of the waypointList element
     /// </summary>
@@ -40,11 +47,19 @@ public class WaypointMoverController
     /// Coroutine for driving smoothly through a corner
     /// </summary>
     private bool _waiting = true;
+
     private Coroutine _cornerCoroutine;
 
     public WaypointMoverController()
-    {}
-    
+    {
+    }
+
+    public WaypointMoverController FrontMover
+    {
+        get => _frontMover;
+        set => _frontMover = value;
+    }
+
     public float CurrentSpeed
     {
         get => _currentSpeed;
@@ -74,7 +89,7 @@ public class WaypointMoverController
             OnDepart?.Invoke();
         }
     }
-    
+
     /// <summary>
     /// This callback is executed if this mover departs from a Target
     /// </summary>
@@ -84,6 +99,8 @@ public class WaypointMoverController
     /// This callback is executed if this mover reaches the last Waypoint of the waypointList.
     /// </summary>
     public Action OnArrive { get; set; }
+    
+    private Action OnWaypointIndexChange { get; set; }
 
     /// <summary>
     /// The current index of the waypointList element
@@ -91,7 +108,11 @@ public class WaypointMoverController
     public int CurrentWaypointIndex
     {
         get => _currentWaypointIndex;
-        set => _currentWaypointIndex = value;
+        set
+        {
+            _currentWaypointIndex = value;
+            OnWaypointIndexChange?.Invoke();
+        }
     }
 
     /// <summary>
@@ -122,7 +143,7 @@ public class WaypointMoverController
     /// <returns>The change in angle on the given circle.</returns>
     private float GetAngle(float radius, float distance)
     {
-        return (distance * 180) / (Mathf.PI * radius); 
+        return (distance * 180) / (Mathf.PI * radius);
         // Get distance of given angle & radius: distance = ((Mathf.PI * radius) * angle) / 180
         // Get angle of given distance & radius: angle = (distance * 180) / (Mathf.PI * radius)
         // Get radius of given distance & angle: radius = ((distance * 180) / angle) / Mathf.PI
@@ -169,6 +190,7 @@ public class WaypointMoverController
         {
             yield return null; // Dont move at all
         }
+
         while ((_waypointList != null && CurrentWaypointIndex != _waypointList.Count))
         {
             WayPoint currentWayPoint = _waypointList[CurrentWaypointIndex];
@@ -181,9 +203,12 @@ public class WaypointMoverController
                     yield return MoveCurve(currentWayPoint); // Move along a specified corner
                     break;
             }
+
+            UnregisterAtNode();
             CurrentWaypointIndex = (CurrentWaypointIndex + 1);
             RegisterAtNode();
         }
+
         _waiting = true;
         OnArrive?.Invoke();
     }
@@ -198,6 +223,7 @@ public class WaypointMoverController
         {
             yield return MoveStraight(firstTraversalVector);
         }
+
         yield return MoveStraight(secondTraversalVector);
     }
 
@@ -218,8 +244,11 @@ public class WaypointMoverController
         {
             if (_hasEngine)
             {
-                _currentSpeed = Mathf.Min(_currentSpeed + acceleration, _maxSpeed);
+                float distanceToFrontMover = _frontMover != null ? Vector3.Distance(_moverTransform.position, _frontMover.MoverTransform.position) : 1f;
+                float speedOfFrontMover = _frontMover?._currentSpeed ?? _currentSpeed;
+                _currentSpeed = Math.Abs(distanceToFrontMover - 1f) < 0.1f ? speedOfFrontMover : distanceToFrontMover < 0.9f ? speedOfFrontMover * 0.9f : Mathf.Min(_currentSpeed + acceleration, _maxSpeed);
             }
+
             difference = targetPosition - currentPosition; // Difference Current to Target
             currentPosition += (Time.deltaTime * _currentSpeed * direction); // Next Position
             futureDifference = targetPosition - currentPosition; // Difference Next To Target
@@ -267,21 +296,21 @@ public class WaypointMoverController
             {
                 _currentSpeed = Mathf.Max(_currentSpeed - deceleration, currentWayPoint.Radius * 2f);
             }
-            
+
             // Get Angle on a circle with given radius and distance driven
             float circumferenceDistanceToAngle = GetAngle(currentWayPoint.Radius, Time.deltaTime * _currentSpeed);
             // Add to the progress that was already made
             progress += circumferenceDistanceToAngle / 90f; // 90 Degree Turn at each corner
             // Set the vehicle position to the one on the circle
-            currentPosition = GetPoint(vecA,vecB,vecC, progress);
+            currentPosition = GetPoint(vecA, vecB, vecC, progress);
             // Set the vehicle rotation to face driven direction
             Vector3 targetRotation = currentPosition +
-                                     GetFirstDerivative(vecA,vecB,vecC,
+                                     GetFirstDerivative(vecA, vecB, vecC,
                                          progress).normalized;
 
             MoverTransform.position = currentPosition;
             MoverTransform.LookAt(targetRotation);
-            
+
             yield return null;
         }
 
@@ -291,16 +320,45 @@ public class WaypointMoverController
     private void RegisterAtNode()
     {
         if (_waypointList == null || CurrentWaypointIndex >= _waypointList.Count || CurrentWaypointIndex == -1) return;
-//        Debug.Log(_waypointList);
-//        Debug.Log(CurrentWaypointIndex);
-//        Debug.Log(_waypointList[CurrentWaypointIndex].Node);
-//        Debug.Log(_waypointList[_currentWaypointIndex].Node.ThreadsafePosition);
-        Vector3Int fromVec3 = Vector3Int.RoundToInt((this._moverTransform.position - _waypointList[CurrentWaypointIndex].Node.ThreadsafePosition).normalized);
-        int from = AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
-//        Vector3Int toVec3 = Vector3Int.RoundToInt((this._moverTransform.position - _waypointList[CurrentWaypointIndex].Node.ThreadsafePosition).normalized);
-//        int to = AbstractPathFindingAlgorithm.DirectionVectorToInt(toVec3);
-        _waypointList[CurrentWaypointIndex].Node.RegisterMover(
-            new ScheduledMover(this, _waypointList[CurrentWaypointIndex].Node.ThreadsafePosition, from, -1));
+        PathFindingNode from = GetFrom();
+        PathFindingNode to = GetTo();
+        _frontMover = _waypointList[CurrentWaypointIndex].Node.RegisterMover(
+            new ScheduledMover(this, _waypointList[CurrentWaypointIndex].TraversalVectors[0], from, to));
+        if (_frontMover != null) _frontMover.OnWaypointIndexChange += delegate { this._frontMover = null; };
+    }
+
+    private void UnregisterAtNode()
+    {
+        if (_waypointList == null || CurrentWaypointIndex >= _waypointList.Count || CurrentWaypointIndex == -1) return;
+        PathFindingNode from = GetFrom();
+        _waypointList[CurrentWaypointIndex].Node.UnregisterMover(this, from);
+    }
+
+    private PathFindingNode GetTo()
+    {
+        if (CurrentWaypointIndex == _waypointList.Count - 1 || CurrentWaypointIndex == -1) return null;
+        return _waypointList[CurrentWaypointIndex + 1].Node;
+        // PathFindingNode currentNode = _waypointList[CurrentWaypointIndex].Node;
+        // PathFindingNode nextNode = _waypointList[CurrentWaypointIndex + 1].Node;
+        // Vector3Int toVec3 =
+        //     Vector3Int.RoundToInt((currentNode.transform.position - nextNode.transform.position).normalized);
+        // Debug.Log(toVec3);
+        // int to = AbstractPathFindingAlgorithm.DirectionVectorToInt(toVec3);
+        // Debug.Log(to);
+        // return to;
+    }
+
+    private PathFindingNode GetFrom()
+    {
+        if (CurrentWaypointIndex <= 0) return null;
+        return _waypointList[CurrentWaypointIndex - 1].Node;
+        
+        // if (CurrentWaypointIndex == -1 || CurrentWaypointIndex == 0) return -1;
+        // PathFindingNode previousNode = _waypointList[CurrentWaypointIndex - 1].Node;
+        // PathFindingNode currentNode = _waypointList[CurrentWaypointIndex].Node;
+        // Vector3Int fromVec3 =
+        //     Vector3Int.RoundToInt((previousNode.transform.position - currentNode.transform.position).normalized);
+        // return AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
     }
 }
 
@@ -368,5 +426,13 @@ public class WaypointMover : MonoBehaviour
     {
         get => _waypointMoverController.MoverTransform;
         set => _waypointMoverController.MoverTransform = value;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (this._waypointMoverController.FrontMover == null) return;
+        Vector3 position = this._waypointMoverController.FrontMover.MoverTransform.position;
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, position);
     }
 }
