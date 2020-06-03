@@ -229,7 +229,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     private bool GetTrafficLightStatus(WaypointMoverController mover, int from, int to)
     {
-        // return false;
+        // if (from == 0) return false;
         // Goes straight
         if (from % 2 == to % 2)
         {
