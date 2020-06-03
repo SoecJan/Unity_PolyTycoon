@@ -21,16 +21,14 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     private const int
         NeighborCount = 4; // The amount of streets that can be connected to this one. 4 = Grid, 8 = Diagonal
 
-    // Indices in the neighborStreets Array
+    // Indices in the neighborNodes, _scheduledMovers, _blockingMovers Arrays
     public const int Up = 0;
     public const int Right = 1;
     public const int Down = 2;
     public const int Left = 3;
 
-    private List<ScheduledMover> _upScheduledMovers = null;
-    private List<ScheduledMover> _rightScheduledMovers = null;
-    private List<ScheduledMover> _downscheduledMovers = null;
-    private List<ScheduledMover> _leftscheduledMovers = null;
+    private List<ScheduledMover>[] _scheduledMovers; // All incoming movers are registered here
+    private WaypointMoverController[] _blockingMovers; // Movers can register and block certain pathways
 
     private PathFindingNode[] neighborNodes; // Array that holds the reference to the next reachable Node.
 
@@ -77,11 +75,14 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         if (BuildingManager != null)
         {
             SimpleMapPlaceable simpleMapPlaceable = BuildingManager.GetNode(position);
-            if (simpleMapPlaceable && (simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate).Equals(position))
+            if (simpleMapPlaceable &&
+                (simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate)
+                .Equals(position))
             {
                 return (PathFindingNode) simpleMapPlaceable;
             }
         }
+
         return null;
     }
 
@@ -92,6 +93,8 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     protected override void Initialize()
     {
         if (BuildingManager == null) BuildingManager = FindObjectOfType<GameHandler>().BuildingManager;
+        _scheduledMovers = new List<ScheduledMover>[NeighborCount];
+        _blockingMovers = new WaypointMoverController[NeighborCount];
     }
 
     protected void OnDrawGizmos()
@@ -99,6 +102,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         Vector3 position;
         foreach (NeededSpace coordinate in UsedCoordinates)
         {
+            // Visualize used coordinates
             position = gameObject.transform.position + coordinate.UsedCoordinate;
             Color coordinateGizmoColor;
             switch (coordinate.TerrainType)
@@ -122,45 +126,45 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
                     coordinateGizmoColor = Color.black;
                     break;
             }
-
             Gizmos.color = coordinateGizmoColor;
             Gizmos.DrawSphere(position, 0.1f);
-            
+
+            // Visualize registered movers
             Gizmos.color = Color.blue;
-
-            if (_upScheduledMovers != null)
+            for (int i = 0; i < _scheduledMovers.Length; i++)
             {
-                Vector3 upPosition = (Vector3.forward/2f) + transform.position;
-                for (int i = 0; i < _upScheduledMovers.Count; i++)
+                if (_scheduledMovers[i] == null) continue;
+                Vector3 offset;
+                switch (i)
                 {
-                    Gizmos.DrawSphere(upPosition + (i*(Vector3.up/2f)), 0.1f);
+                    case Up: offset = Vector3.forward;
+                        break;
+                    case Right: offset = Vector3.right;
+                        break;
+                    case Down: offset = Vector3.back;
+                        break;
+                    case Left: offset = Vector3.left;
+                        break;
+                    default: offset = Vector3.zero;
+                        break;
+                }
+                for (int j = 0; j < _scheduledMovers[i].Count; j++)
+                {
+                    Gizmos.DrawSphere(offset + (j * (Vector3.up / 2f)), 0.1f);
                 }
             }
 
-            if (_rightScheduledMovers != null)
+            // Visualize Traffic Logic
+            foreach (WaypointMoverController moverController in _blockingMovers)
             {
-                Vector3 rightPosition = (Vector3.right/2f) + transform.position;
-                for (int i = 0; i < _rightScheduledMovers.Count; i++)
+                if (moverController == null) continue;
+                if (moverController.CurrentWaypointIndex < 0 
+                    || moverController.CurrentWaypointIndex >= moverController.WaypointList.Count) continue;
+                Gizmos.DrawLine(ThreadsafePosition, moverController.MoverTransform.position);
+                WayPoint wayPoint = moverController.WaypointList[moverController.CurrentWaypointIndex];
+                for (int j = 0; j < wayPoint.TraversalVectors.Length - 1; j++)
                 {
-                    Gizmos.DrawSphere(rightPosition + (i*(Vector3.up/2f)), 0.1f);
-                }
-            }
-
-            if (_downscheduledMovers != null)
-            {
-                Vector3 downPosition = (Vector3.back/2f) + transform.position;
-                for (int i = 0; i < _downscheduledMovers.Count; i++)
-                {
-                    Gizmos.DrawSphere(downPosition + (i*(Vector3.up/2f)), 0.1f);
-                }
-            }
-
-            if (_leftscheduledMovers != null)
-            {
-                Vector3 leftPosition = (Vector3.left/2f) + transform.position;
-                for (int i = 0; i < _leftscheduledMovers.Count; i++)
-                {
-                    Gizmos.DrawSphere(leftPosition + (i*(Vector3.up/2f)), 0.1f);
+                    Gizmos.DrawLine(wayPoint.TraversalVectors[j], wayPoint.TraversalVectors[j+1]);
                 }
             }
         }
@@ -201,15 +205,101 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     #region Infrastructure
 
-    public WaypointMoverController RegisterMover(ScheduledMover scheduledMover)
+    public bool TrafficLightStatus(WaypointMoverController mover, PathFindingNode previousNode,
+        PathFindingNode nextNode)
+    {
+        if (previousNode == null) return true;
+
+        bool horizontal = NeighborNodes[Left] != null && NeighborNodes[Right] != null;
+        bool vertical = NeighborNodes[Up] != null && NeighborNodes[Down] != null;
+
+        if (!horizontal && !vertical)
+        {
+            return true;
+        }
+        Vector3Int fromVec3 =
+            Vector3Int.RoundToInt((previousNode.ThreadsafePosition - this.ThreadsafePosition).normalized);
+        int from = AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
+        Vector3Int toVec3 =
+            Vector3Int.RoundToInt((this.ThreadsafePosition - nextNode.ThreadsafePosition).normalized);
+        int to = AbstractPathFindingAlgorithm.DirectionVectorToInt(toVec3);
+
+        return GetTrafficLightStatus(mover, from, to);
+    }
+
+    private bool GetTrafficLightStatus(WaypointMoverController mover, int from, int to)
+    {
+        // return false;
+        // Goes straight
+        if (from % 2 == to % 2)
+        {
+            bool isMoverItself = (_blockingMovers[to] == mover 
+                                  && _blockingMovers[(to + 1) % NeighborCount] == mover 
+                                  && _blockingMovers[(to + 2) % NeighborCount] == mover);
+            bool isBlocked = !(_blockingMovers[to] == null
+                               && _blockingMovers[(to + 1) % NeighborCount] == null
+                               && _blockingMovers[(to + 2) % NeighborCount] == null);
+            if (isBlocked && !isMoverItself) return false;
+            
+            _blockingMovers[to] = _blockingMovers[(to + 1) % NeighborCount] = _blockingMovers[(to + 2) % NeighborCount] = mover; // Blocking pathways
+            return true;
+        }
+
+        // Goes right
+        if ((to + 1) % NeighborCount == from)
+        {
+            bool isMoverItself = _blockingMovers[to] == mover;
+            bool isBlocked = _blockingMovers[to] != null;
+            if (isBlocked && !isMoverItself) return false;
+            
+            _blockingMovers[to] = mover;
+            return true;
+        }
+
+        // Goes Left
+        if ((from + 1) % NeighborCount == to)
+        {
+            bool isMoverItself = _blockingMovers[to] == mover 
+                                 && _blockingMovers[(from + 2) % NeighborCount] == mover 
+                                 && _blockingMovers[(to + 2) % NeighborCount] == mover;
+            bool isBlocked = !(_blockingMovers[to] == null 
+                              && _blockingMovers[(from + 2) % NeighborCount] == null
+                              &&_blockingMovers[(to + 2) % NeighborCount] == null);
+            if (isBlocked && !isMoverItself) return false;
+            
+            _blockingMovers[to] = _blockingMovers[(from + 2) % NeighborCount] = _blockingMovers[(to + 2) % NeighborCount] = mover;
+            return true;
+        }
+
+        Debug.LogError("Something went wrong: Mover from " + from + " to " + to + " at " + gameObject.name);
+        return false;
+    }
+
+    public void RegisterMover(ScheduledMover scheduledMover)
     {
         Debug.Log("Register from: " + scheduledMover.From);
-        List<ScheduledMover> list = GetListFromNode(scheduledMover.From == null ? scheduledMover.WaypointMover.MoverTransform.position : scheduledMover.From.ThreadsafePosition);
+        List<ScheduledMover> list = GetListFromNode(scheduledMover.From == null
+            ? scheduledMover.WaypointMover.MoverTransform.position
+            : scheduledMover.From.ThreadsafePosition);
         list.Add(scheduledMover);
         list.Sort();
-        
-        int frontMoverIndex = list.IndexOf(scheduledMover) - 1; // Get the transform of the mover in front
-        return frontMoverIndex >= 0 ? list[frontMoverIndex].WaypointMover : null;
+
+        int addedMoverIndex = list.IndexOf(scheduledMover);
+        int frontMoverIndex = addedMoverIndex - 1; // Get the transform of the mover in front
+        int backMoverIndex = addedMoverIndex + 1;
+        if (backMoverIndex < list.Count)
+        {
+            WaypointMoverController backMover = list[backMoverIndex].WaypointMover;
+            backMover.FrontMover = list[addedMoverIndex].WaypointMover;
+            scheduledMover.WaypointMover.BackMover = backMover;
+        }
+
+        if (frontMoverIndex >= 0)
+        {
+            WaypointMoverController frontMover = list[frontMoverIndex].WaypointMover;
+            frontMover.BackMover = list[addedMoverIndex].WaypointMover;
+            scheduledMover.WaypointMover.FrontMover = frontMover;
+        }
     }
 
     private List<ScheduledMover> GetListFromNode(Vector3 previousPosition)
@@ -217,25 +307,19 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         Vector3Int fromVec3 =
             Vector3Int.RoundToInt((previousPosition - this.ThreadsafePosition).normalized);
         int from = AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
-        
-        switch (from)
-        {
-            case Up:
-                return _upScheduledMovers ?? (_upScheduledMovers = new List<ScheduledMover>());
-            case Right:
-                return _rightScheduledMovers ?? (_rightScheduledMovers = new List<ScheduledMover>());
-            case Down:
-                return _downscheduledMovers ?? (_downscheduledMovers = new List<ScheduledMover>());
-            case Left:
-                return _leftscheduledMovers ?? (_leftscheduledMovers = new List<ScheduledMover>());
-        }
 
-        return null;
+        return _scheduledMovers[from] ?? (_scheduledMovers[from] = new List<ScheduledMover>());
     }
 
     public void UnregisterMover(WaypointMoverController waypointMover, PathFindingNode previousNode)
     {
-        List<ScheduledMover> list = GetListFromNode(previousNode == null ? waypointMover.MoverTransform.position : previousNode.ThreadsafePosition);
+        for (int i = _blockingMovers.Length - 1; i >= 0; i--)
+        {
+            if (_blockingMovers[i] == waypointMover) _blockingMovers[i] = null;
+        }
+        List<ScheduledMover> list = GetListFromNode(previousNode == null
+            ? waypointMover.MoverTransform.position
+            : previousNode.ThreadsafePosition);
         if (list == null) return;
         for (int i = 0; i < list.Count; i++)
         {
@@ -245,7 +329,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
             return;
         }
     }
-    
+
     /// <summary>
     /// Finds NeighborNodes in all 4 directions and updates all found Nodes.
     /// </summary>
@@ -259,6 +343,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
                 node.FindNextNodes();
             }
         }
+
         if (this is PathFindingConnector connector) connector.UpdateOrientation();
     }
 
@@ -272,7 +357,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         for (int i = 0; i < NeighborCount; i++)
         {
             PathFindingNode nextNode = AdjacentNodes(i);
-            
+
             while (nextNode && !nextNode.IsNode())
             {
                 Array.Clear(nextNode.NeighborNodes, 0, NeighborCount); // Clear Neighbors of non nodes
@@ -311,7 +396,8 @@ public class ScheduledMover : IComparable<ScheduledMover>
     private PathFindingNode _from;
     private PathFindingNode _to;
 
-    public ScheduledMover(WaypointMoverController waypointMover, Vector3 intersectionVec3, PathFindingNode from, PathFindingNode to)
+    public ScheduledMover(WaypointMoverController waypointMover, Vector3 intersectionVec3, PathFindingNode from,
+        PathFindingNode to)
     {
         _waypointMover = waypointMover;
         _intersectionVec3 = intersectionVec3;

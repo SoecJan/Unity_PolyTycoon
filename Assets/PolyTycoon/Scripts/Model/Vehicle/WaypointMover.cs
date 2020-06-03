@@ -18,6 +18,12 @@ public class WaypointMoverController
     /// </summary>
     private float _maxSpeed = 2f;
 
+    private AnimationCurve _accelerationCurve;
+
+    private AnimationCurve _decelerationCurve;
+
+    private const float _distanceToFrontMoverTolerance = 0.05f;
+
     /// <summary>
     /// The Transform that this mover moves
     /// </summary>
@@ -27,6 +33,11 @@ public class WaypointMoverController
     /// The Transform that is moving between this mover and an intersection. Set by registering at a PathfindingNode.
     /// </summary>
     private WaypointMoverController _frontMover;
+    
+    /// <summary>
+    /// The Transform that is moving behind this mover. Set by registering at a PathfindingNode.
+    /// </summary>
+    private WaypointMoverController _backMover;
 
     /// <summary>
     /// Determines if the current speed should be adjusted
@@ -48,16 +59,39 @@ public class WaypointMoverController
     /// </summary>
     private bool _waiting = true;
 
+    /// <summary>
+    /// True if this vehicle is currently breaking
+    /// </summary>
+    private bool _breaking = false;
+
     private Coroutine _cornerCoroutine;
 
     public WaypointMoverController()
     {
     }
 
+    public AnimationCurve AccelerationCurve
+    {
+        get => _accelerationCurve;
+        set => _accelerationCurve = value;
+    }
+
+    public AnimationCurve DecelerationCurve
+    {
+        get => _decelerationCurve;
+        set => _decelerationCurve = value;
+    }
+
     public WaypointMoverController FrontMover
     {
         get => _frontMover;
         set => _frontMover = value;
+    }
+    
+    public WaypointMoverController BackMover
+    {
+        get => _backMover;
+        set => _backMover = value;
     }
 
     public float CurrentSpeed
@@ -100,7 +134,6 @@ public class WaypointMoverController
     /// </summary>
     public Action OnArrive { get; set; }
     
-    private Action OnWaypointIndexChange { get; set; }
 
     /// <summary>
     /// The current index of the waypointList element
@@ -111,7 +144,7 @@ public class WaypointMoverController
         set
         {
             _currentWaypointIndex = value;
-            OnWaypointIndexChange?.Invoke();
+            if (_backMover != null) _backMover._frontMover = null;
         }
     }
 
@@ -230,7 +263,6 @@ public class WaypointMoverController
     private IEnumerator MoveStraight(Vector3 targetPosition)
     {
         MoverTransform.LookAt(targetPosition);
-        float acceleration = Time.deltaTime;
         // Cache mover position
         Vector3 currentPosition = MoverTransform.position;
         // Current Difference
@@ -240,13 +272,59 @@ public class WaypointMoverController
         Vector3 futurePosition = currentPosition + (Time.deltaTime * _currentSpeed * direction);
         Vector3 futureDifference = targetPosition - futurePosition;
 
-        while (_waypointList != null && difference.magnitude > futureDifference.magnitude)
+        while (_breaking || (_waypointList != null && difference.magnitude > futureDifference.magnitude))
         {
             if (_hasEngine)
             {
-                float distanceToFrontMover = _frontMover != null ? Vector3.Distance(_moverTransform.position, _frontMover.MoverTransform.position) : 1f;
+                float distanceToFrontMover = _frontMover != null ? Vector3.Distance(_moverTransform.position, _frontMover.MoverTransform.position) : float.MaxValue;
                 float speedOfFrontMover = _frontMover?._currentSpeed ?? _currentSpeed;
-                _currentSpeed = Math.Abs(distanceToFrontMover - 1f) < 0.1f ? speedOfFrontMover : distanceToFrontMover < 0.9f ? speedOfFrontMover * 0.9f : Mathf.Min(_currentSpeed + acceleration, _maxSpeed);
+                float safetyDistance = Math.Max(1f, _currentSpeed);
+
+                // Calculate Traffic Light
+                float neededBreakDistance = _decelerationCurve.Evaluate(1f);
+                WayPoint targetWaypoint = _waypointList[CurrentWaypointIndex];
+                Vector3 startOfIntersection = targetWaypoint.TraversalVectors[0];
+                float distanceToTrafficLight = Vector3.Distance(startOfIntersection, currentPosition);
+                bool outOfTrafficLightDistance = distanceToTrafficLight > neededBreakDistance;
+
+                Debug.Log(outOfTrafficLightDistance + " " + startOfIntersection + " " + futurePosition + " " + distanceToTrafficLight + " > " + neededBreakDistance);
+                
+                if (!outOfTrafficLightDistance)
+                {
+                    if (_frontMover != null)
+                    {
+                        _currentSpeed = _frontMover._currentSpeed;
+                    }
+                    else if (!targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()))
+                    {
+                        Debug.Log("Traffic Light is not green");
+                        _currentSpeed = Mathf.Min(_currentSpeed, distanceToTrafficLight);
+                        _breaking = true;
+                        yield return new WaitUntil(() =>
+                            targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()));
+                    }
+                    else
+                    {
+                        float acceleration = (_accelerationCurve.Evaluate(_currentSpeed / _maxSpeed) * Time.deltaTime);
+                        // Debug.Log("Accelerating! " + acceleration + ", " + _currentSpeed);
+                        _currentSpeed = Mathf.Min(_currentSpeed + acceleration, _maxSpeed);
+                        _breaking = false;
+                    }
+                }
+                else if (distanceToFrontMover > safetyDistance)
+                {
+                    // Needed break distance is not reached &
+                    // Front mover is ahead or non existent => accelerate
+                    float acceleration = (_accelerationCurve.Evaluate(_currentSpeed / _maxSpeed) * Time.deltaTime);
+                    // Debug.Log("Accelerating! " + acceleration + ", " + _currentSpeed);
+                    _currentSpeed = Mathf.Min(_currentSpeed + acceleration, _maxSpeed);
+                }
+                else
+                {
+                    // Front mover is close => align speed or break if needed
+                    bool isSafetyDistance = Math.Abs(distanceToFrontMover - safetyDistance) < _distanceToFrontMoverTolerance;
+                    _currentSpeed = isSafetyDistance ? speedOfFrontMover : speedOfFrontMover * (1 - _distanceToFrontMoverTolerance);
+                }
             }
 
             difference = targetPosition - currentPosition; // Difference Current to Target
@@ -322,9 +400,9 @@ public class WaypointMoverController
         if (_waypointList == null || CurrentWaypointIndex >= _waypointList.Count || CurrentWaypointIndex == -1) return;
         PathFindingNode from = GetFrom();
         PathFindingNode to = GetTo();
-        _frontMover = _waypointList[CurrentWaypointIndex].Node.RegisterMover(
-            new ScheduledMover(this, _waypointList[CurrentWaypointIndex].TraversalVectors[0], from, to));
-        if (_frontMover != null) _frontMover.OnWaypointIndexChange += delegate { this._frontMover = null; };
+        Vector3[] traversalVectors = _waypointList[CurrentWaypointIndex].TraversalVectors;
+        _waypointList[CurrentWaypointIndex].Node.RegisterMover(
+            new ScheduledMover(this, traversalVectors[traversalVectors.Length-1], from, to));
     }
 
     private void UnregisterAtNode()
@@ -338,27 +416,12 @@ public class WaypointMoverController
     {
         if (CurrentWaypointIndex == _waypointList.Count - 1 || CurrentWaypointIndex == -1) return null;
         return _waypointList[CurrentWaypointIndex + 1].Node;
-        // PathFindingNode currentNode = _waypointList[CurrentWaypointIndex].Node;
-        // PathFindingNode nextNode = _waypointList[CurrentWaypointIndex + 1].Node;
-        // Vector3Int toVec3 =
-        //     Vector3Int.RoundToInt((currentNode.transform.position - nextNode.transform.position).normalized);
-        // Debug.Log(toVec3);
-        // int to = AbstractPathFindingAlgorithm.DirectionVectorToInt(toVec3);
-        // Debug.Log(to);
-        // return to;
     }
 
     private PathFindingNode GetFrom()
     {
         if (CurrentWaypointIndex <= 0) return null;
         return _waypointList[CurrentWaypointIndex - 1].Node;
-        
-        // if (CurrentWaypointIndex == -1 || CurrentWaypointIndex == 0) return -1;
-        // PathFindingNode previousNode = _waypointList[CurrentWaypointIndex - 1].Node;
-        // PathFindingNode currentNode = _waypointList[CurrentWaypointIndex].Node;
-        // Vector3Int fromVec3 =
-        //     Vector3Int.RoundToInt((previousNode.transform.position - currentNode.transform.position).normalized);
-        // return AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
     }
 }
 
@@ -414,6 +477,18 @@ public class WaypointMover : MonoBehaviour
             _waypointMoverController.WaypointList = value;
             StartCoroutine(_waypointMoverController.Move());
         }
+    }
+
+    public AnimationCurve AccelerationCurve
+    {
+        get => _waypointMoverController.AccelerationCurve;
+        set => _waypointMoverController.AccelerationCurve = value;
+    }
+
+    public AnimationCurve DecelerationCurve
+    {
+        get => _waypointMoverController.DecelerationCurve;
+        set => _waypointMoverController.DecelerationCurve = value;
     }
 
     public int CurrentWaypointIndex

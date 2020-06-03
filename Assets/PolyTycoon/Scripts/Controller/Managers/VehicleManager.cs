@@ -48,6 +48,8 @@ public class VehicleManager : IVehicleManager
         // Add & Setup Mover
         RouteMover routeMover = rootGameObject.AddComponent<RouteMover>();
         routeMover.MaxSpeed = transportVehicleData.MaxSpeed;
+        routeMover.AccelerationCurve = transportVehicleData.AccelerationCurve;
+        routeMover.DecelerationCurve = transportVehicleData.DecelerationCurve;
         // Add & Setup Mover
         TransportVehicle transportVehicle = rootGameObject.AddComponent<TransportVehicle>();
         transportVehicle.VehicleName = transportVehicleData.VehicleName;
