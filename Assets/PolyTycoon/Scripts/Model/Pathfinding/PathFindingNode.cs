@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -28,7 +29,13 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     public const int Left = 3;
 
     private List<ScheduledMover>[] _scheduledMovers; // All incoming movers are registered here
-    private WaypointMoverController[] _blockingMovers; // Movers can register and block certain pathways
+    /// <summary>
+    /// Holds information on blocked pathways by Movers that are currently on the intersection.
+    /// Movers call <see cref="GetTrafficLightStatus"/> to figure out if this intersection is passable.
+    /// The key: Vector2Int(from, to). If it already exists the path is blocked by another mover.
+    /// The value: Mover that is blocking the path. Needed to specify if a given mover is blocking it's own path.
+    /// </summary>
+    private Dictionary<Vector2Int, List<WaypointMoverController>> _blockingMovers;
 
     private PathFindingNode[] neighborNodes; // Array that holds the reference to the next reachable Node.
 
@@ -94,7 +101,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     {
         if (BuildingManager == null) BuildingManager = FindObjectOfType<GameHandler>().BuildingManager;
         _scheduledMovers = new List<ScheduledMover>[NeighborCount];
-        _blockingMovers = new WaypointMoverController[NeighborCount];
+        _blockingMovers = new Dictionary<Vector2Int, List<WaypointMoverController>>();
     }
 
     protected void OnDrawGizmos()
@@ -155,16 +162,18 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
             }
 
             // Visualize Traffic Logic
-            foreach (WaypointMoverController moverController in _blockingMovers)
+            foreach (List<WaypointMoverController> moverControllers in _blockingMovers.Values)
             {
-                if (moverController == null) continue;
-                if (moverController.CurrentWaypointIndex < 0 
-                    || moverController.CurrentWaypointIndex >= moverController.WaypointList.Count) continue;
-                Gizmos.DrawLine(ThreadsafePosition, moverController.MoverTransform.position);
-                WayPoint wayPoint = moverController.WaypointList[moverController.CurrentWaypointIndex];
-                for (int j = 0; j < wayPoint.TraversalVectors.Length - 1; j++)
+                foreach (WaypointMoverController moverController in moverControllers)
                 {
-                    Gizmos.DrawLine(wayPoint.TraversalVectors[j], wayPoint.TraversalVectors[j+1]);
+                    if (moverController.CurrentWaypointIndex < 0 
+                        || moverController.CurrentWaypointIndex >= moverController.WaypointList.Count) continue;
+                    Gizmos.DrawLine(ThreadsafePosition, moverController.MoverTransform.position);
+                    WayPoint wayPoint = moverController.WaypointList[moverController.CurrentWaypointIndex];
+                    for (int j = 0; j < wayPoint.TraversalVectors.Length - 1; j++)
+                    {
+                        Gizmos.DrawLine(wayPoint.TraversalVectors[j], wayPoint.TraversalVectors[j+1]);
+                    }
                 }
             }
         }
@@ -229,51 +238,56 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     private bool GetTrafficLightStatus(WaypointMoverController mover, int from, int to)
     {
-        // TODO: Add more Mover information for better traffic light status: add from and to checks
         // if (from == 0) return false;
-        // Goes straight
-        if (from % 2 == to % 2)
+
+        int[,] blockedMask;
+        if (from % 2 == to % 2) // Go straight
         {
-            bool isMoverItself = (_blockingMovers[to] == mover 
-                                  && _blockingMovers[(to + 1) % NeighborCount] == mover 
-                                  && _blockingMovers[(to + 2) % NeighborCount] == mover);
-            bool isBlocked = !(_blockingMovers[to] == null
-                               && _blockingMovers[(to + 1) % NeighborCount] == null
-                               && _blockingMovers[(to + 2) % NeighborCount] == null);
-            if (isBlocked && !isMoverItself) return false;
-            
-            _blockingMovers[to] = _blockingMovers[(to + 1) % NeighborCount] = _blockingMovers[(to + 2) % NeighborCount] = mover; // Blocking pathways
+            blockedMask = TrafficIntersectionMask.straight;
+        } 
+        else if ((to + 1) % NeighborCount == from) // Go right
+        {
+            blockedMask = TrafficIntersectionMask.right;
+        }
+        else if ((from + 1) % NeighborCount == to) // Go left
+        {
+            blockedMask = TrafficIntersectionMask.left;
+        }
+        else // Not an intersection
+        {
+            Debug.LogError("Nothing to block");
             return true;
         }
 
-        // Goes right
-        if ((to + 1) % NeighborCount == from)
-        {
-            bool isMoverItself = _blockingMovers[to] == mover;
-            bool isBlocked = _blockingMovers[to] != null;
-            if (isBlocked && !isMoverItself) return false;
-            
-            _blockingMovers[to] = mover;
-            return true;
-        }
+        // Check if intersection is blocked
+        
+        Vector2Int neededPath = new Vector2Int(from, to);
+        bool blockExists = _blockingMovers.ContainsKey(neededPath);
+        bool moverIsTheOnlyBlocker = blockExists && (_blockingMovers[neededPath].Count == 0 
+                                                     || (_blockingMovers[neededPath].Count == 1 
+                                                         && _blockingMovers[neededPath].Contains(mover)));
+        if (blockExists && !moverIsTheOnlyBlocker) return false;
 
-        // Goes Left
-        if ((from + 1) % NeighborCount == to)
+        // Block intersection
+        for (int i = 0; i < blockedMask.GetLength(0); i++)
         {
-            bool isMoverItself = _blockingMovers[to] == mover 
-                                 && _blockingMovers[(from + 2) % NeighborCount] == mover 
-                                 && _blockingMovers[(to + 2) % NeighborCount] == mover;
-            bool isBlocked = !(_blockingMovers[to] == null 
-                              && _blockingMovers[(from + 2) % NeighborCount] == null
-                              &&_blockingMovers[(to + 2) % NeighborCount] == null);
-            if (isBlocked && !isMoverItself) return false;
-            
-            _blockingMovers[to] = _blockingMovers[(from + 2) % NeighborCount] = _blockingMovers[(to + 2) % NeighborCount] = mover;
-            return true;
+            int blockedFrom = Mod(blockedMask[i, 0] + from, NeighborCount);
+            int blockedTo = Mod(blockedMask[i, 1] + to, NeighborCount);
+            Vector2Int key = new Vector2Int(blockedFrom, blockedTo);
+            if (!_blockingMovers.ContainsKey(key))
+            {
+                List<WaypointMoverController> list = new List<WaypointMoverController> {mover};
+                _blockingMovers.Add(key, list);
+            } else if (!_blockingMovers[key].Contains(mover))
+            {
+                _blockingMovers[key].Add(mover);
+            }
         }
+        return true;
+    }
 
-        Debug.LogError("Something went wrong: Mover from " + from + " to " + to + " at " + gameObject.name);
-        return false;
+    public static int Mod(int x, int m) {
+        return (x%m + m)%m;
     }
 
     public void RegisterMover(ScheduledMover scheduledMover)
@@ -314,9 +328,9 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     public void UnregisterMover(WaypointMoverController waypointMover, PathFindingNode previousNode)
     {
-        for (int i = _blockingMovers.Length - 1; i >= 0; i--)
+        foreach (KeyValuePair<Vector2Int,List<WaypointMoverController>> keyValuePair in _blockingMovers)
         {
-            if (_blockingMovers[i] == waypointMover) _blockingMovers[i] = null;
+            keyValuePair.Value.Remove(waypointMover);
         }
         List<ScheduledMover> list = GetListFromNode(previousNode == null
             ? waypointMover.MoverTransform.position
@@ -430,4 +444,73 @@ public class ScheduledMover : IComparable<ScheduledMover>
         float otherDistance = (other.WaypointMover.MoverTransform.position - this._intersectionVec3).magnitude;
         return myDistance > otherDistance ? 1 : myDistance < otherDistance ? -1 : 0;
     }
+}
+
+/// <summary>
+/// Holds information for intersection logic.
+/// The arrays are filled with relative index specific masks.
+/// Usage: Get the from direction (Up, Right, Down, Left) and add the masked elements of these array.
+/// That will give you the indices that need to be blocked on <see cref="PathFindingNode"/> _blockingMovers
+/// </summary>
+struct TrafficIntersectionMask
+{
+    public static int[,] straight =
+    {
+        { -1, 0 },
+        { -1, 1 },
+        { -1, 2 },
+        { -1, 3 },
+        // { 0, 0 }, Followers are allowed to move anywhere
+        // { 0, 1 },
+        // { 0, 2 },
+        // { 0, 3 },
+        { 1, 0 },
+        { 1, 1 },
+        { 1, 2 },
+        // { 1, 3 }, Allow this one to turn right
+        { 2, 0 },
+        { 2, 1 },
+        // { 2, 2 }, Allow the other side to move straight
+        // { 2, 3 }, Allow the other side to turn right
+    };
+
+    public static int[,] right =
+    {
+        { -1, 0 },
+        // { -1, 1 },
+        // { -1, 2 },
+        // { -1, 3 },
+        // { 0, 0 },
+        // { 0, 1 },
+        // { 0, 2 },
+        // { 0, 3 },
+        { 1, 0 },
+        // { 1, 1 },
+        // { 1, 2 },
+        // { 1, 3 }, 
+        { 2, 0 },
+        // { 2, 1 },
+        // { 2, 2 }, 
+        // { 2, 3 }, 
+    };
+
+    public static int[,] left =
+    {
+        { -1, 0 },
+        // { -1, 1 },
+        { -1, 2 },
+        { -1, 3 },
+        // { 0, 0 },
+        // { 0, 1 },
+        // { 0, 2 },
+        // { 0, 3 },
+        { 1, 0 },
+        { 1, 1 },
+        { 1, 2 },
+        // { 1, 3 }, 
+        { 2, 0 },
+        { 2, 1 },
+        { 2, 2 }, 
+        { 2, 3 }, 
+    };
 }
