@@ -229,6 +229,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     private bool GetTrafficLightStatus(WaypointMoverController mover, int from, int to)
     {
+        // TODO: Add more Mover information for better traffic light status: add from and to checks
         // if (from == 0) return false;
         // Goes straight
         if (from % 2 == to % 2)
@@ -277,7 +278,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     public void RegisterMover(ScheduledMover scheduledMover)
     {
-        Debug.Log("Register from: " + scheduledMover.From);
+        // Debug.Log("Register from: " + scheduledMover.From);
         List<ScheduledMover> list = GetListFromNode(scheduledMover.From == null
             ? scheduledMover.WaypointMover.MoverTransform.position
             : scheduledMover.From.ThreadsafePosition);
@@ -324,7 +325,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         for (int i = 0; i < list.Count; i++)
         {
             if (!list[i].WaypointMover.Equals(waypointMover)) continue;
-            Debug.Log("Removed at " + i.ToString());
+            // Debug.Log("Removed at " + i.ToString());
             list.RemoveAt(i);
             return;
         }

@@ -18,6 +18,8 @@ public class WaypointMoverController
     /// </summary>
     private float _maxSpeed = 2f;
 
+    private float _vehicleLength;
+
     private AnimationCurve _accelerationCurve;
 
     private AnimationCurve _decelerationCurve;
@@ -154,7 +156,11 @@ public class WaypointMoverController
     public Transform MoverTransform
     {
         get => _moverTransform;
-        set => _moverTransform = value;
+        set
+        {
+            _moverTransform = value;
+            _vehicleLength = _moverTransform.GetComponentInChildren<Renderer>().bounds.extents.x;
+        }
     }
 
     public bool HasEngine
@@ -284,24 +290,35 @@ public class WaypointMoverController
                 float neededBreakDistance = _decelerationCurve.Evaluate(1f);
                 WayPoint targetWaypoint = _waypointList[CurrentWaypointIndex];
                 Vector3 startOfIntersection = targetWaypoint.TraversalVectors[0];
-                float distanceToTrafficLight = Mathf.Abs(Vector3.Distance(startOfIntersection, currentPosition));
+                float distanceToTrafficLight = Mathf.Abs(Vector3.Distance(startOfIntersection, currentPosition)) - _vehicleLength;
                 bool outOfTrafficLightDistance = distanceToTrafficLight > neededBreakDistance;
 
-                Debug.Log(outOfTrafficLightDistance + " " + startOfIntersection + " " + futurePosition + " " + distanceToTrafficLight + " > " + neededBreakDistance);
+                // Debug.Log(outOfTrafficLightDistance + " " + startOfIntersection + " " + futurePosition + " " + distanceToTrafficLight + " > " + neededBreakDistance);
                 
                 if (!outOfTrafficLightDistance)
                 {
                     if (_frontMover != null)
                     {
-                        Debug.Log("Traffic Light: Trying to stop behind front mover");
+                        // Debug.Log("Traffic Light: Trying to stop behind front mover. Speed: " + _currentSpeed + " distance: " + distanceToFrontMover);
                         _breaking = true;
-                        _currentSpeed = 0f;
+                        bool isSafetyDistance = Math.Abs(distanceToFrontMover - safetyDistance) < _distanceToFrontMoverTolerance;
+                        float frontMoverSpeed = isSafetyDistance ? speedOfFrontMover : speedOfFrontMover * (1 - _distanceToFrontMoverTolerance);
+                        _currentSpeed = Mathf.Min(frontMoverSpeed, distanceToTrafficLight);
                     }
                     else if (!targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()))
                     {
-                        Debug.Log("Traffic Light is not green");
-                        _currentSpeed = Mathf.Min(_currentSpeed, distanceToTrafficLight);
+                        // Debug.Log("Traffic Light is not green, Speed: " + _currentSpeed + " Distance: " + distanceToTrafficLight);
                         _breaking = true;
+                        while (!targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()) && _currentSpeed > 0.1f)
+                        {
+                            distanceToTrafficLight = Mathf.Abs(Vector3.Distance(startOfIntersection, currentPosition)) - _vehicleLength;
+                            _currentSpeed = Mathf.Min(_currentSpeed, distanceToTrafficLight);
+                            currentPosition += (Time.deltaTime * _currentSpeed * direction); // Next Position
+                            MoverTransform.position = currentPosition; // Set Mover Position
+                            yield return null;
+                        }
+
+                        _currentSpeed = 0f;
                         yield return new WaitUntil(() =>
                             targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()));
                     }
@@ -315,7 +332,7 @@ public class WaypointMoverController
                 }
                 else if (distanceToFrontMover > safetyDistance)
                 {
-                    Debug.Log("No Mover ahead");
+                    // Debug.Log("No Mover ahead");
                     // Needed break distance is not reached &
                     // Front mover is ahead or non existent => accelerate
                     float acceleration = (_accelerationCurve.Evaluate(_currentSpeed / _maxSpeed) * Time.deltaTime);
@@ -324,7 +341,7 @@ public class WaypointMoverController
                 }
                 else
                 {
-                    Debug.Log("Trying to stop behind front mover");
+                    // Debug.Log("Trying to stop behind front mover");
                     // Front mover is close => align speed or break if needed
                     bool isSafetyDistance = Math.Abs(distanceToFrontMover - safetyDistance) < _distanceToFrontMoverTolerance;
                     _currentSpeed = isSafetyDistance ? speedOfFrontMover : speedOfFrontMover * (1 - _distanceToFrontMoverTolerance);
