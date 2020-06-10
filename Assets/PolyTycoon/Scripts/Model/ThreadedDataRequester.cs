@@ -37,6 +37,7 @@ public class ThreadedDataRequester {
         if (dataQueue.Count == 0) return;
         for (int i = 0; i < dataQueue.Count; i++) {
             ThreadInfo threadInfo = dataQueue.Dequeue();
+            if (threadInfo.callback == null) continue;
             foreach (Action<object> callback in threadInfo.callback)
             {
                 callback(threadInfo.parameter);

@@ -1,19 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using NUnit.Framework.Internal.Builders;
 using UnityEngine;
+using Random = System.Random;
 
 public class TreeManager : ITreeManager
 {
-    private GameObject _grassModel;
-    private GameObject _treeModel;
+    private GameObject _coastModel;
+    private GameObject _flatlandModel;
+    private GameObject _hillModel;
+    private GameObject _mountainModel;
+    
     private IPlacementController _placementController;
+    private ITerrainGenerator _terrainGenerator;
     private ICityManager _cityManager;
 
     // Start is called before the first frame update
-    public TreeManager(IPlacementController placementController)
+    public TreeManager(IPlacementController placementController, ITerrainGenerator terrainGenerator)
     {
         _placementController = placementController;
-        _grassModel = Resources.Load<GameObject>(PathUtil.Get("Grass"));
-        _treeModel = Resources.Load<GameObject>(PathUtil.Get("Tree"));
+        _terrainGenerator = terrainGenerator;
+        _coastModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Coast"));
+        _flatlandModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Flatland"));
+        _hillModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Hill"));
+        _mountainModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Mountain"));
     }
 
     public TreeBehaviour GetRandomTree()
@@ -29,7 +39,11 @@ public class TreeManager : ITreeManager
 
     public void OnTreePositionFound(object treePlacementObject)
     {
+        Random random = new Random(135);
         ThreadsafePlaceable threadsafePlaceable = (ThreadsafePlaceable) treePlacementObject;
+        Vector2 position = _terrainGenerator.GetTerrainChunkPosition(threadsafePlaceable.Position.x, threadsafePlaceable.Position.z);
+        Debug.Log("Tree Position Terrain Chunk: " + position);
+        TerrainChunk terrainChunk = _terrainGenerator.GetTerrainChunk(position);
         TreeBehaviour treeBehaviour = (TreeBehaviour) threadsafePlaceable.MapPlaceable;
         treeBehaviour.transform.position = threadsafePlaceable.Position;
         treeBehaviour.gameObject.name = "Tree: " + threadsafePlaceable.Position;
@@ -38,13 +52,34 @@ public class TreeManager : ITreeManager
             GameObject prefab = null;
             if (neededSpace.TerrainType == TerrainGenerator.TerrainType.Coast)
             {
-                prefab = _grassModel;
+                prefab = _coastModel; 
             }
-            else
+            else if (neededSpace.TerrainType == TerrainGenerator.TerrainType.Flatland)
             {
-                prefab = _treeModel;
+                prefab = _flatlandModel;
+            }
+            else if (neededSpace.TerrainType == TerrainGenerator.TerrainType.Hill)
+            {
+                prefab = _hillModel;
+            }
+            else if (neededSpace.TerrainType == TerrainGenerator.TerrainType.Mountain)
+            {
+                prefab = _mountainModel;
             }
             GameObject go = GameObject.Instantiate(prefab, neededSpace.UsedCoordinate + threadsafePlaceable.Position, Quaternion.identity, treeBehaviour.transform);
+            float scaleFactor = 0.5f + (float) random.NextDouble();
+            for(int i = 0; i < go.transform.childCount; i++) 
+            {
+                go.transform.GetChild(i).localScale *= scaleFactor;
+            }
+
+            Vector2Int pos = new Vector2Int((int) go.transform.position.x, (int) go.transform.position.z);
+            if (terrainChunk.EnvDictionary.ContainsKey(pos))
+            {
+                GameObject.Destroy(go);
+                continue;
+            }
+            terrainChunk.EnvDictionary.Add(pos, go);
         }
         if (!_placementController.PlaceObject(treeBehaviour))
         {

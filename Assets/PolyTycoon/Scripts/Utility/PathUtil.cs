@@ -116,7 +116,10 @@ public static class PathUtil
 
             // Prefabs/Environment
             case "Cloud":
-            case "Tree":
+            case "Tree_Coast":
+            case "Tree_Flatland":
+            case "Tree_Hill":
+            case "Tree_Mountain":
             case "Lake":
             case "Grass":
                 return environmentFolder + name;

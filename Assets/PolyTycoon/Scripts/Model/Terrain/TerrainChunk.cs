@@ -21,6 +21,7 @@ public class TerrainChunk
     HeightMapSettings heightMapSettings;
     MeshSettings meshSettings;
 
+    private Dictionary<Vector2Int, GameObject> _envDictionary;
     private CloudBehaviour _cloudBehaviour;
 
     static Transform viewer;
@@ -69,6 +70,16 @@ public class TerrainChunk
         get { return heightMap; }
 
         set { heightMap = value; }
+    }
+
+    public Dictionary<Vector2Int, GameObject> EnvDictionary
+    {
+        get
+        {
+            if (_envDictionary == null) EnvDictionary = new Dictionary<Vector2Int, GameObject>();
+            return _envDictionary;
+        }
+        set => _envDictionary = value;
     }
 
     public bool HasHeightMap()
@@ -133,10 +144,7 @@ public class TerrainChunk
     {
         // Tree Placement
         GameHandler gameHandler = GameObject.FindObjectOfType<GameHandler>();
-        ITreeManager treeManager = gameHandler.TreeManager;
 
-        Texture2D forrestBlueprint = treeManager.GetRandomForrestBlueprint();
-        
         GameObject gameObject = new GameObject("Tree");
         TreeBehaviour treeBehaviour = gameObject.AddComponent<TreeBehaviour>();
         treeBehaviour.UsedCoordinates = new List<NeededSpace>();
@@ -144,10 +152,12 @@ public class TerrainChunk
         ThreadsafePlaceable treeToPlace =
             new ThreadsafePlaceable(treeBehaviour,
                 new Vector3(this.sampleCentre.x + 0.5f, 0f, this.sampleCentre.y + 0.5f));
-        Color32[] pixels = forrestBlueprint.GetPixels32();
+
         ThreadedDataRequester.RequestData(
             () => ThreadsafePlacementManager.FindForrestPosition(gameHandler.PlacementController,
-                gameHandler.TerrainGenerator, treeToPlace, pixels), gameHandler.TreeManager.OnTreePositionFound);
+                gameHandler.TerrainGenerator, treeToPlace, 
+                Noise.GenerateNoiseMap(heightMap.values.GetLength(0), heightMap.values.GetLength(1), heightMapSettings.noiseSettings, sampleCentre)), 
+            gameHandler.TreeManager.OnTreePositionFound);
     }
 
     void OnMeshDataReceived(object meshDataObject)
@@ -172,4 +182,13 @@ public class TerrainChunk
     }
 
     #endregion
+
+    public void RemoveEnvironment(Vector3 position, SimpleMapPlaceable placeableObject)
+    {
+        Vector2Int pos2 = new Vector2Int((int) position.x, (int) position.z);
+        if (EnvDictionary.ContainsKey(pos2))
+        {
+            GameObject.Destroy(_envDictionary[pos2]);
+        }
+    }
 }

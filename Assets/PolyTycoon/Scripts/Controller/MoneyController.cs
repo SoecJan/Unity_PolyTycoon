@@ -1,6 +1,22 @@
+using System;
+
 public class MoneyController
 {
     private long _moneyAmount;
+    private string _currency = "€";
+
+    private string[] _abbreviations =
+    {
+        "",
+        "K",
+        "M",
+        "B",
+        "T",
+        "Q",
+        "S",
+        "D"
+    };
+
     public System.Action<long, long> OnValueChange;
 
     public MoneyController()
@@ -24,8 +40,21 @@ public class MoneyController
         }
     }
 
-    public string Money()
+    public string Currency
     {
-        return MoneyAmount + " €";
+        get => _currency;
+        set => _currency = value;
+    }
+
+    public string ToCurrencyString()
+    {
+        long temp = _moneyAmount;
+        int abbreviationIndex = 0;
+        while (temp > 1000)
+        {
+            temp /= 1000;
+            abbreviationIndex += 1;
+        }
+        return Currency + " " + temp + _abbreviations[abbreviationIndex];
     }
 }
