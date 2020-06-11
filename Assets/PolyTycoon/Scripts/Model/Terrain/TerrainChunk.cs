@@ -185,10 +185,13 @@ public class TerrainChunk
 
     public void RemoveEnvironment(Vector3 position, SimpleMapPlaceable placeableObject)
     {
-        Vector2Int pos2 = new Vector2Int((int) position.x, (int) position.z);
-        if (EnvDictionary.ContainsKey(pos2))
+        foreach (NeededSpace neededSpace in placeableObject.UsedCoordinates)
         {
-            GameObject.Destroy(_envDictionary[pos2]);
+            Vector2Int pos2 = new Vector2Int((int) position.x + neededSpace.UsedCoordinate.x, (int) position.z + neededSpace.UsedCoordinate.z);
+            if (EnvDictionary.ContainsKey(pos2))
+            {
+                GameObject.Destroy(_envDictionary[pos2]);
+            }
         }
     }
 }

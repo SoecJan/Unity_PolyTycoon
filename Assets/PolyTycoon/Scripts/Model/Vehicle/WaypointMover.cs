@@ -26,6 +26,8 @@ public class WaypointMoverController
 
     private const float _distanceToFrontMoverTolerance = 0.05f;
 
+    private PathType _pathType;
+
     /// <summary>
     /// The Transform that this mover moves
     /// </summary>
@@ -169,6 +171,12 @@ public class WaypointMoverController
         set => _hasEngine = value;
     }
 
+    public PathType PathType
+    {
+        get => _pathType;
+        set => _pathType = value;
+    }
+
     public WaypointMoverController(Transform moverTransform)
     {
         MoverTransform = moverTransform;
@@ -242,10 +250,9 @@ public class WaypointMoverController
                     yield return MoveCurve(currentWayPoint); // Move along a specified corner
                     break;
             }
-
-            UnregisterAtNode();
+            if (PathType == PathType.Road || PathType == PathType.Rail) UnregisterAtNode();
             CurrentWaypointIndex = (CurrentWaypointIndex + 1);
-            RegisterAtNode();
+            if (PathType == PathType.Road || PathType == PathType.Rail) RegisterAtNode();
         }
 
         _waiting = true;
@@ -295,7 +302,7 @@ public class WaypointMoverController
 
                 // Debug.Log(outOfTrafficLightDistance + " " + startOfIntersection + " " + futurePosition + " " + distanceToTrafficLight + " > " + neededBreakDistance);
                 
-                if (!outOfTrafficLightDistance)
+                if ((PathType == PathType.Road || PathType == PathType.Rail) && !outOfTrafficLightDistance)
                 {
                     if (_frontMover != null)
                     {
@@ -459,6 +466,12 @@ public class WaypointMover : MonoBehaviour
     private void Start()
     {
         OnArrive.Invoke();
+    }
+
+    public PathType PathType
+    {
+        get => _waypointMoverController.PathType;
+        set => _waypointMoverController.PathType = value;
     }
 
     public float CurrentSpeed

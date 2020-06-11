@@ -39,29 +39,29 @@ public static class ThreadsafePlacementManager
             {
                 Vector3Int relativePosition =
                     new Vector3Int(x - values.GetLength(0) / 2 + 1, 0, y - values.GetLength(1) / 2 + 1);
+                Vector3 absolutePosition = relativePosition + placeable.Position;
                 bool isThreshold = (values[x, y] > limit - 0.05f && values[x, y] < limit + 0.05f);
                 if (!isThreshold) continue;
-                
-                if (placementController.IsPlaceable(relativePosition + placeable.Position, flatLandNeededSpace))
+
+                TerrainGenerator.TerrainType terrainType = terrainGenerator.GetTerrainType(absolutePosition.x, absolutePosition.z);
+                bool isPlaceable = false;
+                switch (terrainType)
                 {
-                    placeable.NeededSpaces.Add(new NeededSpace(relativePosition,
-                        TerrainGenerator.TerrainType.Flatland));
+                    case TerrainGenerator.TerrainType.Flatland:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, flatLandNeededSpace);
+                        break;
+                    case TerrainGenerator.TerrainType.Coast:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, coastNeededSpace);
+                        break;
+                    case TerrainGenerator.TerrainType.Hill:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, hillNeededSpace);
+                        break;
+                    case TerrainGenerator.TerrainType.Mountain:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, mountainNeededSpace);
+                        break;
                 }
-                else if (placementController.IsPlaceable(relativePosition + placeable.Position, coastNeededSpace))
-                {
-                    placeable.NeededSpaces.Add(new NeededSpace(relativePosition,
-                        TerrainGenerator.TerrainType.Coast));
-                }
-                else if (placementController.IsPlaceable(relativePosition + placeable.Position, hillNeededSpace))
-                {
-                    placeable.NeededSpaces.Add(new NeededSpace(relativePosition,
-                        TerrainGenerator.TerrainType.Hill));
-                }
-                else if (placementController.IsPlaceable(relativePosition + placeable.Position, mountainNeededSpace))
-                {
-                    placeable.NeededSpaces.Add(new NeededSpace(relativePosition,
-                        TerrainGenerator.TerrainType.Mountain));
-                }
+                if (!isPlaceable) continue;
+                placeable.NeededSpaces.Add(new ProceduralNeededSpace(relativePosition, terrainType, values[x, y]));
             }
         }
 

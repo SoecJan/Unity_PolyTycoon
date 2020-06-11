@@ -49,6 +49,7 @@ public class TreeManager : ITreeManager
         treeBehaviour.gameObject.name = "Tree: " + threadsafePlaceable.Position;
         foreach (NeededSpace neededSpace in threadsafePlaceable.NeededSpaces)
         {
+            ProceduralNeededSpace proceduralNeededSpace = (ProceduralNeededSpace) neededSpace;
             GameObject prefab = null;
             if (neededSpace.TerrainType == TerrainGenerator.TerrainType.Coast)
             {
@@ -66,18 +67,22 @@ public class TreeManager : ITreeManager
             {
                 prefab = _mountainModel;
             }
-            GameObject go = GameObject.Instantiate(prefab, neededSpace.UsedCoordinate + threadsafePlaceable.Position, Quaternion.identity, treeBehaviour.transform);
-            float scaleFactor = 0.5f + (float) random.NextDouble();
-            for(int i = 0; i < go.transform.childCount; i++) 
+            else
             {
-                go.transform.GetChild(i).localScale *= scaleFactor;
+                continue;
             }
 
-            Vector2Int pos = new Vector2Int((int) go.transform.position.x, (int) go.transform.position.z);
-            if (terrainChunk.EnvDictionary.ContainsKey(pos))
+            Vector3 absolutePosition = neededSpace.UsedCoordinate + threadsafePlaceable.Position;
+            Vector2Int pos = new Vector2Int((int) absolutePosition.x, (int) absolutePosition.z);
+            if (terrainChunk.EnvDictionary.ContainsKey(pos)) continue;
+
+            float proceduralScalar = Mathf.Clamp(((proceduralNeededSpace.NoiseValue*100f)%10)/7, 0.8f, 2f);
+            GameObject go = GameObject.Instantiate(prefab, absolutePosition, Quaternion.Euler(0f, proceduralScalar * 360f, 0f), treeBehaviour.transform);
+            // Debug.Log(proceduralNeededSpace.NoiseValue + " _ " + proceduralScalar);
+            
+            for(int i = 0; i < go.transform.childCount; i++) 
             {
-                GameObject.Destroy(go);
-                continue;
+                go.transform.GetChild(i).localScale *= proceduralScalar;
             }
             terrainChunk.EnvDictionary.Add(pos, go);
         }

@@ -84,6 +84,9 @@ public static class PathUtil
                 return transportVehicleDataFolder;
 
             // Materials
+            case "TreeMaterial":
+            case "GrassMaterial":
+            case "WaterMaterial":
             case "TerrainMeshMaterial":
                 return materialFolder + name;
 

@@ -179,6 +179,13 @@ public class TerrainGenerator : ITerrainGenerator
         TerrainType tileType = TileType(terrainChunk.HeightMap, x, z);
         return tileType == terrainType;
     }
+    
+    public TerrainType GetTerrainType(float x, float z)
+    {
+        TerrainChunk terrainChunk = GetChunk(x, z);
+        TerrainType tileType = TileType(terrainChunk.HeightMap, x, z);
+        return tileType;
+    }
 
     private TerrainType TileType(HeightMap heightMap, float x, float z)
     {

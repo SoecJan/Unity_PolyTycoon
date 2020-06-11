@@ -185,3 +185,24 @@ public class NeededSpace
 
     public TerrainGenerator.TerrainType TerrainType => _terrainType;
 }
+
+[Serializable]
+public class ProceduralNeededSpace : NeededSpace
+{
+    [SerializeField] private float _noiseValue;
+    public ProceduralNeededSpace(Vector3Int usedCoordinate, TerrainGenerator.TerrainType terrainType, float noiseValue) : base(usedCoordinate, terrainType)
+    {
+        this._noiseValue = noiseValue;
+    }
+
+    public ProceduralNeededSpace(NeededSpace neededSpace, Vector3Int offset, float noiseValue) : base(neededSpace, offset)
+    {
+        this._noiseValue = noiseValue;
+    }
+
+    public float NoiseValue
+    {
+        get => _noiseValue;
+        set => _noiseValue = value;
+    }
+}
