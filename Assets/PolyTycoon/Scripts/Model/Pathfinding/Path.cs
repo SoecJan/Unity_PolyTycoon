@@ -30,6 +30,7 @@ public class Path
 public struct WayPoint
 {
     private Vector3[] _traversalVectors;
+    private PathFindingNode _node;
 
     /// <summary>
     /// Straight line
@@ -42,6 +43,7 @@ public struct WayPoint
         _traversalVectors[0] = fromVector3;
         _traversalVectors[1] = toVector3;
         Radius = 0f;
+        _node = null;
     }
 
     /// <summary>
@@ -58,6 +60,13 @@ public struct WayPoint
         _traversalVectors[1] = offsetVector3;
         _traversalVectors[2] = toVector3;
         Radius = radius;
+        _node = null;
+    }
+
+    public PathFindingNode Node
+    {
+        get => _node;
+        set => _node = value;
     }
 
     public Vector3[] TraversalVectors {

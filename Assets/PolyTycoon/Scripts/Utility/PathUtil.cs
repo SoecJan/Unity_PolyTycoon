@@ -84,6 +84,9 @@ public static class PathUtil
                 return transportVehicleDataFolder;
 
             // Materials
+            case "TreeMaterial":
+            case "GrassMaterial":
+            case "WaterMaterial":
             case "TerrainMeshMaterial":
                 return materialFolder + name;
 
@@ -116,7 +119,10 @@ public static class PathUtil
 
             // Prefabs/Environment
             case "Cloud":
-            case "Tree":
+            case "Tree_Coast":
+            case "Tree_Flatland":
+            case "Tree_Hill":
+            case "Tree_Mountain":
             case "Lake":
             case "Grass":
                 return environmentFolder + name;
