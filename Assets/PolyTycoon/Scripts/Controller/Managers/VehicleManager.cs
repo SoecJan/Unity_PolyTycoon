@@ -47,7 +47,10 @@ public class VehicleManager : IVehicleManager
         boxCollider.size = transportVehicleData.ColliderInfo.size;
         // Add & Setup Mover
         RouteMover routeMover = rootGameObject.AddComponent<RouteMover>();
+        routeMover.PathType = transportVehicleData.PathType;
         routeMover.MaxSpeed = transportVehicleData.MaxSpeed;
+        routeMover.AccelerationCurve = transportVehicleData.AccelerationCurve;
+        routeMover.DecelerationCurve = transportVehicleData.DecelerationCurve;
         // Add & Setup Mover
         TransportVehicle transportVehicle = rootGameObject.AddComponent<TransportVehicle>();
         transportVehicle.VehicleName = transportVehicleData.VehicleName;

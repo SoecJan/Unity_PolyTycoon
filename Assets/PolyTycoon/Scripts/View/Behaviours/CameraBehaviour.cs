@@ -162,10 +162,10 @@ public class CameraBehaviour : MonoBehaviour
             desiredMove *= _panningSpeed;
         }
 
-        if (desiredMove == default(Vector3)) return;
+        // if (desiredMove == default(Vector3)) return;
         desiredMove *= Time.unscaledDeltaTime;
 
-        desiredMove = ApplyBounds(moveTransform.position, desiredMove);
+        // desiredMove = ApplyBounds(moveTransform.position, desiredMove);
         
         
         desiredMove = Quaternion.Euler(new Vector3(0f, moveTransform.eulerAngles.y, 0f)) * desiredMove;

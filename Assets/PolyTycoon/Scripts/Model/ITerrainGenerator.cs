@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions.Comparers;
 
 public interface ITerrainGenerator
 {
@@ -40,4 +41,6 @@ public interface ITerrainGenerator
     TerrainChunk GetChunk(float x, float z);
     bool IsSuitedTerrain(TerrainGenerator.TerrainType terrainType, Vector3 position);
     bool IsSuitedTerrain(TerrainGenerator.TerrainType terrainType, float x, float z);
+
+    TerrainGenerator.TerrainType GetTerrainType(float x, float z);
 }

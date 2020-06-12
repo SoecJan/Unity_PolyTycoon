@@ -24,11 +24,11 @@ public class MoneyUiView : MonoBehaviour
         MoneyController.OnValueChange += delegate(long oldValue, long newValue)
         {
             long difference = newValue - oldValue;
-            _moneyText.text = MoneyController.Money();
+            _moneyText.text = MoneyController.ToCurrencyString();
 
             // Animation
             MoneyAnimationBehaviour cashflowAnimation = Instantiate(_cashFlowAnimationObject, transform);
-            cashflowAnimation.Text.text = (difference < 0 ? "- " : "+ ") + difference + "€";
+            cashflowAnimation.Text.text =  (difference < 0 ? "- " : "+ ") + difference + MoneyController.Currency;
             Animator cashflowAnimator = cashflowAnimation.GetComponent<Animator>();
             cashflowAnimator.SetTrigger(difference < 0 ? "NegativeCashflow" : "PositiveCashflow");
         };

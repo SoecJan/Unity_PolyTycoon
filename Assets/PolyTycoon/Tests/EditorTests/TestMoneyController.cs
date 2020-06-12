@@ -21,13 +21,6 @@ namespace Tests
             Assert.AreEqual(200, _moneyController.MoneyAmount);
         }
 
-        [Test]
-        public void TestMoneyValueExceedMaxLongValue()
-        {
-            _moneyController = new MoneyController(long.MaxValue);
-            Assert.Throws<OverflowException>(delegate { _moneyController.MoneyAmount += 1; });
-        }
-
 //        [UnityTest]
 //        public IEnumerator Tes()
 //        {

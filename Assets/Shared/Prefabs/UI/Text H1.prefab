@@ -63,11 +63,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_text: Text H1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 63b8dd60239448241acde0e310898a16, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 404788e4040d71243a45c07de15216b5, type: 2}
   m_sharedMaterial: {fileID: 4977270438675745792, guid: 63b8dd60239448241acde0e310898a16,
     type: 2}
   m_fontSharedMaterials: []
@@ -146,7 +144,7 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_subTextObjects:
   - {fileID: 0}
   - {fileID: 0}

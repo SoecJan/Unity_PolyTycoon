@@ -121,7 +121,9 @@ public class NetworkAStarPathFinding : AbstractPathFindingAlgorithm
 		int fromDirection = DirectionVectorToInt(fromVector3);
 		int toDirection = DirectionVectorToInt(toVector3);
 		
-		return currentNetworkNode.PathFindingNode.GetTraversalVectors(toDirection, fromDirection);
+		WayPoint wayPoint = currentNetworkNode.PathFindingNode.GetTraversalVectors(toDirection, fromDirection);
+		wayPoint.Node = currentNetworkNode.PathFindingNode;
+		return wayPoint;
 	}
 	#endregion
 }
