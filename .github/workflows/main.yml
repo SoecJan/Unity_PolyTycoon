@@ -2,8 +2,8 @@ name: Build project
 
 on:
   pull_request: {}
-  #push: { branches: [master] }
-  push: {}
+  push: { branches: [master] }
+  #push: {}
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
