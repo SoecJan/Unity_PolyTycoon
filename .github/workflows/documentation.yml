@@ -1,22 +1,19 @@
 name: Documentation
 
 on:
-  pull_request: {}
   push: {}
 
 jobs:
-  generate:
-    name: Doxygen
-    uses: mattnotmitt/doxygen-action@v1
-    with:
-      working-directory: './'
-      doxyfile-path: './'
- 
-  publish:
-    name: Deploy
-    uses: peaceiris/actions-gh-pages@v3
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      publish_dir: ./public
-    
-  
+  documentation:
+    name: Generate Documentation HTML
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: mattnotmitt/doxygen-action@v1
+        with:
+          working-directory: './'
+          doxyfile-path: './'
+
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
