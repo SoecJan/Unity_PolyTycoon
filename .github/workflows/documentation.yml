@@ -21,5 +21,6 @@ jobs:
         with:
           personal_token: ${{ secrets.PERSONAL_TOKEN }}
           external_repository: SoecJan/soecjan.github.io
+          keep_files: true
           publish_branch: master
           publish_dir: ./public
