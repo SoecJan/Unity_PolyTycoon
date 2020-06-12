@@ -161,7 +161,8 @@ public class WaypointMoverController
         set
         {
             _moverTransform = value;
-            _vehicleLength = _moverTransform.GetComponentInChildren<Renderer>().bounds.extents.x;
+            Renderer renderer = _moverTransform.GetComponentInChildren<Renderer>();
+            _vehicleLength = renderer ? renderer.bounds.extents.x : 1f;
         }
     }
 
@@ -294,7 +295,7 @@ public class WaypointMoverController
                 float safetyDistance = Math.Max(1f, _currentSpeed);
 
                 // Calculate Traffic Light
-                float neededBreakDistance = _decelerationCurve.Evaluate(1f);
+                float neededBreakDistance = _decelerationCurve?.Evaluate(1f) ?? 1f;
                 WayPoint targetWaypoint = _waypointList[CurrentWaypointIndex];
                 Vector3 startOfIntersection = targetWaypoint.TraversalVectors[0];
                 float distanceToTrafficLight = Mathf.Abs(Vector3.Distance(startOfIntersection, currentPosition)) - _vehicleLength;
@@ -342,7 +343,7 @@ public class WaypointMoverController
                     // Debug.Log("No Mover ahead");
                     // Needed break distance is not reached &
                     // Front mover is ahead or non existent => accelerate
-                    float acceleration = (_accelerationCurve.Evaluate(_currentSpeed / _maxSpeed) * Time.deltaTime);
+                    float acceleration = ((_accelerationCurve?.Evaluate(_currentSpeed / _maxSpeed) ?? 1f) * Time.deltaTime);
                     // Debug.Log("Accelerating! " + acceleration + ", " + _currentSpeed);
                     _currentSpeed = Mathf.Min(_currentSpeed + acceleration, _maxSpeed);
                 }
