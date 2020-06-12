@@ -8,6 +8,10 @@ jobs:
     name: Generate Documentation HTML
     runs-on: ubuntu-18.04
     steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+
       - uses: mattnotmitt/doxygen-action@v1
         with:
           working-directory: './'
