@@ -6,7 +6,6 @@
     ],
     "includePlatforms": [
         "Android",
-        "BJM",
         "Editor",
         "iOS",
         "LinuxStandalone64",

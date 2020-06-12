@@ -17,11 +17,26 @@ public class TransportVehicleData : ScriptableObject
     [SerializeField] private PathType _pathType = PathType.Road;
     [SerializeField] private int _maxCapacity;
     [SerializeField] private float _maxSpeed;
+    [SerializeField] private AnimationCurve accelerationCurve = AnimationCurve.EaseInOut(0f, 0.5f, 1f, 1f);
+    [Header("Deceleration factor at given ratio of: current speed / max speed. Default: 0.1")]
+    [SerializeField] private AnimationCurve decelerationCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f); // relative from current speed to max speed. 
     [SerializeField] private ColliderInfo _colliderInfo;
     public string VehicleName
     {
         get => _vehicleName;
         set => _vehicleName = value;
+    }
+
+    public AnimationCurve AccelerationCurve
+    {
+        get => accelerationCurve;
+        set => accelerationCurve = value;
+    }
+
+    public AnimationCurve DecelerationCurve
+    {
+        get => decelerationCurve;
+        set => decelerationCurve = value;
     }
 
     public Sprite Sprite

@@ -48,8 +48,9 @@ public class MapPreview : MonoBehaviour
         }
         else if (drawMode == DrawMode.FalloffMap)
         {
-            DrawTexture(TextureGenerator.TextureFromHeightMap(
-                new HeightMap(FalloffGenerator.GenerateFalloffMap(meshSettings.numVertsPerLine), 0, 1)));
+            // DrawTexture(TextureGenerator.TextureFromHeightMap(
+            //     new HeightMap(FalloffGenerator.GenerateFalloffMap(meshSettings.numVertsPerLine), 0, 1)));
+            Debug.LogError("FalloffMap Rendering is disabled");
         }
     }
 

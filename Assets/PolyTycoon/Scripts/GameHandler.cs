@@ -38,7 +38,7 @@ public class GameHandler : MonoBehaviour
         _buildingManager = new BuildingManager();
         _placementController = new PlacementController(_buildingManager, _terrainGenerator);
         _cityCityManager = new CityManager(_placementController);
-        _treeManager = new TreeManager(_placementController);
+        _treeManager = new TreeManager(_placementController, _terrainGenerator);
         _transportRouteManager = new TransportRouteManager(new PathFinder(_terrainGenerator), _vehicleManager);
     }
 

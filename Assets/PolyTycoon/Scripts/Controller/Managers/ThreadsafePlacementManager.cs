@@ -1,19 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using NUnit.Framework;
 using UnityEngine;
 using Random = System.Random;
 
 public static class ThreadsafePlacementManager
 {
     public static ThreadsafePlaceable FindForrestPosition(IPlacementController placementController,
-        ITerrainGenerator terrainGenerator, ThreadsafePlaceable placeable, Color32[] placementTexture)
+        ITerrainGenerator terrainGenerator, ThreadsafePlaceable placeable, float[,] values)
     {
         while (!terrainGenerator.IsReady(placeable.Position))
         {
             Thread.Sleep(50);
         }
 
+        List<NeededSpace> coastNeededSpace = new List<NeededSpace>
+        {
+            new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Coast)
+        };
         List<NeededSpace> flatLandNeededSpace = new List<NeededSpace>
         {
             new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Flatland)
@@ -22,32 +27,41 @@ public static class ThreadsafePlacementManager
         {
             new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Hill)
         };
-        List<NeededSpace> coastNeededSpace = new List<NeededSpace>
+        List<NeededSpace> mountainNeededSpace = new List<NeededSpace>
         {
-            new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Coast)
+            new NeededSpace(Vector3Int.zero, TerrainGenerator.TerrainType.Mountain)
         };
+        float limit = 0.1f;
 
-
-
-        double sqrt = Math.Sqrt(placementTexture.Length);
-        for (int i = 0; i < placementTexture.Length; i++)
+        for (int x = 0; x < values.GetLength(0) - 3; x++)
         {
-            int x = (int) (i % sqrt);
-            int y = (int) (i / sqrt);
-            Color color = placementTexture[i];
-            float density = color.grayscale;
-            Vector3Int relativePosition = new Vector3Int(x, 0, y);
-            if (density <= 0.1f &&
-                placementController.IsPlaceable(relativePosition + placeable.Position, flatLandNeededSpace))
+            for (int y = 0; y < values.GetLength(1) - 3; y++)
             {
-                placeable.NeededSpaces.Add(new NeededSpace(relativePosition, TerrainGenerator.TerrainType.Flatland));
-            } else if (density <= 0.6f && placementController.IsPlaceable(relativePosition + placeable.Position, hillNeededSpace))
-            {
-                placeable.NeededSpaces.Add(new NeededSpace(relativePosition, TerrainGenerator.TerrainType.Hill));
-            } else if (density <= 0.6f &&
-                       placementController.IsPlaceable(relativePosition + placeable.Position, coastNeededSpace))
-            {
-                placeable.NeededSpaces.Add(new NeededSpace(relativePosition, TerrainGenerator.TerrainType.Coast));
+                Vector3Int relativePosition =
+                    new Vector3Int(x - values.GetLength(0) / 2 + 1, 0, y - values.GetLength(1) / 2 + 1);
+                Vector3 absolutePosition = relativePosition + placeable.Position;
+                bool isThreshold = (values[x, y] > limit - 0.05f && values[x, y] < limit + 0.05f);
+                if (!isThreshold) continue;
+
+                TerrainGenerator.TerrainType terrainType = terrainGenerator.GetTerrainType(absolutePosition.x, absolutePosition.z);
+                bool isPlaceable = false;
+                switch (terrainType)
+                {
+                    case TerrainGenerator.TerrainType.Flatland:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, flatLandNeededSpace);
+                        break;
+                    case TerrainGenerator.TerrainType.Coast:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, coastNeededSpace);
+                        break;
+                    case TerrainGenerator.TerrainType.Hill:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, hillNeededSpace);
+                        break;
+                    case TerrainGenerator.TerrainType.Mountain:
+                        isPlaceable = placementController.IsPlaceable(absolutePosition, mountainNeededSpace);
+                        break;
+                }
+                if (!isPlaceable) continue;
+                placeable.NeededSpaces.Add(new ProceduralNeededSpace(relativePosition, terrainType, values[x, y]));
             }
         }
 

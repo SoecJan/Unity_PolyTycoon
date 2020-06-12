@@ -15,6 +15,7 @@ public class PlacementController : IPlacementController
     public static System.Action<BuildingData> _onObjectPlacement;
     private IBuildingManager _buildingManager;
     private ITerrainGenerator _terrainGenerator; // Needed to check the ground below a building before placement
+    private TreeManager _treeManager;
     private BuildingData _buildingData;
     #endregion
 
@@ -97,6 +98,7 @@ public class PlacementController : IPlacementController
             Vector2 chunkVec = _terrainGenerator.GetTerrainChunkPosition(position.x, position.z);
             TerrainChunk terrainChunk = _terrainGenerator.GetTerrainChunk(chunkVec);
             placeableObject.transform.parent = terrainChunk.meshObject.transform;
+            terrainChunk.RemoveEnvironment(position, placeableObject);
         }
         else
         {

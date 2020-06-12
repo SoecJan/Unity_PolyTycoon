@@ -32,7 +32,7 @@ public abstract class AbstractPathFindingAlgorithm
     /// </summary>
     /// <param name="normalizedDirection">The direction that was normalized</param>
     /// <returns>The integer representing a direction</returns>
-	protected int DirectionVectorToInt(Vector3 normalizedDirection)
+	public static int DirectionVectorToInt(Vector3 normalizedDirection)
 	{
 		if (normalizedDirection.Equals(Vector3.forward))
 		{

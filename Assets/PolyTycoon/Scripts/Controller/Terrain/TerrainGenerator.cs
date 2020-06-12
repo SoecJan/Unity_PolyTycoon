@@ -179,6 +179,13 @@ public class TerrainGenerator : ITerrainGenerator
         TerrainType tileType = TileType(terrainChunk.HeightMap, x, z);
         return tileType == terrainType;
     }
+    
+    public TerrainType GetTerrainType(float x, float z)
+    {
+        TerrainChunk terrainChunk = GetChunk(x, z);
+        TerrainType tileType = TileType(terrainChunk.HeightMap, x, z);
+        return tileType;
+    }
 
     private TerrainType TileType(HeightMap heightMap, float x, float z)
     {
@@ -206,11 +213,16 @@ public class TerrainGenerator : ITerrainGenerator
             if (Mathf.Abs(min - TerrainPlaceableHeight) < _terrainHeightTolerance)
             {
                 return TerrainType.Flatland;
-            }
-
-            if (Mathf.Abs(min - 0) < 0.1f)
+            } else if (Mathf.Abs(min - 0) < 0.1f)
             {
                 return TerrainType.Ocean;
+            }
+            else if (Mathf.Abs( min - 0.8298368f) < 0.1f)
+            {
+                return TerrainType.Hill;
+            } else if (Mathf.Abs(min - 1.791435f) < 0.1f)
+            {
+                return TerrainType.Mountain;
             }
         }
         else
