@@ -1,0 +1,11 @@
+name: Unity Test
+on: [push]
+jobs:
+  test:
+    name: Test
+    uses: webbertakken/unity-test-runner@v1.4
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+    with:
+      projectPath: .
+      unityVersion: 2019.2.6f1
