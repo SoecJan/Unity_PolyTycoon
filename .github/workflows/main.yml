@@ -1,11 +1,35 @@
 name: Unity Test
 on: [push]
 jobs:
-  test:
-    name: Test
-    uses: webbertakken/unity-test-runner@v1.4
-    env:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    with:
-      projectPath: .
-      unityVersion: 2019.2.6f1
+  testRunnerInEditMode:
+    name: Test in editmode
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository (required to test local actions)
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+
+      # Cache
+      - uses: actions/cache@v1.1.0
+        with:
+          path: /Library
+          key: Library-test-project-${{ matrix.targetPlatform }}
+          restore-keys: |
+            Library-test-project-
+            Library-
+      # Configure test runner
+      - uses: webbertakken/unity-test-runner@v1.3
+        id: testRunner
+        with:
+          projectPath: .
+          testMode: editmode
+
+      # Upload artifact
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Test results (edit mode)
+          path: ${{ steps.testRunner.outputs.artifactsPath }}
+
+
+    
