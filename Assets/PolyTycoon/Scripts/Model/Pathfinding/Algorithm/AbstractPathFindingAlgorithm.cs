@@ -53,5 +53,21 @@ public abstract class AbstractPathFindingAlgorithm
 
 		return -1;
 	}
+    
+    public static Vector3 DirectionIntToVector(int directionInt)
+    {
+	    switch (directionInt)
+	    {
+		    case PathFindingNode.Up:
+			    return Vector3.forward;
+		    case PathFindingNode.Right:
+			    return Vector3.right;
+		    case PathFindingNode.Down:
+			    return Vector3.back;
+		    case PathFindingNode.Left:
+			    return Vector3.left;
+	    }
+	    return Vector3.zero;
+    }
     #endregion
 }

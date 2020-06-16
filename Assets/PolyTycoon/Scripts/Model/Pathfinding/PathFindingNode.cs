@@ -43,7 +43,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
 
     #region Getter & Setter
 
-    private static IBuildingManager BuildingManager { get; set; }
+    public static IBuildingManager BuildingManager { get; set; }
 
     public PathFindingNode[] NeighborNodes
     {

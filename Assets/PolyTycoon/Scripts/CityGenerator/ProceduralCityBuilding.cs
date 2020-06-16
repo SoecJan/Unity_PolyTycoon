@@ -1,49 +1,37 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ProceduralCityBuilding : SimpleMapPlaceable
 {
     private float _height;
-    
+
     protected override void Initialize()
     {
-        
+        UsedCoordinates = new List<NeededSpace>();
     }
 
-    public override float GetHeight()
+    public float Height
     {
-        return this._height;
-    }
-
-    public void Generate(float height, SimpleMapPlaceable[] neighborPlaceables)
-    {
-        this._height = height;
-        if (neighborPlaceables.Length > 4) Debug.LogError("Too many neighbors");
-        for (int i = 0; i < neighborPlaceables.Length; i++)
+        get => _height;
+        set
         {
-            if (neighborPlaceables[i] is Street)
-            {
-                Street street = ((Street) neighborPlaceables[i]);
-            } else if (neighborPlaceables[i] is ProceduralCityBuilding)
-            {
-                ProceduralCityBuilding cityBuilding = (ProceduralCityBuilding) neighborPlaceables[i];
-                if (PathFindingNode.Up == i)
-                {
-                    if (cityBuilding.GetHeight() < height)
-                    {
-                        // Window or something
-                    } else if (Math.Abs(cityBuilding.GetHeight() - height) < 0.1f)
-                    {
-                        // Only walls, maybe roof
-                    }
-                    else
-                    {
-                        // maybe Roof
-                    }
-                }
-            }
+            _height = value;
+        }
+    }
+
+
+    public void Generate(int amount, Vector3 directionVec)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            NeededSpace neededSpace = new NeededSpace(Vector3Int.RoundToInt(directionVec * i),
+                TerrainGenerator.TerrainType.Flatland);
+            UsedCoordinates.Add(neededSpace);
+            GameObject child = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            child.transform.parent = transform;
+            child.transform.localScale = Vector3.forward + (Vector3.up * _height) + Vector3.right;
+            child.transform.localPosition = (Vector3.down / 2f + (Vector3.up * _height) / 2f) + Vector3Int.RoundToInt(directionVec * i);
         }
     }
 }

@@ -240,6 +240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e1614cc59dae24688fc561e37e1d6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offset: {x: 0.5, y: 0, z: 0.5}
   _animationCurve:
     serializedVersion: 2
     m_Curve:
@@ -294,14 +295,14 @@ MonoBehaviour:
   _size: {x: 20, y: 20}
   _image: {fileID: 1746038164}
   _noiseSettings:
-    scale: 2
-    octaves: 4
-    persistance: 0.63
-    lacunarity: 2.07
+    scale: 65.92
+    octaves: 3
+    persistance: 1
+    lacunarity: 55.2
     seed: 0
     offset: {x: 0, y: 0}
-  _buildingBlockSize: 4
-  _buildingScale: 5.02
+  _buildingBlockSize: {x: 9, y: 3}
+  _buildingScale: 5
 --- !u!4 &562478796
 Transform:
   m_ObjectHideFlags: 0

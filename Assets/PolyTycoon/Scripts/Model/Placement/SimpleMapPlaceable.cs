@@ -50,8 +50,13 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         base.Awake();
         Initialize();
+        ShowPlacementVisuals(IsPlaced);
+    }
+
+    public void ShowPlacementVisuals(bool isPlaced)
+    {
         if (!RendererMaterial) return;
-        RendererMaterial.SetFloat(IsPlacedProperty, 0f);
+        RendererMaterial.SetFloat(IsPlacedProperty, isPlaced ? 0f : 1f);
         childRenderer.material = RendererMaterial;
     }
 
@@ -128,9 +133,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         IsPlaced = true;
         ThreadsafePosition = transform.position;
-        if (!RendererMaterial) return;
-        RendererMaterial.SetFloat(IsPlacedProperty, 1f);
-        childRenderer.material = RendererMaterial;
+        ShowPlacementVisuals(!IsPlaced);
     }
 
     /// <summary>
@@ -184,6 +187,11 @@ public class NeededSpace
     }
 
     public TerrainGenerator.TerrainType TerrainType => _terrainType;
+
+    public static NeededSpace Zero(TerrainGenerator.TerrainType terrainType)
+    {
+        return new NeededSpace(Vector3Int.zero, terrainType);
+    }
 }
 
 [Serializable]
