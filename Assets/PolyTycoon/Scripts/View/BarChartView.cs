@@ -24,7 +24,7 @@ public class BarChartView : MonoBehaviour
         MoneyController moneyController = FindObjectOfType<MoneyUiView>().MoneyController;
         _barChartController = new BarChartController(moneyController);
 
-        _barChartValueViewPrefab = Resources.Load<BarChartValueView>(PathUtil.Get("BarChartValueView"));
+        _barChartValueViewPrefab = Resources.Load<BarChartValueView>(Util.PathTo("BarChartValueView"));
         _barChartValueElements = new List<BarChartValueView>();
         _barChartController.OnValueChange += OnValueEmitted;
         

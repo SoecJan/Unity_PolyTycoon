@@ -107,6 +107,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     protected void OnDrawGizmos()
     {
         Vector3 position;
+        if (UsedCoordinates == null) return;
         foreach (NeededSpace coordinate in UsedCoordinates)
         {
             // Visualize used coordinates
@@ -137,6 +138,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
             Gizmos.DrawSphere(position, 0.1f);
 
             // Visualize registered movers
+            if (_scheduledMovers == null) return;
             Gizmos.color = Color.blue;
             for (int i = 0; i < _scheduledMovers.Length; i++)
             {
@@ -228,10 +230,10 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         }
         Vector3Int fromVec3 =
             Vector3Int.RoundToInt((previousNode.ThreadsafePosition - this.ThreadsafePosition).normalized);
-        int from = AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
+        int from = Util.DirectionVectorToInt(fromVec3);
         Vector3Int toVec3 =
             Vector3Int.RoundToInt((this.ThreadsafePosition - nextNode.ThreadsafePosition).normalized);
-        int to = AbstractPathFindingAlgorithm.DirectionVectorToInt(toVec3);
+        int to = Util.DirectionVectorToInt(toVec3);
 
         return GetTrafficLightStatus(mover, from, to);
     }
@@ -271,8 +273,8 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
         // Block intersection
         for (int i = 0; i < blockedMask.GetLength(0); i++)
         {
-            int blockedFrom = Mod(blockedMask[i, 0] + from, NeighborCount);
-            int blockedTo = Mod(blockedMask[i, 1] + to, NeighborCount);
+            int blockedFrom = Util.Mod(blockedMask[i, 0] + from, NeighborCount);
+            int blockedTo = Util.Mod(blockedMask[i, 1] + to, NeighborCount);
             Vector2Int key = new Vector2Int(blockedFrom, blockedTo);
             if (!_blockingMovers.ContainsKey(key))
             {
@@ -284,10 +286,6 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
             }
         }
         return true;
-    }
-
-    public static int Mod(int x, int m) {
-        return (x%m + m)%m;
     }
 
     public void RegisterMover(ScheduledMover scheduledMover)
@@ -321,7 +319,7 @@ public abstract class PathFindingNode : SimpleMapPlaceable, IPathFindingNode
     {
         Vector3Int fromVec3 =
             Vector3Int.RoundToInt((previousPosition - this.ThreadsafePosition).normalized);
-        int from = AbstractPathFindingAlgorithm.DirectionVectorToInt(fromVec3);
+        int from = Util.DirectionVectorToInt(fromVec3);
 
         return _scheduledMovers[from] ?? (_scheduledMovers[from] = new List<ScheduledMover>());
     }

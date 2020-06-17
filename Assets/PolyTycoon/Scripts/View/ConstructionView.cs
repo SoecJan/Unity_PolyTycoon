@@ -46,7 +46,7 @@ public class ConstructionView : AbstractUi
 			CreateElementViews(BuildingData.BuildingCategory.Infrastructure);
 		};
 		
-		_constructionElementViewPrefab = Resources.Load<ConstructionElementView>(PathUtil.Get("ConstructionElementView"));
+		_constructionElementViewPrefab = Resources.Load<ConstructionElementView>(Util.PathTo("ConstructionElementView"));
 
 		_infrastructureButton.onValueChanged.AddListener(delegate(bool value)
 		{

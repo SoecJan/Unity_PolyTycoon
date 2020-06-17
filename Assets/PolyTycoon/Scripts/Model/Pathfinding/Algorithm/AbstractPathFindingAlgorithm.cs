@@ -23,51 +23,8 @@ public abstract class AbstractPathFindingAlgorithm
     /// <returns>The distance between NodeA and NodeB</returns>
     protected int GetDistance(PathFindingNode nodeA, PathFindingNode nodeB)
     {
-        return (int)Math.Abs((nodeA.ThreadsafePosition - nodeB.ThreadsafePosition).magnitude);
-    }
-
-    /// <summary>
-    /// Transforms a direction Vector3 into an integer representing a direction.
-    /// The values correspond to: <see cref="PathFindingNode"/>
-    /// </summary>
-    /// <param name="normalizedDirection">The direction that was normalized</param>
-    /// <returns>The integer representing a direction</returns>
-	public static int DirectionVectorToInt(Vector3 normalizedDirection)
-	{
-		if (normalizedDirection.Equals(Vector3.forward))
-		{
-			return PathFindingNode.Up;
-		}
-		else if (normalizedDirection.Equals(Vector3.right))
-		{
-			return PathFindingNode.Right;
-		}
-		else if (normalizedDirection.Equals(Vector3.back))
-		{
-			return PathFindingNode.Down;
-		}
-		else if (normalizedDirection.Equals(Vector3.left))
-		{
-			return PathFindingNode.Left;
-		}
-
-		return -1;
-	}
-    
-    public static Vector3 DirectionIntToVector(int directionInt)
-    {
-	    switch (directionInt)
-	    {
-		    case PathFindingNode.Up:
-			    return Vector3.forward;
-		    case PathFindingNode.Right:
-			    return Vector3.right;
-		    case PathFindingNode.Down:
-			    return Vector3.back;
-		    case PathFindingNode.Left:
-			    return Vector3.left;
-	    }
-	    return Vector3.zero;
+        Debug.Log(nodeA.UsedCoordinates.Count + ", " + nodeB.UsedCoordinates.Count);
+        return (int) Mathf.Abs(Vector3.Distance(nodeA.ThreadsafePosition, nodeB.ThreadsafePosition));
     }
     #endregion
 }

@@ -8,32 +8,31 @@ public class CityMainBuilding : PathFindingTarget, IProductReceiver, IProductEmi
 {
     #region Attributes
 
-    [SerializeField] private CityPlaceable _cityPlaceable;
-
     #endregion
 
     #region Getter & Setter
 
     public ProductStorage ReceiverStorage(ProductData productData = null)
     {
-        return ((IProductReceiver) _cityPlaceable).ReceiverStorage(productData);
+        return ((IProductReceiver) CityPlaceable).ReceiverStorage(productData);
     }
 
     public List<ProductData> ReceivedProductList()
     {
-        return ((IProductReceiver) _cityPlaceable).ReceivedProductList();
+        return ((IProductReceiver) CityPlaceable).ReceivedProductList();
     }
 
+    public CityPlaceable CityPlaceable { get; set; }
     public int CurrentResidentCount { get; set; } = 1;
 
     public ProductStorage EmitterStorage(ProductData productData = null)
     {
-        return ((IProductEmitter) _cityPlaceable).EmitterStorage(productData);
+        return ((IProductEmitter) CityPlaceable).EmitterStorage(productData);
     }
 
     public List<ProductData> EmittedProductList()
     {
-        return ((IProductEmitter) _cityPlaceable).EmittedProductList();
+        return ((IProductEmitter) CityPlaceable).EmittedProductList();
     }
 
     #endregion
@@ -48,14 +47,9 @@ public class CityMainBuilding : PathFindingTarget, IProductReceiver, IProductEmi
     protected override void Initialize()
     {
         base.Initialize();
-        RotateUsedCoords(transform.eulerAngles.y);
-        if (!_cityPlaceable && transform.parent)
-            _cityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
-    }
-
-    public CityPlaceable CityPlaceable()
-    {
-        return _cityPlaceable;
+        // RotateUsedCoords(transform.eulerAngles.y);
+        if (!CityPlaceable && transform.parent)
+            CityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
     }
 
     #endregion

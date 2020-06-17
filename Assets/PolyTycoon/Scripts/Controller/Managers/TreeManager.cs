@@ -20,10 +20,10 @@ public class TreeManager : ITreeManager
     {
         _placementController = placementController;
         _terrainGenerator = terrainGenerator;
-        _coastModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Coast"));
-        _flatlandModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Flatland"));
-        _hillModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Hill"));
-        _mountainModel = Resources.Load<GameObject>(PathUtil.Get("Tree_Mountain"));
+        _coastModel = Resources.Load<GameObject>(Util.PathTo("Tree_Coast"));
+        _flatlandModel = Resources.Load<GameObject>(Util.PathTo("Tree_Flatland"));
+        _hillModel = Resources.Load<GameObject>(Util.PathTo("Tree_Hill"));
+        _mountainModel = Resources.Load<GameObject>(Util.PathTo("Tree_Mountain"));
     }
 
     public TreeBehaviour GetRandomTree()
@@ -94,6 +94,6 @@ public class TreeManager : ITreeManager
 
     public Texture2D GetRandomForrestBlueprint()
     {
-        return Resources.Load<Texture2D>(PathUtil.Get("ForrestBlueprint"));
+        return Resources.Load<Texture2D>(Util.PathTo("ForrestBlueprint"));
     }
 }

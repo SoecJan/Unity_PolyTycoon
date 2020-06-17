@@ -119,7 +119,7 @@ public class RouteCreationStationManager
             routeElementUserNotificationView.InformationText = "Route needs to have unique stations.";
             return;
         }
-
+        Debug.Log("Added: " + pathFindingNode);
         AddNode(pathFindingNode);
 
         _routeCreationView.IsReady();

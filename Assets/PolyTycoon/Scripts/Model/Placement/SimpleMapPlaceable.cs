@@ -36,9 +36,11 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 {
     #region Attributes
     protected bool _isClickable;
+    private bool _isPlaced;
     [SerializeField]
     private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
     private Vector3 _threadsafePosition;
+
     #endregion
 
     #region Default Methods
@@ -50,14 +52,6 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         base.Awake();
         Initialize();
-        ShowPlacementVisuals(IsPlaced);
-    }
-
-    public void ShowPlacementVisuals(bool isPlaced)
-    {
-        if (!RendererMaterial) return;
-        RendererMaterial.SetFloat(IsPlacedProperty, isPlaced ? 0f : 1f);
-        childRenderer.material = RendererMaterial;
     }
 
     protected abstract void Initialize();
@@ -87,14 +81,18 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
         }
     }
 
-    private void OnMouseEnter()
+    protected virtual void OnMouseEnter()
     {
-        if (Outline) Outline.enabled = true;
+        Outline outline = gameObject.AddComponent<Outline>();
+        outline.OutlineMode = Outline.Mode.OutlineVisible;
+        outline.OutlineColor = Color.yellow;
+        outline.OutlineWidth = 5f;
+        outline.enabled = true;
     }
 
-    private void OnMouseExit()
+    protected virtual void OnMouseExit()
     {
-        if (Outline) Outline.enabled = false;
+        Destroy(gameObject.GetComponent<Outline>());
     }
 
     #endregion
@@ -113,7 +111,24 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
         set => _usedCoordinates = value;
     }
 
-    protected bool IsPlaced { get; private set; }
+    protected bool IsPlaced
+    {
+        get => _isPlaced;
+
+        private set
+        {
+            this._isPlaced = value;
+            if (this.IsPlaced)
+            {
+                materialPropertyBlock.SetFloat(IsPlacedProperty, 1f);
+                foreach (Renderer childRenderer in childRenderers)
+                {
+                    // childRenderer.SetPropertyBlock(null);
+                    childRenderer.SetPropertyBlock(materialPropertyBlock);
+                }
+            }
+        }
+    }
 
     public static Action<SimpleMapPlaceable> OnClickAction { get; set; }
 
@@ -133,7 +148,6 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         IsPlaced = true;
         ThreadsafePosition = transform.position;
-        ShowPlacementVisuals(!IsPlaced);
     }
 
     /// <summary>
@@ -142,6 +156,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     /// </summary>
     protected void RotateUsedCoords(float rotationAmount)
     {
+        if (_usedCoordinates == null) Debug.LogError(gameObject.name);
         foreach (NeededSpace neededSpace in _usedCoordinates)
         {
             Vector3 rotatedOffset = Quaternion.Euler(0, rotationAmount, 0) * neededSpace.UsedCoordinate;

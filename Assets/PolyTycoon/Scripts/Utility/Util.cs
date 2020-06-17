@@ -1,7 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
-public static class PathUtil
+public static class Util
 {
     // Data Folder
     private const string dataFolder = "Data/";
@@ -45,7 +46,7 @@ public static class PathUtil
     // Prefabs/UI
     private const string uiFolder = prefabFolder + "UI/";
 
-    public static string Get(string name)
+    public static string PathTo(string name)
     {
         switch (name)
         {
@@ -108,6 +109,7 @@ public static class PathUtil
             case "City1-1_0":
             case "City1-1_1":
             case "City2-1":
+            case "ProceduralCity":
                 return constructionCityCityFolder + name;
 
             // Prefabs/Construction/City/Building
@@ -159,5 +161,59 @@ public static class PathUtil
         }
 
         throw new NotSupportedException("Path for " + name + " was not found.");
+    }
+    
+    /// <summary>
+    /// Modulo operator that is 0 based. Mod(-3, 5) = 2 instead of -3 % 5 = -3
+    /// </summary>
+    /// <param name="x">The base (e.g. -3)</param>
+    /// <param name="m">The modulator (e.g. 5)</param>
+    /// <returns></returns>
+    public static int Mod(int x, int m) {
+        return (x%m + m)%m;
+    }
+    
+    /// <summary>
+    /// Transforms a direction Vector3 into an integer representing a direction.
+    /// The values correspond to: <see cref="PathFindingNode"/>
+    /// </summary>
+    /// <param name="normalizedDirection">The direction that was normalized</param>
+    /// <returns>The integer representing a direction</returns>
+    public static int DirectionVectorToInt(Vector3 normalizedDirection)
+    {
+        if (normalizedDirection.Equals(Vector3.forward))
+        {
+            return PathFindingNode.Up;
+        }
+        else if (normalizedDirection.Equals(Vector3.right))
+        {
+            return PathFindingNode.Right;
+        }
+        else if (normalizedDirection.Equals(Vector3.back))
+        {
+            return PathFindingNode.Down;
+        }
+        else if (normalizedDirection.Equals(Vector3.left))
+        {
+            return PathFindingNode.Left;
+        }
+
+        return -1;
+    }
+    
+    public static Vector3 DirectionIntToVector(int directionInt)
+    {
+        switch (directionInt)
+        {
+            case PathFindingNode.Up:
+                return Vector3.forward;
+            case PathFindingNode.Right:
+                return Vector3.right;
+            case PathFindingNode.Down:
+                return Vector3.back;
+            case PathFindingNode.Left:
+                return Vector3.left;
+        }
+        return Vector3.zero;
     }
 }
