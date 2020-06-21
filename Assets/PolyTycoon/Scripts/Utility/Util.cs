@@ -23,6 +23,12 @@ public static class Util
     // Materials Folder
     private const string materialFolder = "Materials/";
 
+    // Models Folder
+    private const string modelFolder = "Models/";
+    
+    // Models/City
+    private const string modelCityFolder = modelFolder + "City";
+    
     // Prefabs Folder
     private const string prefabFolder = "Prefabs/";
 
@@ -53,6 +59,9 @@ public static class Util
             // Blueprints
             case "ForrestBlueprint":
                 return blueprintFolder + name;
+            
+            
+                // return modelCityFolder + name;
 
             // Data/BuildingData/
             case "Infrastructure": return buildingDataInfrastructureFolder;
@@ -106,10 +115,8 @@ public static class Util
                 return constructionCityFolder + name;
 
             // Prefabs/Construction/City/City
-            case "City1-1_0":
-            case "City1-1_1":
-            case "City2-1":
             case "ProceduralCity":
+            case "NonModularBuildings":
                 return constructionCityCityFolder + name;
 
             // Prefabs/Construction/City/Building
@@ -197,7 +204,7 @@ public static class Util
         {
             return PathFindingNode.Left;
         }
-
+        Debug.LogError("DirectionVector out of bounds: " + normalizedDirection);
         return -1;
     }
     
@@ -214,6 +221,7 @@ public static class Util
             case PathFindingNode.Left:
                 return Vector3.left;
         }
+        Debug.LogError("DirectionInt out of bounds: " + directionInt);
         return Vector3.zero;
     }
 }

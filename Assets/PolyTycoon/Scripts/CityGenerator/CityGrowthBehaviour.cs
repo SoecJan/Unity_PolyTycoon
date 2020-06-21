@@ -49,11 +49,8 @@ public class CityGrowthBehaviour : MonoBehaviour
                 if (street.NeighborNodes[i]) continue;
                 
                 Vector3 directionVec = Util.DirectionIntToVector(i);
-                Vector3 directionClockwiseVec =
-                    Util.DirectionIntToVector(Util.Mod(i + 1,
-                        PathFindingNode.TotalNodeCount));
-                Vector3 directionCounterClockwiseVec = Util.DirectionIntToVector(
-                    Util.Mod(i-1, PathFindingNode.TotalNodeCount));
+                Vector3 directionClockwiseVec = Util.DirectionIntToVector((i + 1) % 4);
+                Vector3 directionCounterClockwiseVec = Util.DirectionIntToVector((i + 3) % 4);
                 
                 int amount = random.Next(streetLengthMinMax.x, streetLengthMinMax.y);
                 for (int j = 1; j < amount+1; j++)
@@ -113,7 +110,10 @@ public class CityGrowthBehaviour : MonoBehaviour
                             simpleMapPlaceable = cityBuilding;
                         }
 
-                        _placementController.PlaceObject(simpleMapPlaceable);
+                        if (!_placementController.PlaceObject(simpleMapPlaceable))
+                        {
+                            Destroy(simpleMapPlaceable.gameObject);
+                        };
                         _cityPlaceable.ChildMapPlaceables.Add(simpleMapPlaceable);
                         building.transform.SetParent(transform);
                     }

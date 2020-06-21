@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -44,6 +45,7 @@ public class CityBuilding : SimpleMapPlaceable, ICityBuilding
 	{
 		if (!CityPlaceable) return;
 		Outline outline = CityPlaceable.gameObject.AddComponent<Outline>();
+		if (!outline) outline = CityPlaceable.gameObject.GetComponent<Outline>();
 		outline.OutlineMode = Outline.Mode.OutlineVisible;
 		outline.OutlineColor = Color.yellow;
 		outline.OutlineWidth = 5f;
@@ -52,7 +54,7 @@ public class CityBuilding : SimpleMapPlaceable, ICityBuilding
 
 	protected override void OnMouseExit()
 	{
-		Destroy(CityPlaceable.gameObject.GetComponent<Outline>());
+		if (CityPlaceable) Destroy(CityPlaceable.gameObject.GetComponent<Outline>());
 	}
 	
 	protected override void Initialize()
