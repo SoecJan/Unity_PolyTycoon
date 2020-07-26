@@ -42,7 +42,7 @@ public class TerrainChunk
         // Instantiate the new object
         meshObject = new GameObject("Terrain Chunk: " + coord.ToString());
         meshObject.SetActive(false);
-        GameObject.Instantiate(Resources.Load<GameObject>(PathUtil.Get("Lake")), meshObject.transform);
+        GameObject.Instantiate(Resources.Load<GameObject>(Util.PathTo("Lake")), meshObject.transform);
         meshObject.layer = LayerMask.NameToLayer("Terrain");
         meshRenderer = meshObject.AddComponent<MeshRenderer>();
         meshFilter = meshObject.AddComponent<MeshFilter>();
@@ -128,7 +128,7 @@ public class TerrainChunk
             OnCityPlacement);
 
         // Cloud
-        CloudBehaviour cloudBehaviour = Resources.Load<CloudBehaviour>(PathUtil.Get("Cloud"));
+        CloudBehaviour cloudBehaviour = Resources.Load<CloudBehaviour>(Util.PathTo("Cloud"));
         Vector3 cloudHeight = (Vector3.up * Random.Range(10, 15));
         Vector3 cloudOffset = (Vector3.forward * Random.Range(-25, 25)) + (Vector3.left * Random.Range(-25, 25));
         _cloudBehaviour = GameObject.Instantiate(cloudBehaviour, vec3 + cloudHeight + cloudOffset, Quaternion.identity,

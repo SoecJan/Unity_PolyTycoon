@@ -166,7 +166,7 @@ public class BuildingManager : IBuildingManager
             CityBuilding cityBuilding = mapPlaceable as CityBuilding;
             if (cityBuilding != null)
             {
-                mapPlaceable = cityBuilding.CityPlaceable().MainBuilding;
+                mapPlaceable = cityBuilding.CityPlaceable.MainBuilding;
             }
 
             _routeCreationView.StationManager.OnTransportStationClick((PathFindingNode) mapPlaceable);

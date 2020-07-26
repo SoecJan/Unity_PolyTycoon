@@ -13,7 +13,7 @@ namespace PolyTycoon.Tests
         public IEnumerator Test_LoadPrefabByName()
         {
             
-            Assert.AreEqual("Prefabs/UI/TextToolTip", PathUtil.Get("TextToolTip"));
+            Assert.AreEqual("Prefabs/UI/TextToolTip", Util.PathTo("TextToolTip"));
             yield return null;
         }
     }
