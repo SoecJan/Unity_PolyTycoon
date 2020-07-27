@@ -1,74 +1,176 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
+[RequireComponent(typeof(CityPlaceable))]
 public class CityGrowthBehaviour : MonoBehaviour
 {
-    [SerializeField] private AnimationCurve _animationCurve;
-    [SerializeField] private Vector2Int _size;
-    [SerializeField] private Image _image;
-    [SerializeField] private NoiseSettings _noiseSettings;
-    [SerializeField] private int _buildingBlockSize = 4;
-    [SerializeField]
-    private float _buildingScale = 1f;
-
+    [SerializeField] private int seed = 0;
+    [SerializeField] private int maxCityProgress = 100;
+    [SerializeField] private Vector2Int _streetLengthMinMax = new Vector2Int(2, 6);
+    [SerializeField] private float buildingProbability = 0.6f;
+    
+    private CityPlaceable _cityPlaceable;
+    private PlacementController _placementController;
     private BuildingManager _buildingManager;
-    private List<GameObject> cubes;
-
+    private BuildingData _streetData;
+    private Coroutine generationRoutine;
+    
     // Start is called before the first frame update
     void Start()
     {
-        _buildingManager = new BuildingManager();
-        cubes = new List<GameObject>();
-        Generate();
+        _cityPlaceable = GetComponent<CityPlaceable>();
+        
+        GameHandler gameHandler = FindObjectOfType<GameHandler>();
+        _placementController = (PlacementController) gameHandler.PlacementController;
+        _buildingManager = (BuildingManager) gameHandler.BuildingManager;
+        
+        _streetData = Resources.Load<BuildingData>(Util.PathTo("Street"));
+        generationRoutine = StartCoroutine(GenerateCity(seed, maxCityProgress, _streetLengthMinMax, buildingProbability));
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator GenerateCity(int seed, int maxCityProgress, Vector2Int streetLengthMinMax, float buildingProbability)
     {
-        if (Input.GetKeyUp(KeyCode.K))
+        List<SimpleMapPlaceable> endpoints = new List<SimpleMapPlaceable>();
+        SimpleMapPlaceable mapPlaceable = GetComponentInChildren<SimpleMapPlaceable>();
+        endpoints.Add(mapPlaceable);
+        System.Random random = new System.Random(seed);
+
+        float waitTime = 0.0f;
+        int progress = 0;
+        while (progress < maxCityProgress)
         {
-            Generate();
+            progress++;
+            if (endpoints.Count == 0) break;
+            Street street = (Street) endpoints[0];
+            endpoints.RemoveAt(0);
+            for (int i = 0; i < street.NeighborNodes.Length; i++)
+            {
+                if (street.NeighborNodes[i]) continue;
+                
+                Vector3 directionVec = Util.DirectionIntToVector(i);
+                Vector3 directionClockwiseVec = Util.DirectionIntToVector((i + 1) % 4);
+                Vector3 directionCounterClockwiseVec = Util.DirectionIntToVector((i + 3) % 4);
+                
+                int amount = random.Next(streetLengthMinMax.x, streetLengthMinMax.y);
+                for (int j = 1; j < amount+1; j++)
+                {
+                    Vector3 placedPosition = street.transform.position + (directionVec * j);
+                    
+                    if (IsRasterizing(placedPosition) || !_placementController.IsPlaceable(placedPosition, street.UsedCoordinates)) break;
+                    SimpleMapPlaceable placeable = PlaceStreetAt(placedPosition);
+                    yield return new WaitForSeconds(waitTime);
+
+                    if (j < amount)
+                    {
+                        if (random.NextDouble() > buildingProbability) continue;
+                        
+                        List<NeededSpace> neededSpaces = new List<NeededSpace>()
+                        {
+                            NeededSpace.Zero(TerrainGenerator.TerrainType.Flatland)
+                        };
+                        
+                        bool isClockwisePlaceable = _placementController.IsPlaceable(placedPosition + directionClockwiseVec, neededSpaces);
+                        bool isCounterClockwisePlaceable = _placementController.IsPlaceable(placedPosition + directionCounterClockwiseVec, neededSpaces);
+
+                        Vector3 buildingStartPosition;
+                        Vector3 streetDirection;
+                        
+                        if (isClockwisePlaceable)
+                        {
+                            buildingStartPosition = placedPosition + directionClockwiseVec;
+                            streetDirection = directionCounterClockwiseVec;
+                        } else if (isCounterClockwisePlaceable)
+                        {
+                            buildingStartPosition = placedPosition + directionCounterClockwiseVec;
+                            streetDirection = directionClockwiseVec;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                        GameObject building = new GameObject("Procedural Building");
+                        building.transform.position = buildingStartPosition;
+                        SimpleMapPlaceable simpleMapPlaceable;
+                        
+                        if (!_cityPlaceable.MainBuilding)
+                        {
+                            CityMainBuilding cityMainBuilding = building.AddComponent<CityMainBuilding>();
+                            cityMainBuilding.CityPlaceable = _cityPlaceable;
+                            cityMainBuilding.UsedCoordinates = new List<NeededSpace>() {NeededSpace.Zero(TerrainGenerator.TerrainType.Flatland)};
+                            _cityPlaceable.MainBuilding = cityMainBuilding;
+                            simpleMapPlaceable = cityMainBuilding;
+                        }
+                        else
+                        {
+                            ProceduralCityBuilding cityBuilding = building.AddComponent<ProceduralCityBuilding>();
+                            cityBuilding.CityPlaceable = _cityPlaceable;
+                            cityBuilding.Height = 1f;
+                            cityBuilding.Generate(random.Next(1, amount - j), directionVec, streetDirection, _placementController);
+                            simpleMapPlaceable = cityBuilding;
+                        }
+
+                        if (!_placementController.PlaceObject(simpleMapPlaceable))
+                        {
+                            Destroy(simpleMapPlaceable.gameObject);
+                        };
+                        _cityPlaceable.ChildMapPlaceables.Add(simpleMapPlaceable);
+                        building.transform.SetParent(transform);
+                    }
+                    
+                    if (j != amount) continue;
+                    endpoints.Add(placeable);
+                    break;
+                }
+                yield return new WaitForSeconds(waitTime);
+            }
         }
     }
 
-    void Generate()
+    private bool IsRasterizing(Vector3 position, int? kernelSize = 3, int? threshold = 3)
     {
-        float[,] noise = Noise.GenerateNoiseMap(_size.x, _size.y, _noiseSettings, Vector2.zero);
-        
-        Texture2D texture2D = new Texture2D(_size.x, _size.y);
-        for (int x = 0; x < noise.GetLength(0); x++)
+        int count = 0;
+        int kernelCenter = Mathf.FloorToInt((float) (kernelSize / 2f));
+        for (int i = 0; i < kernelSize; i++)
         {
-            for (int y = 0; y < noise.GetLength(1); y++)
+            for (int j = 0; j < kernelSize; j++)
             {
-                texture2D.SetPixel(x, y, new Color(noise[x, y], noise[x, y], noise[x, y], 1f) * (_animationCurve.Evaluate(((float)y)/noise.GetLength(1)) * _animationCurve.Evaluate(((float)x)/noise.GetLength(0))));
+                int x = i - kernelCenter;
+                int z = j - kernelCenter;
+                
+                if (x == 0 && z == 0) continue;
+                
+                Vector3 checkedPosition = new Vector3(position.x + x, position.y, position.z + z);
+                if (!(_buildingManager.GetNode(checkedPosition) is Street)) continue;
+                count++;
+                if (count > threshold) return true;
             }
         }
-        texture2D.Apply();
-        this._image.sprite = Sprite.Create(texture2D, new Rect(0, 0, _size.x, _size.y), Vector2.zero);
 
-        foreach (GameObject cube in cubes)
-        {
-            Destroy(cube);
-        }
-        cubes.Clear();
-        
-        for (int x = 0; x < noise.GetLength(0); x++)
-        {
-            for (int y = 0; y < noise.GetLength(1); y++)
-            {
-                if (x % _buildingBlockSize == 0 || y % _buildingBlockSize == 0) continue;
-//                float height = Mathf.RoundToInt((0.5f + (_animationCurve.Evaluate(((float)y)/noise.GetLength(1)) * _animationCurve.Evaluate(((float)x)/noise.GetLength(0)) * _buildingScale * noise[x, y]))*4f)/4f;
-//
-//                GameObject parent = new GameObject("Procedural Building", ProceduralCityBuilding);
-//                ProceduralCityBuilding cityBuilding = parent.GetComponent<ProceduralCityBuilding>();
-//                cityBuilding.Height = height;
-//                _buildingManager.AddMapPlaceable(cityBuilding);
-//                
-//                cubes.Add(obj);
-            }
-        }
+        return false;
+    }
+
+    // private int CountNeighbors(Street street)
+    // {
+    //     int count = 0;
+    //     foreach (PathFindingNode neighborNode in street.NeighborNodes)
+    //     {
+    //         if (!neighborNode) continue;
+    //         count++;
+    //     }
+    //
+    //     return count;
+    // }
+    
+    private SimpleMapPlaceable PlaceStreetAt(Vector3 position)
+    {
+        GameObject gameObject = Instantiate(_streetData.Prefab);
+        SimpleMapPlaceable simpleMapPlaceable = gameObject.GetComponent<SimpleMapPlaceable>();
+        gameObject.transform.position = position;
+        simpleMapPlaceable.OnPlacement();
+        _placementController.PlaceObject(simpleMapPlaceable);
+        _cityPlaceable.ChildMapPlaceables.Add(simpleMapPlaceable);
+        gameObject.transform.SetParent(transform);
+        return simpleMapPlaceable;
     }
 }

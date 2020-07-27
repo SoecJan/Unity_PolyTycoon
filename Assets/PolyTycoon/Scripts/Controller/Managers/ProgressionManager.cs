@@ -79,45 +79,45 @@ public class ProgressionManager
     {
         BuildingData[] levelOneData = new[]
         {
-            Resources.Load<BuildingData>(PathUtil.Get("Street")),
-            Resources.Load<BuildingData>(PathUtil.Get("Farm")),
-            Resources.Load<BuildingData>(PathUtil.Get("Mill")),
+            Resources.Load<BuildingData>(Util.PathTo("Street")),
+            Resources.Load<BuildingData>(Util.PathTo("Farm")),
+            Resources.Load<BuildingData>(Util.PathTo("Mill")),
             // Test purpose
-            Resources.Load<BuildingData>(PathUtil.Get("Bakery")),
-            Resources.Load<BuildingData>(PathUtil.Get("Pump")),
-            Resources.Load<BuildingData>(PathUtil.Get("Rail")),
-            Resources.Load<BuildingData>(PathUtil.Get("Trainstation")),
-            Resources.Load<BuildingData>(PathUtil.Get("Harbor")),
-            Resources.Load<BuildingData>(PathUtil.Get("Storage")),
-            Resources.Load<BuildingData>(PathUtil.Get("Airport")),
+            Resources.Load<BuildingData>(Util.PathTo("Bakery")),
+            Resources.Load<BuildingData>(Util.PathTo("Pump")),
+            Resources.Load<BuildingData>(Util.PathTo("Rail")),
+            Resources.Load<BuildingData>(Util.PathTo("Trainstation")),
+            Resources.Load<BuildingData>(Util.PathTo("Harbor")),
+            Resources.Load<BuildingData>(Util.PathTo("Storage")),
+            Resources.Load<BuildingData>(Util.PathTo("Airport")),
         };
         _buildingProgressionElements.Add(0, levelOneData);
 
         BuildingData[] levelTwoData = new[]
         {
-            Resources.Load<BuildingData>(PathUtil.Get("Bakery")),
-            Resources.Load<BuildingData>(PathUtil.Get("Pump")),
+            Resources.Load<BuildingData>(Util.PathTo("Bakery")),
+            Resources.Load<BuildingData>(Util.PathTo("Pump")),
 //            Resources.Load<BuildingData>(PathUtil.Get("Trashdump"))
         };
         _buildingProgressionElements.Add(1, levelTwoData);
 
         BuildingData[] levelThreeData = new[]
         {
-            Resources.Load<BuildingData>(PathUtil.Get("Rail")),
-            Resources.Load<BuildingData>(PathUtil.Get("Trainstation")),
+            Resources.Load<BuildingData>(Util.PathTo("Rail")),
+            Resources.Load<BuildingData>(Util.PathTo("Trainstation")),
         };
         _buildingProgressionElements.Add(2, levelThreeData);
 
         BuildingData[] levelFourData = new[]
         {
-            Resources.Load<BuildingData>(PathUtil.Get("Harbor")),
-            Resources.Load<BuildingData>(PathUtil.Get("Storage"))
+            Resources.Load<BuildingData>(Util.PathTo("Harbor")),
+            Resources.Load<BuildingData>(Util.PathTo("Storage"))
         };
         _buildingProgressionElements.Add(3, levelFourData);
 
         BuildingData[] levelFiveData = new[]
         {
-            Resources.Load<BuildingData>(PathUtil.Get("Airport")),
+            Resources.Load<BuildingData>(Util.PathTo("Airport")),
         };
         _buildingProgressionElements.Add(4, levelFiveData);
     }
@@ -127,31 +127,31 @@ public class ProgressionManager
         // Flour Production
         ProductData[] levelOneData = new[]
         {
-            Resources.Load<ProductData>(PathUtil.Get("Flour")),
-            Resources.Load<ProductData>(PathUtil.Get("Wheat"))
+            Resources.Load<ProductData>(Util.PathTo("Flour")),
+            Resources.Load<ProductData>(Util.PathTo("Wheat"))
         };
         _productProgressionElements.Add(0, levelOneData);
 
         // Bread Production
         ProductData[] levelTwoData = new[]
         {
-            Resources.Load<ProductData>(PathUtil.Get("Bread")),
-            Resources.Load<ProductData>(PathUtil.Get("Water")),
-            Resources.Load<ProductData>(PathUtil.Get("Trash"))
+            Resources.Load<ProductData>(Util.PathTo("Bread")),
+            Resources.Load<ProductData>(Util.PathTo("Water")),
+            Resources.Load<ProductData>(Util.PathTo("Trash"))
         };
         _productProgressionElements.Add(1, levelTwoData);
 
         // Mail
         ProductData[] levelThreeData = new[]
         {
-            Resources.Load<ProductData>(PathUtil.Get("Mail"))
+            Resources.Load<ProductData>(Util.PathTo("Mail"))
         };
         _productProgressionElements.Add(2, levelThreeData);
 
         // Passengers
         ProductData[] levelFourData = new[]
         {
-            Resources.Load<ProductData>(PathUtil.Get("Passenger"))
+            Resources.Load<ProductData>(Util.PathTo("Passenger"))
         };
         _productProgressionElements.Add(3, levelFourData);
     }

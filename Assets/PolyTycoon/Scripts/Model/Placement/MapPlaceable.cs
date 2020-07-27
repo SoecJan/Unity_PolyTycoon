@@ -7,38 +7,36 @@ public abstract class MapPlaceable : MonoBehaviour, IMapPlaceable
 {
     [SerializeField] protected bool _isHighlightable = true; // Used when object is selected
 
-    protected Renderer childRenderer; // Create a new instance of the material
+    protected Renderer[] childRenderers; // Create a new instance of the material
     protected static readonly int IsPlacedProperty = Shader.PropertyToID("_IsPlaced");
     protected static readonly int IsPlaceableProperty = Shader.PropertyToID("_IsPlaceable");
+    protected MaterialPropertyBlock materialPropertyBlock;
     
     public bool IsDraggable { get; set; }
-    
-    protected Material RendererMaterial { get; set; }
 
     public bool IsPlaceable
     {
-        set => RendererMaterial.SetFloat(IsPlaceableProperty, value ? 1f : 0f);
+        set
+        {
+            materialPropertyBlock.SetFloat(IsPlacedProperty, 0f);
+            materialPropertyBlock.SetFloat(IsPlaceableProperty, value ? 1f : 0f);
+            foreach (Renderer childRenderer in childRenderers)
+            {
+                // childRenderer.SetPropertyBlock(null);
+                childRenderer.SetPropertyBlock(materialPropertyBlock);
+            }
+        }
     }
-
-    public Outline Outline { get; private set; }
 
     public virtual void Awake()
     {
-        childRenderer = GetComponentInChildren<Renderer>();
-        if (!childRenderer) return;
-        RendererMaterial = new Material(childRenderer.material);
-        childRenderer.material = RendererMaterial;
+        childRenderers = GetComponentsInChildren<Renderer>();
+        materialPropertyBlock = new MaterialPropertyBlock();
     }
 
     public virtual void Start()
     {
-        Outline = GetComponent<Outline>();
-        if (Outline || !_isHighlightable) return;
-        Outline = gameObject.AddComponent<Outline>();
-        Outline.OutlineMode = Outline.Mode.OutlineVisible;
-        Outline.OutlineColor = Color.yellow;
-        Outline.OutlineWidth = 5f;
-        Outline.enabled = false;
+        
     }
 
     /// <summary>

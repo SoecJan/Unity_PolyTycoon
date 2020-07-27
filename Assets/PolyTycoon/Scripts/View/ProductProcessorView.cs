@@ -179,7 +179,7 @@ struct FactoryNeededProductView
     {
         this._visibleGameObject = visibleGameObject;
         this._scrollView = scrollViewTransform;
-        this.neededProductViewPrefab = Resources.Load<NeededProductView>(PathUtil.Get("NeededProductView"));
+        this.neededProductViewPrefab = Resources.Load<NeededProductView>(Util.PathTo("NeededProductView"));
     }
 
     public RectTransform ScrollView => _scrollView;

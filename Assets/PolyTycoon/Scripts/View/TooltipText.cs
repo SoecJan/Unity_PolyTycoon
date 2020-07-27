@@ -13,7 +13,7 @@ public class TooltipText : TooltipHandle
         {
             if (!_text)
             {
-                GameObject _tipPrefab = (GameObject)Resources.Load(PathUtil.Get("TextToolTip"), typeof(GameObject));
+                GameObject _tipPrefab = (GameObject)Resources.Load(Util.PathTo("TextToolTip"), typeof(GameObject));
                 GameObject tip = Instantiate(_tipPrefab, GameObject.Find("TooltipParent").transform);
                 _text = tip.GetComponentInChildren<TMP_Text>();
                 TipTransform = (RectTransform) tip.transform;
