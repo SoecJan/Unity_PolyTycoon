@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -10,7 +11,7 @@ public interface ICityBuilding
 	/// A reference to the city instance this entity belongs to.
 	/// </summary>
 	/// <returns></returns>
-	CityPlaceable CityPlaceable();
+	CityPlaceable CityPlaceable { get; set; }
 	/// <summary>
 	/// The amount of people living inside the building.
 	/// </summary>
@@ -24,10 +25,11 @@ public class CityBuilding : SimpleMapPlaceable, ICityBuilding
 {
 	#region Attributes
 	[SerializeField] private List<NeededProduct> _consumedProducts;
-	[SerializeField] private CityPlaceable _cityPlaceable;
 	#endregion
 
 	#region Getter & Setter
+
+	public CityPlaceable CityPlaceable { get; set; }
 	public int CurrentResidentCount { get; set; } = 3;
 
 	public List<NeededProduct> ConsumedProducts {
@@ -39,27 +41,30 @@ public class CityBuilding : SimpleMapPlaceable, ICityBuilding
 
 	#region Methods
 	
-	private void OnMouseEnter()
+	protected override void OnMouseEnter()
 	{
-		if (_cityPlaceable.Outline) _cityPlaceable.Outline.enabled = true;
+		if (!CityPlaceable) return;
+		Outline outline = CityPlaceable.gameObject.AddComponent<Outline>();
+		if (!outline) outline = CityPlaceable.gameObject.GetComponent<Outline>();
+		outline.OutlineMode = Outline.Mode.OutlineVisible;
+		outline.OutlineColor = Color.yellow;
+		outline.OutlineWidth = 5f;
+		outline.enabled = true;
 	}
 
-	private void OnMouseExit()
+	protected override void OnMouseExit()
 	{
-		if (_cityPlaceable.Outline) _cityPlaceable.Outline.enabled = false;
+		if (CityPlaceable) Destroy(CityPlaceable.gameObject.GetComponent<Outline>());
 	}
 	
 	protected override void Initialize()
 	{
 		_isClickable = true;
-		if (!_cityPlaceable && transform.parent) _cityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
+		if (!CityPlaceable && transform.parent) CityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
 		RotateUsedCoords(transform.eulerAngles.y);
 	}
 
-	public CityPlaceable CityPlaceable()
-	{
-		return _cityPlaceable;
-	}
+	
 	#endregion
 	
 }

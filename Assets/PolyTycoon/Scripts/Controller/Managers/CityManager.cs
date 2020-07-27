@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class CityManager : ICityManager
 {
+    private System.Random _random;
     private List<CityPlaceable> _possibleCityPlaceables;
     private List<CityPlaceable> _placedCities;
     private IPlacementController _placementController;
@@ -10,25 +11,24 @@ public class CityManager : ICityManager
     private CityWorldToScreenView cityWorldToScreenView;
     private IWorldToScreenManager _worldToScreenManager;
 
-    private CityManager()
+    private CityManager(int seed)
     {
+        this._random = new System.Random(seed);
         _possibleCityPlaceables = new List<CityPlaceable>
         {
-            Resources.Load<CityPlaceable>(PathUtil.Get("City1-1_0")),
-            Resources.Load<CityPlaceable>(PathUtil.Get("City1-1_1")),
-            Resources.Load<CityPlaceable>(PathUtil.Get("City2-1"))
+            Resources.Load<CityPlaceable>(Util.PathTo("ProceduralCity")),
         };
         _placedCities = new List<CityPlaceable>();
-        cityWorldToScreenView = Resources.Load<CityWorldToScreenView>(PathUtil.Get("CityWorldToScreenUi"));
+        cityWorldToScreenView = Resources.Load<CityWorldToScreenView>(Util.PathTo("CityWorldToScreenUi"));
     }
 
-    public CityManager(IPlacementController placementController) : this()
+    public CityManager(IPlacementController placementController, int seed) : this(seed)
     {
         _placementController = placementController;
         _worldToScreenManager = GameObject.FindObjectOfType<WorldToScreenManager>();
     }
 
-    public CityManager(IPlacementController placementController, WorldToScreenManager worldToScreenManager) : this()
+    public CityManager(IPlacementController placementController, WorldToScreenManager worldToScreenManager, int seed) : this(seed)
     {
         this._placementController = placementController;
         this._worldToScreenManager = worldToScreenManager;
@@ -36,7 +36,7 @@ public class CityManager : ICityManager
 
     public CityPlaceable GetRandomCityPrefab()
     {
-        return _possibleCityPlaceables[Random.Range(0, _possibleCityPlaceables.Count)];
+        return _possibleCityPlaceables[_random.Next(0, _possibleCityPlaceables.Count)];
     }
 
     public CityPlaceable GetCity(string cityName)
@@ -57,6 +57,7 @@ public class CityManager : ICityManager
         ThreadsafePlaceable cityToPlace = (ThreadsafePlaceable) cityToPlaceObject;
         CityPlaceable city = GameObject.Instantiate((CityPlaceable) cityToPlace.MapPlaceable, cityToPlace.Position,
             Quaternion.identity);
+        Debug.Log("City placed at: " + cityToPlace.Position);
         if (!_placementController.PlaceObject(city))
         {
             GameObject.Destroy(city.gameObject);

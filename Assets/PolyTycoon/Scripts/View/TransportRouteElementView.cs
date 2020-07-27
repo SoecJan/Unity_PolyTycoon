@@ -19,7 +19,7 @@ public class TransportRouteElementView : MonoBehaviour
 			_transportRouteElement.FromNode = value;
 			if (value is ICityBuilding cityBuilding)
 			{
-				_fromText.text = cityBuilding.CityPlaceable().name;
+				_fromText.text = cityBuilding.CityPlaceable.name;
 			}
 			else
 			{

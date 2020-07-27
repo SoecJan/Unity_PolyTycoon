@@ -29,7 +29,7 @@ public class CityView : AbstractUi
 
 		set {
 			if (_cityBuilding == value) return;
-			if (_cityBuilding != null) CityBuilding.CityPlaceable().Outline.enabled = false;
+			// if (_cityBuilding != null) CityBuilding.CityPlaceable.Outline.enabled = false;
 			_cityBuilding = value;
 			Reset();
 			if (_cityBuilding == null)
@@ -38,10 +38,15 @@ public class CityView : AbstractUi
 				return;
 			}
 
-			CityBuilding.CityPlaceable().Outline.enabled = true;
-			_titleText.text = CityBuilding.CityPlaceable().name + "\nLevel: " + CityBuilding.CityPlaceable().Level;
+			Debug.Log(CityBuilding);
+			Debug.Log(CityBuilding.CityPlaceable);
+			// Debug.Log(CityBuilding.CityPlaceable.Outline);
+			// Destroy(CityBuilding.CityPlaceable.Outline);
+			// CityBuilding.CityPlaceable.Outline = new Outline();
+			// CityBuilding.CityPlaceable.Outline.enabled = true;
+			_titleText.text = CityBuilding.CityPlaceable.name + "\nLevel: " + CityBuilding.CityPlaceable.Level;
 			
-			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable());
+			IProductReceiver cityPlaceable = ((IProductReceiver) CityBuilding.CityPlaceable);
 			foreach (ProductData neededProduct in cityPlaceable.ReceivedProductList())
 			{
 				AmountProductView amountProductView = GameObject.Instantiate(_productUiPrefab, _neededProductScrollView);
@@ -49,7 +54,7 @@ public class CityView : AbstractUi
 				amountProductView.Text(cityPlaceable.ReceiverStorage(neededProduct));
 			}
 
-			IProductEmitter productEmitter = (IProductEmitter) CityBuilding.CityPlaceable();
+			IProductEmitter productEmitter = (IProductEmitter) CityBuilding.CityPlaceable;
 			foreach (ProductData productData in productEmitter.EmittedProductList())
 			{
 				AmountProductView producedProductView = GameObject.Instantiate(_productUiPrefab, _producedProductScrollView);
@@ -78,7 +83,7 @@ public class CityView : AbstractUi
 	{
 		while (_cityBuilding != null)
 		{
-			CityPlaceable cityPlaceable = _cityBuilding.CityPlaceable();
+			CityPlaceable cityPlaceable = _cityBuilding.CityPlaceable;
 			for (int i = 0; i < _neededProductScrollView.childCount; i++)
 			{
 				AmountProductView productView = _neededProductScrollView.transform.GetChild(i).GetComponent<AmountProductView>();

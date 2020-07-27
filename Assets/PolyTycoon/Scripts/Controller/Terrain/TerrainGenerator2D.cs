@@ -12,8 +12,8 @@ public class TerrainGenerator2D
     // Start is called before the first frame update
     public TerrainGenerator2D(Transform transform)
     {
-        _meshSettings = Resources.Load<MeshSettings>(PathUtil.Get("MeshSettings"));
-        MapSettings = Resources.Load<HeightMapSettings>(PathUtil.Get("HeightMapSettings"));
+        _meshSettings = Resources.Load<MeshSettings>(Util.PathTo("MeshSettings"));
+        MapSettings = Resources.Load<HeightMapSettings>(Util.PathTo("HeightMapSettings"));
         _mapChunk2Ds = new List<TerrainChunk2D>();
         for (int i = 0; i < _previewSize; i++)
         {

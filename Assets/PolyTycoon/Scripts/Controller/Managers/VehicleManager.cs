@@ -27,7 +27,7 @@ public class VehicleManager : IVehicleManager
     {
         _sceneObject = new GameObject("VehicleManager");
         _transportVehicleView = GameObject.FindObjectOfType<TransportVehicleView>();
-        _vehicleList = Resources.LoadAll<TransportVehicleData>(PathUtil.Get("TransportVehicleData"));
+        _vehicleList = Resources.LoadAll<TransportVehicleData>(Util.PathTo("TransportVehicleData"));
         InstancedVehicleList = new List<GameObject>();
         TransportVehicle.OnClickAction += OnVehicleClick;
     }

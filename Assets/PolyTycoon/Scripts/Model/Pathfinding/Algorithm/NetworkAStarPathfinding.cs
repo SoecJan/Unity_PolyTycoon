@@ -118,8 +118,8 @@ public class NetworkAStarPathFinding : AbstractPathFindingAlgorithm
 		}
 
 		// transform direction to a single integer value representing the direction
-		int fromDirection = DirectionVectorToInt(fromVector3);
-		int toDirection = DirectionVectorToInt(toVector3);
+		int fromDirection = Util.DirectionVectorToInt(fromVector3);
+		int toDirection = Util.DirectionVectorToInt(toVector3);
 		
 		WayPoint wayPoint = currentNetworkNode.PathFindingNode.GetTraversalVectors(toDirection, fromDirection);
 		wayPoint.Node = currentNetworkNode.PathFindingNode;

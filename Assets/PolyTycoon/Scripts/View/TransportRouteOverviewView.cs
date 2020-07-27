@@ -33,7 +33,7 @@ public class TransportRouteOverviewView : AbstractUi, ITransportRouteOverview
 
 	private void Start()
 	{
-		overviewElementViewPrefab = Resources.Load<TransportRouteOverviewElementView>(PathUtil.Get("TransportRouteOverviewElementView"));
+		overviewElementViewPrefab = Resources.Load<TransportRouteOverviewElementView>(Util.PathTo("TransportRouteOverviewElementView"));
 		_showButton.onClick.AddListener(delegate { SetVisible(!VisibleObject.activeSelf);});
 		_exitButton.onClick.AddListener(OnExitClick);
 	}

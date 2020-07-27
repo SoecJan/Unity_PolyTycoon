@@ -25,6 +25,16 @@ public abstract class PathFindingConnector : PathFindingNode
         // Don't rotate these entities
     }
 
+    protected override void OnMouseEnter()
+    {
+        // Do nothing
+    }
+
+    protected override void OnMouseExit()
+    {
+        // Do nothing
+    }
+
     public override void OnPlacement()
     {
         base.OnPlacement();

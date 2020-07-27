@@ -24,20 +24,19 @@ public class GameHandler : MonoBehaviour
         _vehicleManager = new VehicleManager();
         if (_gameSettings == null)
         {
-            _gameSettings = Resources.Load<GameSettings>(PathUtil.Get("GameSettings"));
+            _gameSettings = Resources.Load<GameSettings>(Util.PathTo("GameSettings"));
         }
         _threadedDataRequester = new ThreadedDataRequester();
 
         // Terrain Generator
-        MeshSettings meshSettings = Resources.Load<MeshSettings>(PathUtil.Get("MeshSettings"));
-        HeightMapSettings heightMapSettings = Resources.Load<HeightMapSettings>(PathUtil.Get("HeightMapSettings"));
-        Material terrainMaterial = Resources.Load<Material>(PathUtil.Get("TerrainMeshMaterial"));
+        MeshSettings meshSettings = Resources.Load<MeshSettings>(Util.PathTo("MeshSettings"));
+        HeightMapSettings heightMapSettings = Resources.Load<HeightMapSettings>(Util.PathTo("HeightMapSettings"));
+        Material terrainMaterial = Resources.Load<Material>(Util.PathTo("TerrainMeshMaterial"));
         Transform viewer = _terrainViewer;
         _terrainGenerator = new TerrainGenerator(meshSettings, heightMapSettings, viewer, terrainMaterial, _gameSettings.MapSize);
-        
         _buildingManager = new BuildingManager();
         _placementController = new PlacementController(_buildingManager, _terrainGenerator);
-        _cityCityManager = new CityManager(_placementController);
+        _cityCityManager = new CityManager(_placementController, heightMapSettings.noiseSettings.seed);
         _treeManager = new TreeManager(_placementController, _terrainGenerator);
         _transportRouteManager = new TransportRouteManager(new PathFinder(_terrainGenerator), _vehicleManager);
     }

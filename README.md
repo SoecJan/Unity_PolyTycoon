@@ -1,20 +1,17 @@
 # Unity PolyTycoon
-A transport tycoon game that helps me to learn the Unity Engine.
+PolyTycoon is a tycoon-like lowpoly game about transportation and production of goods to cities. 
+These cities will grow over time depending on the amount of goods delivered. 
+You will manage logistics, see cities grow, expand your production lines and watch your company flourish.
 
 # Getting Started
-## Take an in-depth look
-1. [Download git](https://git-scm.com/)
-2. [Download Unity 2019.1.13f1](https://unity3d.com/de/get-unity/download) or later
-3. Clone this repository.
-4. Use Unity to open the root folder. It contains the Assets and ProjectSettings folders.
-5. Add packages from Package Manager:
-    - Core RP Library 5.7.2+
-    - Lightweight RP 5.7.2+
-    - PostProcessing 2.1.7+
-6. Run PolyTycoon
+## Download a [compiled version](https://github.com/SoecJan/Unity_PolyTycoon/releases) or run yourself:
+1. Download and install [Git](https://git-scm.com/)
+2. Download and install [Unity 2019.2.06f1](https://unity3d.com/de/get-unity/download) or later
+3. Clone this repository
+4. Open the root folder with Unity (Contains /Assets, /Packages, /ProjectSettings)
+6. Run the game
 
-or
-[Download a compiled version](https://github.com/SoecJan/soecjan.github.io/releases/tag/polytycoon_v1.0-alpha) 
+
 
 
 # Progress
@@ -43,11 +40,19 @@ or
 
 11.2019 - Code refactoring and ui upgrade to TextMeshPro
 
-12.2019 - Cashflow & construction update
+12.2019 - Cashflow & Construction update
+
+01.2020 - Vegetation & Cloud placement
+
+03.2020 - Progression system & Terrain update
+
+05.2020 - Traffic system, Mover & Vegetation update
+
+06.2020 - CI Pipeline, [Doxygen Doc](https://soecjan.github.io/) & Procedural City placement and growth
 
 [Trello](https://trello.com/b/bPIOa4Pt/polytycoon)
 
 # Acknowledgments
 
-- Sebastian Lague for his Terrain Generator and video series
-- Chris Nolet for creating the Quick Outline Unity Asset
+- [Sebastian Lague](https://www.youtube.com/channel/UCmtyQOKKmrMVaKuRXz02jbQ/) for his Terrain Generator and video series
+- [Chris Nolet](https://assetstore.unity.com/packages/tools/particles-effects/quick-outline-115488) for creating the free Quick Outline Unity Asset
