@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 /// <summary>
 /// A StorageContainer can take any kind of <see cref="ProductData"/> and store it.
 /// The stored products can be picked up by <see cref="TransportVehicle"/>.
 /// </summary>
-public abstract class AbstractStorageContainer : PathFindingTarget, IProductEmitter, IProductReceiver
+public class StorageContainer : MonoBehaviour, IProductEmitter, IProductReceiver
 {
+    protected SimpleMapPlaceable _simpleMapPlaceable;
     private static ProductManager _productManager; // Used to return all products as possible received products.
     private Dictionary<ProductData, ProductStorage> _storedProducts; // Dictionary containg all stored products.
 
-    protected override void Initialize()
+    void Start()
     {
-        base.Initialize();
+        _simpleMapPlaceable = GetComponent<SimpleMapPlaceable>();
         if (_productManager == null)
         {
             _productManager = FindObjectOfType<ProductManager>();

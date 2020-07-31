@@ -38,6 +38,7 @@ public class PlacementView : MonoBehaviour
             _placementController.PlaceableObjectPrefab = value;
             if (_currentPlaceableObject && value) GameObject.Destroy(_currentPlaceableObject.gameObject);
             _currentPlaceableObject = GameObject.Instantiate(value.Prefab.GetComponent<MapPlaceable>());
+            _currentPlaceableObject.gameObject.AddComponent<PlacementFeedbackView>();
             _gridDisplayRenderer.sharedMaterial.SetFloat("_Boolean_ShowGrid", 1f);
         }
     }
@@ -158,6 +159,7 @@ public class PlacementView : MonoBehaviour
     private void OnPlacement()
     {
         _gridDisplayRenderer.sharedMaterial.SetFloat("_Boolean_ShowGrid", 0f);
+        if (_currentPlaceableObject) Destroy(_currentPlaceableObject.gameObject.GetComponent<PlacementFeedbackView>());
         _currentPlaceableObject = null;
         _isDragging = false;
     }
@@ -172,6 +174,10 @@ public class PlacementView : MonoBehaviour
                 if (!_placementController.PlaceObject(previewObject))
                 {
                     GameObject.Destroy(previewObject.gameObject);
+                }
+                else
+                {
+                    Destroy(previewObject.GetComponent<PlacementFeedbackView>());
                 }
             }
             _draggedGameObjects.Clear();
@@ -202,14 +208,14 @@ public class PlacementView : MonoBehaviour
     {
         if (_currentPlaceableObject is SimpleMapPlaceable placeable)
         {
-            placeable.IsPlaceable =
+            placeable.GetComponent<PlacementFeedbackView>().IsPlaceable = 
                 _placementController.IsPlaceable(placeable.transform.position, placeable.UsedCoordinates);
         }
         else if (_currentPlaceableObject is ComplexMapPlaceable complexMapPlaceable)
         {
             foreach (SimpleMapPlaceable simpleMapPlaceable in complexMapPlaceable.ChildMapPlaceables)
             {
-                simpleMapPlaceable.IsPlaceable = _placementController.IsPlaceable(simpleMapPlaceable.transform.position,
+                simpleMapPlaceable.GetComponent<PlacementFeedbackView>().IsPlaceable = _placementController.IsPlaceable(simpleMapPlaceable.transform.position,
                     simpleMapPlaceable.UsedCoordinates);
             }
         }
@@ -219,8 +225,7 @@ public class PlacementView : MonoBehaviour
             SimpleMapPlaceable simpleMapPlaceable = mapPlaceable as SimpleMapPlaceable;
             if (simpleMapPlaceable)
             {
-                mapPlaceable.IsPlaceable =
-                    _placementController.IsPlaceable(mapPlaceable.transform.position,
+                mapPlaceable.GetComponent<PlacementFeedbackView>().IsPlaceable = _placementController.IsPlaceable(mapPlaceable.transform.position,
                         simpleMapPlaceable.UsedCoordinates);
             }
         }

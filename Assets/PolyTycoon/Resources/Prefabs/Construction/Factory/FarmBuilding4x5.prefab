@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664728581755816207}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.75, y: -0.499, z: -1}
+  m_LocalPosition: {x: -2.5, y: -0.499, z: -1}
   m_LocalScale: {x: 0.01, y: 0.02, z: 0.05}
   m_Children: []
   m_Father: {fileID: 2714610015041936781}
@@ -66,6 +66,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -104,6 +105,8 @@ GameObject:
   - component: {fileID: 2687006616159768051}
   - component: {fileID: 7881058599519922494}
   - component: {fileID: 8715805409763122601}
+  - component: {fileID: -2244255351185201825}
+  - component: {fileID: 8675235785984983402}
   m_Layer: 10
   m_Name: FarmBuilding4x5
   m_TagString: Building
@@ -152,48 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b9ac992972c41d3835a6618363ece48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isHighlightable: 1
-  _usedCoordinates:
-  - _usedCoordinate: {x: -2, y: 0, z: -1}
-    _terrainType: 3
-  - _usedCoordinate: {x: -2, y: 0, z: -2}
-    _terrainType: 3
-  - _usedCoordinate: {x: -2, y: 0, z: 0}
-    _terrainType: 3
-  - _usedCoordinate: {x: -2, y: 0, z: 1}
-    _terrainType: 3
-  - _usedCoordinate: {x: -1, y: 0, z: -2}
-    _terrainType: 3
-  - _usedCoordinate: {x: -1, y: 0, z: -1}
-    _terrainType: 3
-  - _usedCoordinate: {x: -1, y: 0, z: 0}
-    _terrainType: 3
-  - _usedCoordinate: {x: -1, y: 0, z: 1}
-    _terrainType: 3
-  - _usedCoordinate: {x: 0, y: 0, z: -2}
-    _terrainType: 3
-  - _usedCoordinate: {x: 0, y: 0, z: -1}
-    _terrainType: 3
-  - _usedCoordinate: {x: 0, y: 0, z: 0}
-    _terrainType: 3
-  - _usedCoordinate: {x: 0, y: 0, z: 1}
-    _terrainType: 3
-  - _usedCoordinate: {x: 1, y: 0, z: -2}
-    _terrainType: 3
-  - _usedCoordinate: {x: 1, y: 0, z: -1}
-    _terrainType: 3
-  - _usedCoordinate: {x: 1, y: 0, z: 0}
-    _terrainType: 3
-  - _usedCoordinate: {x: 1, y: 0, z: 1}
-    _terrainType: 3
-  - _usedCoordinate: {x: 2, y: 0, z: -2}
-    _terrainType: 3
-  - _usedCoordinate: {x: 2, y: 0, z: -1}
-    _terrainType: 3
-  - _usedCoordinate: {x: 2, y: 0, z: 0}
-    _terrainType: 3
-  - _usedCoordinate: {x: 2, y: 0, z: 1}
-    _terrainType: 3
 --- !u!114 &8715805409763122601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,6 +165,75 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5eef5f6b5644d03abcbd852b7de6f79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-2244255351185201825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2712658858217016447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298ea1dfd050f174ca8c9a65fb84bcc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isHighlightable: 1
+  _isDraggable: 0
+  _isClickable: 1
+  _isRotateable: 1
+  _usedCoordinates:
+  - _usedCoordinate: {x: -2, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: -2, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: -2, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: -2, y: 0, z: -2}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: -1, y: 0, z: -2}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 0, y: 0, z: -2}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: 1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: -2}
+    _terrainType: 3
+  - _usedCoordinate: {x: 2, y: 0, z: -2}
+    _terrainType: 3
+  - _usedCoordinate: {x: 2, y: 0, z: -1}
+    _terrainType: 3
+  - _usedCoordinate: {x: 2, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: 2, y: 0, z: 1}
+    _terrainType: 3
+--- !u!114 &8675235785984983402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2712658858217016447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 975bad7f80bd71c44ad9cfda2e676aae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &8010401238158321383
@@ -231,7 +261,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 57d13f074a5ab6a499ee9525b8e3052e,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.5
+      value: -0.49
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 57d13f074a5ab6a499ee9525b8e3052e,
         type: 3}

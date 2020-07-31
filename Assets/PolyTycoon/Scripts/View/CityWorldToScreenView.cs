@@ -57,7 +57,8 @@ public class CityWorldToScreenView : MonoBehaviour, IPointerEnterHandler, IPoint
 
     private void OnClick()
     {
-        FindObjectOfType<GameHandler>().BuildingManager.OnPlaceableClick(_cityPlaceable.MainBuilding);
+        SimpleMapPlaceable simpleMapPlaceable = _cityPlaceable.MainBuilding.GetComponent<SimpleMapPlaceable>();
+        FindObjectOfType<GameHandler>().BuildingManager.OnPlaceableClick(simpleMapPlaceable);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

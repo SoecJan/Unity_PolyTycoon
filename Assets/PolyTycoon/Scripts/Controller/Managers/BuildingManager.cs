@@ -50,11 +50,12 @@ public class BuildingManager : IBuildingManager
         Vector3 positionVector = TransformPosition(position);
         try
         {
-            PathFindingNode simpleMapPlaceable = _placedBuildingDictionary[positionVector] as PathFindingNode;
-            if (simpleMapPlaceable)
+            SimpleMapPlaceable simpleMapPlaceable = _placedBuildingDictionary[positionVector];
+            PathFindingNode pathFindingNode = simpleMapPlaceable.GetComponent<PathFindingNode>();
+            if (pathFindingNode)
             {
                 Vector3 comparedVector3 = TransformPosition(simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate);
-                if (positionVector.Equals(comparedVector3)) return simpleMapPlaceable;
+                if (positionVector.Equals(comparedVector3)) return pathFindingNode;
             }
             return null;
 //            if (!(simpleMapPlaceable is Street))
@@ -166,10 +167,10 @@ public class BuildingManager : IBuildingManager
             CityBuilding cityBuilding = mapPlaceable as CityBuilding;
             if (cityBuilding != null)
             {
-                mapPlaceable = cityBuilding.CityPlaceable.MainBuilding;
+                mapPlaceable = cityBuilding.CityPlaceable.MainBuilding.GetComponent<SimpleMapPlaceable>();
             }
 
-            _routeCreationView.StationManager.OnTransportStationClick((PathFindingNode) mapPlaceable);
+            _routeCreationView.StationManager.OnTransportStationClick(mapPlaceable.GetComponent<PathFindingNode>());
             return;
         }
 
@@ -182,9 +183,9 @@ public class BuildingManager : IBuildingManager
         {
             _cityView.CityBuilding = (ICityBuilding) mapPlaceable;
         }
-        else if (mapPlaceable is AbstractStorageContainer)
+        else if (mapPlaceable.GetComponent<StorageContainer>())
         {
-            _storageContainerView.StorageContainer = (AbstractStorageContainer) mapPlaceable;
+            _storageContainerView.StorageContainer = mapPlaceable.GetComponent<StorageContainer>();
         }
     }
 

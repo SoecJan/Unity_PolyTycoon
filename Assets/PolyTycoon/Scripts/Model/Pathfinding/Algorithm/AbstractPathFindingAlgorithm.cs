@@ -23,7 +23,6 @@ public abstract class AbstractPathFindingAlgorithm
     /// <returns>The distance between NodeA and NodeB</returns>
     protected int GetDistance(PathFindingNode nodeA, PathFindingNode nodeB)
     {
-        Debug.Log(nodeA.UsedCoordinates.Count + ", " + nodeB.UsedCoordinates.Count);
         return (int) Mathf.Abs(Vector3.Distance(nodeA.ThreadsafePosition, nodeB.ThreadsafePosition));
     }
     #endregion

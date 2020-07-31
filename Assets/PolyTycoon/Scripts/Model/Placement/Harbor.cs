@@ -1,3 +1,3 @@
-﻿public class Harbor : AbstractStorageContainer
+﻿public class Harbor : StorageContainer
 {
 }

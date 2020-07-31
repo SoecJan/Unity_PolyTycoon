@@ -32,29 +32,20 @@ public interface ISimpleMapPlaceable
 /// All objects that can be placed on the map need to have this or a derivative of this component. 
 /// Placement on the grid is then processed by <see cref="PlacementController"/> and registered by <see cref="BuildingManager"/>.
 /// </summary>
-public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
+public class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 {
     #region Attributes
-    protected bool _isClickable;
+    [SerializeField] protected bool _isClickable;
+    [SerializeField] private bool _isRotateable;
     private bool _isPlaced;
-    [SerializeField]
-    private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
+    [SerializeField] private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
     private Vector3 _threadsafePosition;
+    public System.Action<SimpleMapPlaceable> _OnPlacementEvent;
 
     #endregion
 
+    
     #region Default Methods
-
-    /// <summary>
-    /// Gets the static reference to BuildingManager instance
-    /// </summary>
-    public override void Awake()
-    {
-        base.Awake();
-        Initialize();
-    }
-
-    protected abstract void Initialize();
 
     /// <summary>
     /// Draws the UsedCoordinates for debugging
@@ -83,6 +74,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 
     protected virtual void OnMouseEnter()
     {
+        if (!_isHighlightable) return;
         Outline outline = gameObject.AddComponent<Outline>();
         outline.OutlineMode = Outline.Mode.OutlineVisible;
         outline.OutlineColor = Color.yellow;
@@ -92,6 +84,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 
     protected virtual void OnMouseExit()
     {
+        if (!_isHighlightable) return;
         Destroy(gameObject.GetComponent<Outline>());
     }
 
@@ -111,7 +104,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
         set => _usedCoordinates = value;
     }
 
-    protected bool IsPlaced
+    public bool IsPlaced
     {
         get => _isPlaced;
 
@@ -120,12 +113,12 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
             this._isPlaced = value;
             if (this.IsPlaced)
             {
-                materialPropertyBlock.SetFloat(IsPlacedProperty, 1f);
-                foreach (Renderer childRenderer in childRenderers)
-                {
-                    // childRenderer.SetPropertyBlock(null);
-                    childRenderer.SetPropertyBlock(materialPropertyBlock);
-                }
+                // materialPropertyBlock.SetFloat(IsPlacedProperty, 1f);
+                // foreach (Renderer childRenderer in childRenderers)
+                // {
+                //     // childRenderer.SetPropertyBlock(null);
+                //     childRenderer.SetPropertyBlock(materialPropertyBlock);
+                // }
             }
         }
     }
@@ -148,6 +141,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         IsPlaced = true;
         ThreadsafePosition = transform.position;
+        _OnPlacementEvent?.Invoke(this);
     }
 
     /// <summary>
@@ -166,6 +160,7 @@ public abstract class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 
     public override void Rotate(Vector3 axis, float rotationAmount)
     {
+        if (!_isRotateable) return;
         base.Rotate(axis, rotationAmount);
         RotateUsedCoords(rotationAmount);
     }

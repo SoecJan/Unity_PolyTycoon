@@ -46,11 +46,10 @@ public class PathFindingTarget : PathFindingNode, IPathNode
 		Gizmos.DrawLine(wayPoint.TraversalVectors[0], wayPoint.TraversalVectors[1]);
 	}
 
-	protected override void Initialize()
+	public override void Start()
 	{
-		base.Initialize();
+		base.Start();
 	    _paths = new Dictionary<PathFindingNode, Path>(); 
-	    _isClickable = true; // PathFindingTargets can be clicked on by the user to get more information about status
 	}
     
     public override bool IsTraversable()
@@ -85,10 +84,9 @@ public class PathFindingTarget : PathFindingNode, IPathNode
 	    _paths.Remove(targetNode);
     }
 
-    public override void OnPlacement()
+    protected override void OnPlacement(SimpleMapPlaceable simpleMapPlaceable)
     {
-	    base.OnPlacement();
-
+	    base.OnPlacement(simpleMapPlaceable);
 	    TraversalOffset = UsedCoordinates[0].UsedCoordinate + transform.position;
     }
 

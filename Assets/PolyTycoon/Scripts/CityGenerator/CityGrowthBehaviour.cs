@@ -1,14 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 [RequireComponent(typeof(CityPlaceable))]
 public class CityGrowthBehaviour : MonoBehaviour
 {
     [SerializeField] private int seed = 0;
-    [SerializeField] private int maxCityProgress = 100;
+    [SerializeField] private int maxCityProgress = 20;
+    [SerializeField] private int currentCityProgress = 0;
     [SerializeField] private Vector2Int _streetLengthMinMax = new Vector2Int(2, 6);
     [SerializeField] private float buildingProbability = 0.6f;
+    private int startCitySize;
     
     private CityPlaceable _cityPlaceable;
     private PlacementController _placementController;
@@ -31,18 +34,18 @@ public class CityGrowthBehaviour : MonoBehaviour
 
     private IEnumerator GenerateCity(int seed, int maxCityProgress, Vector2Int streetLengthMinMax, float buildingProbability)
     {
-        List<SimpleMapPlaceable> endpoints = new List<SimpleMapPlaceable>();
-        SimpleMapPlaceable mapPlaceable = GetComponentInChildren<SimpleMapPlaceable>();
-        endpoints.Add(mapPlaceable);
+        List<Street> endpoints = new List<Street>();
+        Street startStreet = PlaceStreetAt(transform.position);
+        endpoints.Add(startStreet);
         System.Random random = new System.Random(seed);
+        startCitySize = random.Next(2, 4);
 
-        float waitTime = 0.0f;
-        int progress = 0;
-        while (progress < maxCityProgress)
+        while (currentCityProgress < maxCityProgress)
         {
-            progress++;
+            yield return new WaitUntil(IsGrowing);
             if (endpoints.Count == 0) break;
             Street street = (Street) endpoints[0];
+            SimpleMapPlaceable streetPlaceable = street.GetComponent<SimpleMapPlaceable>();
             endpoints.RemoveAt(0);
             for (int i = 0; i < street.NeighborNodes.Length; i++)
             {
@@ -52,16 +55,15 @@ public class CityGrowthBehaviour : MonoBehaviour
                 Vector3 directionClockwiseVec = Util.DirectionIntToVector((i + 1) % 4);
                 Vector3 directionCounterClockwiseVec = Util.DirectionIntToVector((i + 3) % 4);
                 
-                int amount = random.Next(streetLengthMinMax.x, streetLengthMinMax.y);
-                for (int j = 1; j < amount+1; j++)
+                int maxStreetLengthRand = random.Next(streetLengthMinMax.x, streetLengthMinMax.y);
+                for (int currStreetLength = 1; currStreetLength < maxStreetLengthRand+1; currStreetLength++)
                 {
-                    Vector3 placedPosition = street.transform.position + (directionVec * j);
+                    Vector3 placedPosition = street.transform.position + (directionVec * currStreetLength);
                     
-                    if (IsRasterizing(placedPosition) || !_placementController.IsPlaceable(placedPosition, street.UsedCoordinates)) break;
-                    SimpleMapPlaceable placeable = PlaceStreetAt(placedPosition);
-                    yield return new WaitForSeconds(waitTime);
+                    if (IsRasterizing(placedPosition) || !_placementController.IsPlaceable(placedPosition, streetPlaceable.UsedCoordinates)) break;
+                    Street streetAtCurrPos = PlaceStreetAt(placedPosition);
 
-                    if (j < amount)
+                    if (currStreetLength < maxStreetLengthRand)
                     {
                         if (random.NextDouble() > buildingProbability) continue;
                         
@@ -95,36 +97,43 @@ public class CityGrowthBehaviour : MonoBehaviour
                         
                         if (!_cityPlaceable.MainBuilding)
                         {
+                            simpleMapPlaceable = building.AddComponent<SimpleMapPlaceable>();
+                            simpleMapPlaceable.UsedCoordinates = new List<NeededSpace>() {NeededSpace.Zero(TerrainGenerator.TerrainType.Flatland)};
+                            
                             CityMainBuilding cityMainBuilding = building.AddComponent<CityMainBuilding>();
                             cityMainBuilding.CityPlaceable = _cityPlaceable;
-                            cityMainBuilding.UsedCoordinates = new List<NeededSpace>() {NeededSpace.Zero(TerrainGenerator.TerrainType.Flatland)};
                             _cityPlaceable.MainBuilding = cityMainBuilding;
-                            simpleMapPlaceable = cityMainBuilding;
                         }
                         else
                         {
                             ProceduralCityBuilding cityBuilding = building.AddComponent<ProceduralCityBuilding>();
                             cityBuilding.CityPlaceable = _cityPlaceable;
                             cityBuilding.Height = 1f;
-                            cityBuilding.Generate(random.Next(1, amount - j), directionVec, streetDirection, _placementController);
+                            cityBuilding.Generate(random.Next(1, maxStreetLengthRand - currStreetLength), directionVec, streetDirection, _placementController);
                             simpleMapPlaceable = cityBuilding;
                         }
 
                         if (!_placementController.PlaceObject(simpleMapPlaceable))
                         {
                             Destroy(simpleMapPlaceable.gameObject);
+                            continue;
                         };
+                        currentCityProgress++;
                         _cityPlaceable.ChildMapPlaceables.Add(simpleMapPlaceable);
                         building.transform.SetParent(transform);
                     }
                     
-                    if (j != amount) continue;
-                    endpoints.Add(placeable);
+                    if (currStreetLength != maxStreetLengthRand) continue;
+                    endpoints.Add(streetAtCurrPos);
                     break;
                 }
-                yield return new WaitForSeconds(waitTime);
             }
         }
+    }
+
+    private bool IsGrowing()
+    {
+        return currentCityProgress <= startCitySize + (Mathf.Pow(_cityPlaceable.Level, 2));
     }
 
     private bool IsRasterizing(Vector3 position, int? kernelSize = 3, int? threshold = 3)
@@ -162,15 +171,16 @@ public class CityGrowthBehaviour : MonoBehaviour
     //     return count;
     // }
     
-    private SimpleMapPlaceable PlaceStreetAt(Vector3 position)
+    private Street PlaceStreetAt(Vector3 position)
     {
-        GameObject gameObject = Instantiate(_streetData.Prefab);
-        SimpleMapPlaceable simpleMapPlaceable = gameObject.GetComponent<SimpleMapPlaceable>();
-        gameObject.transform.position = position;
-        simpleMapPlaceable.OnPlacement();
+        GameObject streetObject = Instantiate(_streetData.Prefab);
+        Street street = streetObject.GetComponent<Street>();
+        SimpleMapPlaceable simpleMapPlaceable = streetObject.GetComponent<SimpleMapPlaceable>();
+        streetObject.transform.position = position + Vector3.up;
+        // simpleMapPlaceable.OnPlacement();
         _placementController.PlaceObject(simpleMapPlaceable);
         _cityPlaceable.ChildMapPlaceables.Add(simpleMapPlaceable);
-        gameObject.transform.SetParent(transform);
-        return simpleMapPlaceable;
+        streetObject.transform.SetParent(transform);
+        return street;
     }
 }

@@ -22,6 +22,8 @@ public struct ThreadsafePlaceable
     {
         MapPlaceable = mapPlaceable;
         _neededSpaces = new List<NeededSpace>();
+        _position = startPosition;
+        if (mapPlaceable.ChildMapPlaceables.Count == 0) return;
         foreach (SimpleMapPlaceable childMapPlaceable in mapPlaceable.ChildMapPlaceables)
         {
             foreach (NeededSpace neededSpace in childMapPlaceable.UsedCoordinates)
@@ -31,10 +33,14 @@ public struct ThreadsafePlaceable
             }
         }
 
-        _position = startPosition;
+        
     }
 
-    public List<NeededSpace> NeededSpaces => _neededSpaces;
+    public List<NeededSpace> NeededSpaces
+    {
+        get => _neededSpaces;
+        set => _neededSpaces = value;
+    }
 
     public Vector3 Position => _position;
 

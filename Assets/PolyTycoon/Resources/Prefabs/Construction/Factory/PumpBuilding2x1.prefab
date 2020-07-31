@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4869944088700165648}
   - component: {fileID: -6341227420648490900}
   - component: {fileID: 6508413795569344482}
+  - component: {fileID: 3756648484005867507}
   m_Layer: 10
   m_Name: PumpBuilding2x1
   m_TagString: Untagged
@@ -60,12 +61,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b9ac992972c41d3835a6618363ece48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isHighlightable: 1
-  _usedCoordinates:
-  - _usedCoordinate: {x: 0, y: 0, z: 0}
-    _terrainType: 3
-  - _usedCoordinate: {x: 1, y: 0, z: 0}
-    _terrainType: 4
 --- !u!114 &6508413795569344482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,6 +73,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5eef5f6b5644d03abcbd852b7de6f79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3756648484005867507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4863801611557025640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298ea1dfd050f174ca8c9a65fb84bcc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isHighlightable: 1
+  _isDraggable: 0
+  _isClickable: 1
+  _isRotateable: 1
+  _usedCoordinates:
+  - _usedCoordinate: {x: 0, y: 0, z: 0}
+    _terrainType: 3
+  - _usedCoordinate: {x: 1, y: 0, z: 0}
+    _terrainType: 4
 --- !u!1 &6389854231060483317
 GameObject:
   m_ObjectHideFlags: 0

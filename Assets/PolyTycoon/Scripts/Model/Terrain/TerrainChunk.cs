@@ -122,6 +122,7 @@ public class TerrainChunk
         CityPlaceable cityPlaceable = gameHandler.CityManager.GetRandomCityPrefab();
         ThreadsafePlaceable cityToPlace =
             new ThreadsafePlaceable(cityPlaceable, vec3);
+        cityToPlace.NeededSpaces = new List<NeededSpace>() {NeededSpace.Zero(TerrainGenerator.TerrainType.Flatland)};
         ThreadedDataRequester.RequestData(
             () => ThreadsafePlacementManager.MoveToPlaceablePosition(gameHandler.PlacementController,
                 gameHandler.TerrainGenerator, cityToPlace), gameHandler.CityManager.OnPlacementPositionFound,

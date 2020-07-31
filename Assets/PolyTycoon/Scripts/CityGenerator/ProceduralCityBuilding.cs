@@ -8,7 +8,7 @@ public class ProceduralCityBuilding : CityBuilding
     private static Dictionary<Vector2Int, GameObject[]> _models;
     private static System.Random _random;
 
-    protected override void Initialize()
+     void Awake()
     {
         UsedCoordinates = new List<NeededSpace>();
         _isClickable = true;
