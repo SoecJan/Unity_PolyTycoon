@@ -15,13 +15,14 @@ public class TransportRoute
     {
         RouteIndex += 1;
         TransportRouteElements = new List<TransportRouteElement>();
+        TransportVehicles = new List<TransportVehicle>();
     }
 
     #endregion
 
     #region Getter & Setter
 
-    public TransportVehicle TransportVehicle { get; set; }
+    public List<TransportVehicle> TransportVehicles { get; set; }
 
     public List<TransportRouteElement> TransportRouteElements { get; set; }
 
@@ -39,16 +40,6 @@ public class TransportRoute
             return vehiclePathList;
         }
     }
-
-//    public int Distance()
-//    {
-//        int sum = 0;
-//        foreach (TransportRouteElement element in TransportRouteElements)
-//        {
-//            sum += element.Path.WayPoints.Count;
-//        }
-//        return sum;
-//    }
 
     #endregion
 }

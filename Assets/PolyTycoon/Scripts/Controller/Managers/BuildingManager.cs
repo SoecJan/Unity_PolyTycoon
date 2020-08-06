@@ -11,7 +11,7 @@ public class BuildingManager : IBuildingManager
 {
     #region Attributes
 
-    private static TransportRouteCreationView _routeCreationView;
+    private static NewRouteController _routeCreationController;
     private static ProductProcessorView _productProcessorView;
     private static CityView _cityView;
     private static StorageContainerView _storageContainerView;
@@ -24,7 +24,8 @@ public class BuildingManager : IBuildingManager
     public BuildingManager()
     {
         _placedBuildingDictionary = new Dictionary<Vector3, SimpleMapPlaceable>();
-        _routeCreationView = Object.FindObjectOfType<TransportRouteCreationView>();
+        GameHandler gameHandler = Object.FindObjectOfType<GameHandler>();
+        _routeCreationController = gameHandler.TransportRouteManager.RouteCreationController;
         _productProcessorView = Object.FindObjectOfType<ProductProcessorView>();
         _cityView = Object.FindObjectOfType<CityView>();
         _storageContainerView = Object.FindObjectOfType<StorageContainerView>();
@@ -50,11 +51,13 @@ public class BuildingManager : IBuildingManager
         Vector3 positionVector = TransformPosition(position);
         try
         {
-            PathFindingNode simpleMapPlaceable = _placedBuildingDictionary[positionVector] as PathFindingNode;
-            if (simpleMapPlaceable)
+            SimpleMapPlaceable simpleMapPlaceable = _placedBuildingDictionary[positionVector];
+            if (!simpleMapPlaceable) return null;
+            PathFindingNode pathFindingNode = simpleMapPlaceable.GetComponent<PathFindingNode>();
+            if (pathFindingNode)
             {
                 Vector3 comparedVector3 = TransformPosition(simpleMapPlaceable.transform.position + simpleMapPlaceable.UsedCoordinates[0].UsedCoordinate);
-                if (positionVector.Equals(comparedVector3)) return simpleMapPlaceable;
+                if (positionVector.Equals(comparedVector3)) return pathFindingNode;
             }
             return null;
 //            if (!(simpleMapPlaceable is Street))
@@ -161,15 +164,9 @@ public class BuildingManager : IBuildingManager
     public void OnPlaceableClick(SimpleMapPlaceable mapPlaceable) 
     {
         Debug.Log("Placeable clicked: " + mapPlaceable.name);
-        if (_routeCreationView && _routeCreationView.VisibleObject.activeSelf)
+        if (_routeCreationController.View.VisibleObject.gameObject.activeSelf && mapPlaceable.GetComponent<PathFindingTarget>() is PathFindingTarget target)
         {
-            CityBuilding cityBuilding = mapPlaceable as CityBuilding;
-            if (cityBuilding != null)
-            {
-                mapPlaceable = cityBuilding.CityPlaceable.MainBuilding;
-            }
-
-            _routeCreationView.StationManager.OnTransportStationClick((PathFindingNode) mapPlaceable);
+            _routeCreationController.OnStationClick(target);
             return;
         }
 
@@ -182,9 +179,9 @@ public class BuildingManager : IBuildingManager
         {
             _cityView.CityBuilding = (ICityBuilding) mapPlaceable;
         }
-        else if (mapPlaceable is AbstractStorageContainer)
+        else if (mapPlaceable.GetComponent<StorageContainer>())
         {
-            _storageContainerView.StorageContainer = (AbstractStorageContainer) mapPlaceable;
+            _storageContainerView.StorageContainer = mapPlaceable.GetComponent<StorageContainer>();
         }
     }
 

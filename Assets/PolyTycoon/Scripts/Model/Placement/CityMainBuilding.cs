@@ -39,14 +39,9 @@ public class CityMainBuilding : PathFindingTarget, IProductReceiver, IProductEmi
 
     #region Methods
 
-    void Start()
+    public override void Start()
     {
-        
-    }
-    
-    protected override void Initialize()
-    {
-        base.Initialize();
+        base.Start();
         // RotateUsedCoords(transform.eulerAngles.y);
         if (!CityPlaceable && transform.parent)
             CityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();

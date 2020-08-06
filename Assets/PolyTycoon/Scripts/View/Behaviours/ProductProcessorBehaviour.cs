@@ -18,7 +18,8 @@ public class ProductProcessorBehaviour : MonoBehaviour, IProductEmitter, IProduc
 
     private void OnDestroy()
     {
-        StopCoroutine(_productionCoroutine);
+        if (_productionCoroutine != null)
+            StopCoroutine(_productionCoroutine);
     }
 
     public BuildingData BuildingData

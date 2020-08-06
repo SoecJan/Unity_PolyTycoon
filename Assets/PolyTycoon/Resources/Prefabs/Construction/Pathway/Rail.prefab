@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 978718181954877264}
   - component: {fileID: 5859504610338958311}
   - component: {fileID: 5387006250341779170}
+  - component: {fileID: 8378651246611701848}
   m_Layer: 10
   m_Name: Rail
   m_TagString: Untagged
@@ -48,16 +49,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b03ebd639cc94141bb5f000dfaeb9e8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _constructionUiSprite: {fileID: 21300000, guid: b617c66f1d84b5c49b58d851d3631ee7,
-    type: 3}
-  _buildingName: Rail
-  _buildingPrice: 250
-  _isHighlightable: 1
-  _usedCoordinates:
-  - _usedCoordinate: {x: 0, y: 0, z: 0}
-    _terrainType: 3
-  _threadsafePosition: {x: 0, y: 0, z: 0}
-  neighborNodes: []
   _cornerTransform: {fileID: 1072635238691343518}
   _straightTransform: {fileID: 1365070926030481961}
   _tIntersectionTransform: {fileID: 3568028064037218373}
@@ -75,6 +66,25 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 0.15, z: 1}
   m_Center: {x: 0, y: -0.4, z: 0}
+--- !u!114 &8378651246611701848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5044179919451255699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298ea1dfd050f174ca8c9a65fb84bcc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isHighlightable: 0
+  _isDraggable: 1
+  _isClickable: 0
+  _isRotateable: 0
+  _usedCoordinates:
+  - _usedCoordinate: {x: 0, y: 0, z: 0}
+    _terrainType: 3
 --- !u!1001 &5447227854638688132
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -16,6 +16,7 @@ public class RouteMover : WaypointMover
 
     public List<Path> PathList
     {
+        get => _pathList;
         set
         {
             _pathList = value;

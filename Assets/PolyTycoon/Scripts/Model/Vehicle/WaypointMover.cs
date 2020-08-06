@@ -297,9 +297,11 @@ public class WaypointMoverController
                 // Calculate Traffic Light
                 float neededBreakDistance = _decelerationCurve?.Evaluate(1f) ?? 1f;
                 WayPoint targetWaypoint = _waypointList[CurrentWaypointIndex];
+                TrafficController trafficController = targetWaypoint.Node.GetComponent<TrafficController>();
                 Vector3 startOfIntersection = targetWaypoint.TraversalVectors[0];
                 float distanceToTrafficLight = Mathf.Abs(Vector3.Distance(startOfIntersection, currentPosition)) - _vehicleLength;
                 bool outOfTrafficLightDistance = distanceToTrafficLight > neededBreakDistance;
+                
 
                 // Debug.Log(outOfTrafficLightDistance + " " + startOfIntersection + " " + futurePosition + " " + distanceToTrafficLight + " > " + neededBreakDistance);
                 
@@ -313,11 +315,11 @@ public class WaypointMoverController
                         float frontMoverSpeed = isSafetyDistance ? speedOfFrontMover : speedOfFrontMover * (1 - _distanceToFrontMoverTolerance);
                         _currentSpeed = Mathf.Min(frontMoverSpeed, distanceToTrafficLight);
                     }
-                    else if (!targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()))
+                    else if (!trafficController.TrafficLightStatus(this, GetFrom(), GetTo()))
                     {
                         // Debug.Log("Traffic Light is not green, Speed: " + _currentSpeed + " Distance: " + distanceToTrafficLight);
                         _breaking = true;
-                        while (!targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()) && _currentSpeed > 0.1f)
+                        while (!trafficController.TrafficLightStatus(this, GetFrom(), GetTo()) && _currentSpeed > 0.1f)
                         {
                             distanceToTrafficLight = Mathf.Abs(Vector3.Distance(startOfIntersection, currentPosition)) - _vehicleLength;
                             _currentSpeed = Mathf.Min(_currentSpeed, distanceToTrafficLight);
@@ -328,7 +330,7 @@ public class WaypointMoverController
 
                         _currentSpeed = 0f;
                         yield return new WaitUntil(() =>
-                            targetWaypoint.Node.TrafficLightStatus(this, GetFrom(), GetTo()));
+                            trafficController.TrafficLightStatus(this, GetFrom(), GetTo()));
                     }
                     else
                     {
@@ -431,7 +433,7 @@ public class WaypointMoverController
         PathFindingNode from = GetFrom();
         PathFindingNode to = GetTo();
         Vector3[] traversalVectors = _waypointList[CurrentWaypointIndex].TraversalVectors;
-        _waypointList[CurrentWaypointIndex].Node.RegisterMover(
+        _waypointList[CurrentWaypointIndex].Node.GetComponent<TrafficController>().RegisterMover(
             new ScheduledMover(this, traversalVectors[traversalVectors.Length-1], from, to));
     }
 
@@ -439,7 +441,7 @@ public class WaypointMoverController
     {
         if (_waypointList == null || CurrentWaypointIndex >= _waypointList.Count || CurrentWaypointIndex == -1) return;
         PathFindingNode from = GetFrom();
-        _waypointList[CurrentWaypointIndex].Node.UnregisterMover(this, from);
+        _waypointList[CurrentWaypointIndex].Node.GetComponent<TrafficController>().UnregisterMover(this, from);
     }
 
     private PathFindingNode GetTo()

@@ -3,7 +3,8 @@
     "references": [
         "OutlineAssembly",
         "Unity.TextMeshPro",
-        "GameMenuAssembly"
+        "GameMenuAssembly",
+        "FoldableListAssembly"
     ],
     "includePlatforms": [
         "Android",

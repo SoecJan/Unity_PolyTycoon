@@ -12,10 +12,6 @@ public interface ICityBuilding
 	/// </summary>
 	/// <returns></returns>
 	CityPlaceable CityPlaceable { get; set; }
-	/// <summary>
-	/// The amount of people living inside the building.
-	/// </summary>
-	int CurrentResidentCount { get; set; }
 }
 
 /// <summary>
@@ -23,20 +19,9 @@ public interface ICityBuilding
 /// </summary>
 public class CityBuilding : SimpleMapPlaceable, ICityBuilding
 {
-	#region Attributes
-	[SerializeField] private List<NeededProduct> _consumedProducts;
-	#endregion
-
 	#region Getter & Setter
 
 	public CityPlaceable CityPlaceable { get; set; }
-	public int CurrentResidentCount { get; set; } = 3;
-
-	public List<NeededProduct> ConsumedProducts {
-		get => _consumedProducts;
-
-		set => _consumedProducts = value;
-	}
 	#endregion
 
 	#region Methods
@@ -57,14 +42,12 @@ public class CityBuilding : SimpleMapPlaceable, ICityBuilding
 		if (CityPlaceable) Destroy(CityPlaceable.gameObject.GetComponent<Outline>());
 	}
 	
-	protected override void Initialize()
+	void Awake()
 	{
 		_isClickable = true;
 		if (!CityPlaceable && transform.parent) CityPlaceable = transform.parent.gameObject.GetComponent<CityPlaceable>();
 		RotateUsedCoords(transform.eulerAngles.y);
 	}
-
-	
 	#endregion
 	
 }

@@ -24,7 +24,7 @@ public class TileAStarPathFinding : AbstractPathFindingAlgorithm
         return Mathf.RoundToInt((nodeA - nodeB).magnitude);
     }
 
-    private Vector2Int GetWaterPosition(PathFindingNode simpleMapPlaceable)
+    private Vector2Int GetWaterPosition(SimpleMapPlaceable simpleMapPlaceable)
     {
         foreach (NeededSpace neededSpace in simpleMapPlaceable.UsedCoordinates)
         {
@@ -37,15 +37,15 @@ public class TileAStarPathFinding : AbstractPathFindingAlgorithm
         throw new NotSupportedException("No NeededSpace with the " + _terrainType + " terrain type found in " + simpleMapPlaceable.name);
     }
 
-    public override Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
+    public override Path FindPath(PathFindingTarget startNode, PathFindingTarget endNode)
     {
         List<TileNode> openSet = new List<TileNode>();
         HashSet<Vector2Int> closedSet = new HashSet<Vector2Int>();
 
-        Vector2Int startPositionVec2 = GetWaterPosition(startNode);
+        Vector2Int startPositionVec2 = GetWaterPosition(startNode.GetComponent<SimpleMapPlaceable>());
         TileNode startTileNode = new TileNode(startPositionVec2);
         openSet.Add(startTileNode);
-        Vector2Int endPosition = GetWaterPosition(endNode);
+        Vector2Int endPosition = GetWaterPosition(endNode.GetComponent<SimpleMapPlaceable>());
         
         while (openSet.Count > 0)
         {

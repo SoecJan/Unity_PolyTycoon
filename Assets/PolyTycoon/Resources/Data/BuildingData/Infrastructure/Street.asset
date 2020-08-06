@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f2c08584ccd9224ebe17a91ae35e4bf, type: 3}
   m_Name: Street
   m_EditorClassIdentifier: 
-  _constructionSprite: {fileID: 21300000, guid: c33f23a2d1ddaba4bad0921e41b77a40,
+  _constructionSprite: {fileID: 21300000, guid: fdb3d447099bb4c42b51f8b88ea6a124,
     type: 3}
   _buildingName: Street
   _description: A road to drive on
   _buildingPrice: 100
   _prefab: {fileID: 1638137022184206, guid: 6949fe6893c461c4099f562d12fda150, type: 3}
+  _buildingCategory: 0

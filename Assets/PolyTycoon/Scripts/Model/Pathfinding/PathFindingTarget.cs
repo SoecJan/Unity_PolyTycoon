@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public interface IPathNode
 {
+	PathType PathType { get; }
+	
 	/// <summary>
 	/// This Method enables other classes to receive the Path from one node to another target node.
 	/// </summary>
@@ -35,6 +37,7 @@ public interface IPathNode
 public class PathFindingTarget : PathFindingNode, IPathNode
 {
 	private Dictionary<PathFindingNode, Path> _paths; // Paths for the IPathNode Interface
+	[SerializeField] private PathType _pathType;
 
 	private void OnDrawGizmos()
 	{
@@ -46,11 +49,10 @@ public class PathFindingTarget : PathFindingNode, IPathNode
 		Gizmos.DrawLine(wayPoint.TraversalVectors[0], wayPoint.TraversalVectors[1]);
 	}
 
-	protected override void Initialize()
+	public override void Start()
 	{
-		base.Initialize();
+		base.Start();
 	    _paths = new Dictionary<PathFindingNode, Path>(); 
-	    _isClickable = true; // PathFindingTargets can be clicked on by the user to get more information about status
 	}
     
     public override bool IsTraversable()
@@ -62,7 +64,9 @@ public class PathFindingTarget : PathFindingNode, IPathNode
     {
 	    return true; // A PathFindingTarget can always be accessed via the node graph
     }
-    
+
+    public PathType PathType => _pathType;
+
     public Path PathTo(PathFindingNode targetNode)
     {
 	    return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
@@ -85,10 +89,9 @@ public class PathFindingTarget : PathFindingNode, IPathNode
 	    _paths.Remove(targetNode);
     }
 
-    public override void OnPlacement()
+    protected override void OnPlacement(SimpleMapPlaceable simpleMapPlaceable)
     {
-	    base.OnPlacement();
-
+	    base.OnPlacement(simpleMapPlaceable);
 	    TraversalOffset = UsedCoordinates[0].UsedCoordinate + transform.position;
     }
 

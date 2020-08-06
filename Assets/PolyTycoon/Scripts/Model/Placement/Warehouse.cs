@@ -1,12 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Warehouse : AbstractStorageContainer
+﻿
+public class Warehouse : StorageContainer
 {
-    protected override void Initialize()
+    void Start()
     {
-        base.Initialize();
-        _isClickable = true;
+        // _isClickable = true;
     }
+
+    // protected override void Initialize()
+    // {
+    //     throw new System.NotImplementedException();
+    // }
 }

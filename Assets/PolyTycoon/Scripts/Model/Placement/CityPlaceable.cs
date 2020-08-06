@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 /// <summary>
 /// Holds a reference to all buildings contained in this cityPlaceable. Represents a wrapper for the city.
 /// </summary>
-public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmitter, IPathNode, ICityPlaceable
+public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmitter, ICityPlaceable
 {
     #region Attributes
 
     public static System.Action<int, CityPlaceable> _OnCityLevelChange;
+
     private static List<int> _usedNamesList; // Used indices for city names. Needed for finding unique names.
     private Dictionary<ProductData, ProductStorage> _receivedProducts; // Products that can be received by this city
     private Dictionary<ProductData, int> _productPrices;
@@ -107,10 +109,8 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
         FillReceivedProducts();
     }
 
-    public override void Start()
+    void Start()
     {
-        base.Start();
-
         // Add child components if there are none
         if (ChildMapPlaceables.Count == 0)
         {
@@ -121,7 +121,8 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
                 // Append to the ChildMapPlaceables List
                 if (simpleMapPlaceable) ChildMapPlaceables.Add(simpleMapPlaceable);
                 // Find the mainbuilding if none is specified
-                if (!_mainBuilding && simpleMapPlaceable is CityMainBuilding building) _mainBuilding = building;
+                CityMainBuilding building = simpleMapPlaceable.GetComponent<CityMainBuilding>();
+                if (!_mainBuilding && building) _mainBuilding = building;
             }
         }
 
@@ -204,30 +205,23 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
     /// </summary>
     private void FillReceivedProducts()
     {
-        foreach (SimpleMapPlaceable simpleMapPlaceable in ChildMapPlaceables)
+        ProductData productData = FindObjectOfType<ProductManager>().GetRandomCityConsumeableProduct();
+        if (_receivedProducts.ContainsKey(productData))
         {
-            if (!(simpleMapPlaceable is CityBuilding)) continue;
-            CityBuilding cityBuilding = ((CityBuilding) simpleMapPlaceable);
-            foreach (NeededProduct neededProduct in cityBuilding.ConsumedProducts)
+            _receivedProducts[productData].MaxAmount += 5;
+        }
+        else
+        {
+            ProductStorage storage = new ProductStorage(productData, 5);
+            storage.OnAmountChange += delegate(ProductStorage productStorage, int i)
             {
-                if (_receivedProducts.ContainsKey(neededProduct.Product))
-                {
-                    _receivedProducts[neededProduct.Product].MaxAmount += neededProduct.Amount;
-                }
-                else
-                {
-                    ProductStorage storage = new ProductStorage(neededProduct.Product, neededProduct.Amount);
-                    storage.OnAmountChange += delegate(ProductStorage productStorage, int i)
-                    {
-                        if (!_moneyUiView) _moneyUiView = FindObjectOfType<MoneyUiView>();
-                        if (i <= 0)
-                            return; // Because the player gets Money by delivery and does not loose money on restock
-                        _moneyUiView.ChangeValueBy(_productPrices[productStorage.StoredProductData] * i);
-                    };
-                    storage.OnAmountChange += OnAmountChange;
-                    _receivedProducts.Add(neededProduct.Product, storage);
-                }
-            }
+                if (!_moneyUiView) _moneyUiView = FindObjectOfType<MoneyUiView>();
+                if (i <= 0)
+                    return; // Because the player gets Money by delivery and does not loose money on restock
+                _moneyUiView.ChangeValueBy(_productPrices[productStorage.StoredProductData] * i);
+            };
+            storage.OnAmountChange += OnAmountChange;
+            _receivedProducts.Add(productData, storage);
         }
     }
 
@@ -240,42 +234,6 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
             Level = (int) GetLevelFromExp(ExperiencePoints, Level);
             _OnCityLevelChange?.Invoke(Level, this);
         }
-    }
-
-    /// <summary>
-    /// <inheritdoc cref="IPathNode.PathTo"/>
-    /// </summary>
-    /// <param name="targetNode"></param>
-    /// <returns></returns>
-    public Path PathTo(PathFindingNode targetNode)
-    {
-        return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
-    }
-
-    /// <summary>
-    ///  <inheritdoc cref="IPathNode.AddPath"/>
-    /// </summary>
-    /// <param name="targetNode"></param>
-    /// <param name="path"></param>
-    public void AddPath(PathFindingNode targetNode, Path path)
-    {
-        if (_paths.ContainsKey(targetNode))
-        {
-            _paths[targetNode] = path;
-        }
-        else
-        {
-            _paths.Add(targetNode, path);
-        }
-    }
-
-    /// <summary>
-    ///  <inheritdoc cref="IPathNode.RemovePath"/>
-    /// </summary>
-    /// <param name="targetNode"></param>
-    public void RemovePath(PathFindingNode targetNode)
-    {
-        _paths.Remove(targetNode);
     }
 
     #endregion

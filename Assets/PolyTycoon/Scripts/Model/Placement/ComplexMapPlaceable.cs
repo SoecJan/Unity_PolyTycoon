@@ -31,7 +31,8 @@ public class ComplexMapPlaceable : MapPlaceable, IComplexMapPlaceable
 	{
 		foreach(SimpleMapPlaceable childMapPlaceable in _childMapPlaceables)
 		{
-			switch (childMapPlaceable)
+			PathFindingNode node = childMapPlaceable.GetComponent<PathFindingNode>();
+			switch (node)
 			{
 				case PathFindingTarget _:
 					childMapPlaceable.Rotate(axis, rotationAmount);
