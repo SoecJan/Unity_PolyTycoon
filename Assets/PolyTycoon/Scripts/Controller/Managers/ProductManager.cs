@@ -17,6 +17,11 @@ public class ProductManager : MonoBehaviour, IProductManager
     {
         return products[Random.Range(0, products.Count - 1)];
     }
+    
+    public ProductData GetRandomCityConsumeableProduct()
+    {
+        return products[5];
+    }
 
     public ProductData GetProduct(string productName)
     {

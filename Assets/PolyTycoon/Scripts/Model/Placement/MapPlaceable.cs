@@ -3,40 +3,15 @@
 /// <summary>
 /// MapPlaceables are objects that can be placed in the game by the user.
 /// </summary>
-public abstract class MapPlaceable : MonoBehaviour, IMapPlaceable
+public abstract class MapPlaceable : MonoBehaviour
 {
     [SerializeField] protected bool _isHighlightable = true; // Used when object is selected
+    [SerializeField] private bool _isDraggable;
 
-    protected Renderer[] childRenderers; // Create a new instance of the material
-    protected static readonly int IsPlacedProperty = Shader.PropertyToID("_IsPlaced");
-    protected static readonly int IsPlaceableProperty = Shader.PropertyToID("_IsPlaceable");
-    protected MaterialPropertyBlock materialPropertyBlock;
-    
-    public bool IsDraggable { get; set; }
-
-    public bool IsPlaceable
+    public bool IsDraggable
     {
-        set
-        {
-            materialPropertyBlock.SetFloat(IsPlacedProperty, 0f);
-            materialPropertyBlock.SetFloat(IsPlaceableProperty, value ? 1f : 0f);
-            foreach (Renderer childRenderer in childRenderers)
-            {
-                // childRenderer.SetPropertyBlock(null);
-                childRenderer.SetPropertyBlock(materialPropertyBlock);
-            }
-        }
-    }
-
-    public virtual void Awake()
-    {
-        childRenderers = GetComponentsInChildren<Renderer>();
-        materialPropertyBlock = new MaterialPropertyBlock();
-    }
-
-    public virtual void Start()
-    {
-        
+        get => _isDraggable;
+        set => _isDraggable = value;
     }
 
     /// <summary>

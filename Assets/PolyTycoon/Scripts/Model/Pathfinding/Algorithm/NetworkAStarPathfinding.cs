@@ -13,7 +13,7 @@ public class NetworkAStarPathFinding : AbstractPathFindingAlgorithm
 	/// <param name="startNode">The node this path is supposed to start on</param>
 	/// <param name="endNode">The node this path is supposed to end on</param>
 	/// <returns></returns>
-	public override Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
+	public override Path FindPath(PathFindingTarget startNode, PathFindingTarget endNode)
 	{
 		List<NetworkNode> openSet = new List<NetworkNode>(); // List of nodes that need to be checked
 		HashSet<PathFindingNode> closedSet = new HashSet<PathFindingNode>(); // List of nodes that have been visited

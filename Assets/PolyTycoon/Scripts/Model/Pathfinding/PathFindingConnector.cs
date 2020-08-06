@@ -13,31 +13,38 @@ public abstract class PathFindingConnector : PathFindingNode
     [SerializeField] protected Transform _tIntersectionTransform;
     [SerializeField] protected Transform _intersectionTransform;
 
-    protected override void Initialize()
+    protected override void Awake()
     {
-        base.Initialize();
-        _isHighlightable = false;
-        IsDraggable = true;
+        base.Awake();
+        _simpleMapPlaceable._OnPlacementEvent += OnPlacement;
+    }
+    
+    public override void Start()
+    {
+        base.Start();
+        
+        // _simpleMapPlaceable.
+        //     _isHighlightable = false;
+        // IsDraggable = true;
     }
 
-    public override void Rotate(Vector3 axis, float rotationAmount)
-    {
-        // Don't rotate these entities
-    }
+    // public override void Rotate(Vector3 axis, float rotationAmount)
+    // {
+    //     // Don't rotate these entities
+    // }
+    //
+    // protected override void OnMouseEnter()
+    // {
+    //     // Do nothing
+    // }
+    //
+    // protected override void OnMouseExit()
+    // {
+    //     // Do nothing
+    // }
 
-    protected override void OnMouseEnter()
+    void OnPlacement(SimpleMapPlaceable simpleMapPlaceable)
     {
-        // Do nothing
-    }
-
-    protected override void OnMouseExit()
-    {
-        // Do nothing
-    }
-
-    public override void OnPlacement()
-    {
-        base.OnPlacement();
         transform.name = GetType().ToString() + ": " + transform.position.ToString();
         TraversalOffset = transform.position;
     }

@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 public class StorageContainerView : AbstractUi
 {
-    private AbstractStorageContainer _storageContainer;
+    private StorageContainer _storageContainer;
     private Coroutine _updateUiCoroutine;
     [SerializeField] private Button _exitButton;
     [SerializeField] private AmountProductView _storedProductView;
     [SerializeField] private RectTransform _scrollView;
     
-    public AbstractStorageContainer StorageContainer
+    public StorageContainer StorageContainer
     {
         set
         {

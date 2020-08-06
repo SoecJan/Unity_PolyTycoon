@@ -9,6 +9,8 @@ public static class Util
 
     private const string buildingDataFolder = dataFolder + "BuildingData/";
     private const string buildingDataInfrastructureFolder = buildingDataFolder + "Infrastructure/";
+    private const string buildingStationDataFolder = buildingDataFolder + "Station/";
+    
     private const string buildingDataProductionFolder = buildingDataFolder + "Production/";
 
     private const string productDataFolder = dataFolder + "ProductData/";
@@ -59,26 +61,26 @@ public static class Util
             // Blueprints
             case "ForrestBlueprint":
                 return blueprintFolder + name;
-            
-            
-                // return modelCityFolder + name;
+            // return modelCityFolder + name;
 
             // Data/BuildingData/
             case "Infrastructure": return buildingDataInfrastructureFolder;
             case "Production": return buildingDataProductionFolder;
             case "Street":
             case "Rail":
-            case "Airport":
-            case "Harbor":
             case "Storage":
-            case "Trainstation":
                 return buildingDataInfrastructureFolder + name;
             case "Farm":
             case "Mill":
             case "Bakery":
             case "Pump":
                 return buildingDataProductionFolder + name;
-
+            case "Station": return buildingStationDataFolder;
+            case "Airport":
+            case "Harbor":
+            case "Trainstation":
+            case "Truckstop":
+                return buildingStationDataFolder + name;
             // Data/ProductData/
             case "Bread":
             case "Flour":

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Trainstation : AbstractStorageContainer
+public class Trainstation : StorageContainer
 {
     [SerializeField] private Rail _accessRail;
 
@@ -9,7 +9,7 @@ public class Trainstation : AbstractStorageContainer
     /// </summary>
     void OnDrawGizmos()
     {
-        foreach (NeededSpace coordinate in UsedCoordinates)
+        foreach (NeededSpace coordinate in _simpleMapPlaceable.UsedCoordinates)
         {
             Gizmos.color = coordinate.TerrainType == TerrainGenerator.TerrainType.Coast ? Color.blue : Color.yellow;
             Gizmos.DrawSphere(gameObject.transform.position + coordinate.UsedCoordinate, 0.5f);

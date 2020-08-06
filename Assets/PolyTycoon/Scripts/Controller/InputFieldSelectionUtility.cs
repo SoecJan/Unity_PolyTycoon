@@ -19,10 +19,10 @@ public class InputFieldSelectionUtility
         TMP_InputField[] tmpInputFields = Object.FindObjectsOfType<TMP_InputField>();
         foreach (TMP_InputField tmpInputField in tmpInputFields)
         {
-            tmpInputField.onSelect.RemoveAllListeners();
+            // tmpInputField.onSelect.RemoveAllListeners();
             tmpInputField.onSelect.AddListener(delegate { OnSelectionChange?.Invoke(true); });
             
-            tmpInputField.onDeselect.RemoveAllListeners();
+            // tmpInputField.onDeselect.RemoveAllListeners();
             tmpInputField.onDeselect.AddListener(delegate { OnSelectionChange?.Invoke(false); });
         }
     }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Airport : AbstractStorageContainer
+public class Airport : StorageContainer
 {
     public const int LANDING = 0;
     public const int TAKEOFF = 1;
@@ -8,9 +8,13 @@ public class Airport : AbstractStorageContainer
     private WayPoint[] _landingWayPoints;
     private WayPoint[] _takeoffWayPoints;
 
-    public override void OnPlacement()
+    void Start()
     {
-        base.OnPlacement();
+        _simpleMapPlaceable._OnPlacementEvent += OnPlacement;
+    }
+
+    void OnPlacement(SimpleMapPlaceable simpleMapPlaceable)
+    {
         Vector3 offset = transform.position;
         offset.y = 0f;
         float flightHeight = 10f;

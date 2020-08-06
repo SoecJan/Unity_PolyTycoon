@@ -70,6 +70,12 @@ public class VehicleManager : IVehicleManager
         return transportVehicle;
     }
 
+    public void RemoveVehicle(TransportVehicle transportVehicle)
+    {
+        transportVehicle.TransportRoute.TransportVehicles.Remove(transportVehicle);
+        Object.Destroy(transportVehicle.gameObject);
+    }
+
     private void OnVehicleClick(TransportVehicle transportVehicle)
     {
         _transportVehicleView.DisplayedTransportVehicle = transportVehicle;
