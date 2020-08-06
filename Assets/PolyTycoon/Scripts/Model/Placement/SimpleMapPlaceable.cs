@@ -12,11 +12,12 @@ public interface ISimpleMapPlaceable
     /// A position vector that can be used by other threads.
     /// </summary>
     Vector3 ThreadsafePosition { get; }
+
     /// <summary>
     /// Coordinates that this objects blocks. Used by the <see cref="BuildingManager"/>.
     /// </summary>
     List<NeededSpace> UsedCoordinates { get; }
-    
+
     /// <returns>The height of the placed object.</returns>
     float GetHeight();
 
@@ -35,16 +36,20 @@ public interface ISimpleMapPlaceable
 public class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 {
     #region Attributes
+
     [SerializeField] protected bool _isClickable;
     [SerializeField] private bool _isRotateable;
     private bool _isPlaced;
-    [SerializeField] private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
+
+    [SerializeField]
+    private List<NeededSpace> _usedCoordinates; // All coordinates that are blocked relative to this transform
+
     private Vector3 _threadsafePosition;
     public System.Action<SimpleMapPlaceable> _OnPlacementEvent;
 
     #endregion
 
-    
+
     #region Default Methods
 
     /// <summary>
@@ -91,6 +96,7 @@ public class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     #endregion
 
     #region Getter & Setter
+
     public Vector3 ThreadsafePosition
     {
         get => _threadsafePosition.Equals(default(Vector3)) ? throw new NotImplementedException() : _threadsafePosition;
@@ -108,19 +114,7 @@ public class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
     {
         get => _isPlaced;
 
-        private set
-        {
-            this._isPlaced = value;
-            if (this.IsPlaced)
-            {
-                // materialPropertyBlock.SetFloat(IsPlacedProperty, 1f);
-                // foreach (Renderer childRenderer in childRenderers)
-                // {
-                //     // childRenderer.SetPropertyBlock(null);
-                //     childRenderer.SetPropertyBlock(materialPropertyBlock);
-                // }
-            }
-        }
+        private set { this._isPlaced = value; }
     }
 
     public static Action<SimpleMapPlaceable> OnClickAction { get; set; }
@@ -175,7 +169,10 @@ public class SimpleMapPlaceable : MapPlaceable, ISimpleMapPlaceable
 public class NeededSpace
 {
     [SerializeField] private Vector3Int _usedCoordinate; // The relative offset from the origin
-    [SerializeField] private TerrainGenerator.TerrainType _terrainType = TerrainGenerator.TerrainType.Flatland; // The suitable ground type
+
+    [SerializeField]
+    private TerrainGenerator.TerrainType
+        _terrainType = TerrainGenerator.TerrainType.Flatland; // The suitable ground type
 
     public NeededSpace(Vector3Int usedCoordinate, TerrainGenerator.TerrainType terrainType)
     {
@@ -208,12 +205,15 @@ public class NeededSpace
 public class ProceduralNeededSpace : NeededSpace
 {
     [SerializeField] private float _noiseValue;
-    public ProceduralNeededSpace(Vector3Int usedCoordinate, TerrainGenerator.TerrainType terrainType, float noiseValue) : base(usedCoordinate, terrainType)
+
+    public ProceduralNeededSpace(Vector3Int usedCoordinate, TerrainGenerator.TerrainType terrainType, float noiseValue)
+        : base(usedCoordinate, terrainType)
     {
         this._noiseValue = noiseValue;
     }
 
-    public ProceduralNeededSpace(NeededSpace neededSpace, Vector3Int offset, float noiseValue) : base(neededSpace, offset)
+    public ProceduralNeededSpace(NeededSpace neededSpace, Vector3Int offset, float noiseValue) : base(neededSpace,
+        offset)
     {
         this._noiseValue = noiseValue;
     }

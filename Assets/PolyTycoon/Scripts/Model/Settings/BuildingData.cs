@@ -9,7 +9,7 @@ using UnityEngine;
 public class BuildingData : ScriptableObject
 {
 	public enum BuildingCategory {
-		Infrastructure, Production
+		Infrastructure, Production, Station
 	};
 	#region Attributes
 	[Header("General")]

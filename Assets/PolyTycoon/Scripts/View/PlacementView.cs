@@ -134,7 +134,7 @@ public class PlacementView : MonoBehaviour
         {
             ProductProcessorBehaviour productProcessorBehaviour = _currentPlaceableObject.gameObject.GetComponent<ProductProcessorBehaviour>();
             if (productProcessorBehaviour) productProcessorBehaviour.BuildingData = _placementController.PlaceableObjectPrefab;
-            
+
             DestroyOrPlaceObject();
             OnPlacement();
         }

@@ -111,6 +111,7 @@ public abstract class PathFindingNode : MonoBehaviour, IPathFindingNode
     protected void OnDrawGizmos()
     {
         Vector3 position;
+        if (_simpleMapPlaceable == null) _simpleMapPlaceable = GetComponent<SimpleMapPlaceable>();
         if (UsedCoordinates == null) return;
         foreach (NeededSpace coordinate in UsedCoordinates)
         {

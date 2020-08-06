@@ -13,11 +13,59 @@ MonoBehaviour:
   m_Name: Plane
   m_EditorClassIdentifier: 
   _vehicleName: Plane
-  _sprite: {fileID: 21300000, guid: a16adbeb6b5072a489f58d50a04e38c8, type: 3}
+  _sprite: {fileID: 21300000, guid: 754cc2d062163514aa409a35fd3f4736, type: 3}
   _model: {fileID: 3461152390891938465, guid: 735601cc98f132747892a318c370bb0c, type: 3}
-  _pathType: 3
+  _pathType: 4
   _maxCapacity: 6
   _maxSpeed: 15
+  accelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  decelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   _colliderInfo:
     center: {x: 0, y: 0.3, z: -0.15}
     size: {x: 1.5, y: 0.25, z: 1.3}

@@ -1,13 +1,7 @@
 public class RailAStarPathFinding : NetworkAStarPathFinding
 {
-	public override Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
+	public override Path FindPath(PathFindingTarget startNode, PathFindingTarget endNode)
 	{
-		Trainstation fromStation = startNode.GetComponent<Trainstation>();
-		Trainstation toStation = endNode.GetComponent<Trainstation>();
-		if (fromStation && toStation)
-		{
-			return base.FindPath(fromStation.AccessRail, toStation.AccessRail);
-		}
-		return null;
+		return base.FindPath(startNode, endNode);
 	}
 }

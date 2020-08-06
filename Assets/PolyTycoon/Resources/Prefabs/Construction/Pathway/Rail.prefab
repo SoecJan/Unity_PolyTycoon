@@ -78,8 +78,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 298ea1dfd050f174ca8c9a65fb84bcc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isHighlightable: 1
-  _isDraggable: 0
+  _isHighlightable: 0
+  _isDraggable: 1
   _isClickable: 0
   _isRotateable: 0
   _usedCoordinates:

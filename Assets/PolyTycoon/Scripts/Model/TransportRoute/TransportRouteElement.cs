@@ -15,9 +15,9 @@ public class TransportRouteElement
 
     public Path Path { get; set; }
 
-    public PathFindingNode FromNode { get; set; }
+    public PathFindingTarget FromNode { get; set; }
 
-    public PathFindingNode ToNode { get; set; }
+    public PathFindingTarget ToNode { get; set; }
 
     public List<TransportRouteSetting> RouteSettings { get; set; }
 

@@ -158,7 +158,26 @@ public class TerrainChunk
             () => ThreadsafePlacementManager.FindForrestPosition(gameHandler.PlacementController,
                 gameHandler.TerrainGenerator, treeToPlace, 
                 Noise.GenerateNoiseMap(heightMap.values.GetLength(0), heightMap.values.GetLength(1), heightMapSettings.noiseSettings, sampleCentre)), 
-            gameHandler.TreeManager.OnTreePositionFound);
+            gameHandler.TreeManager.OnTreePositionFound, OnEnvironmentGeneration);
+    }
+
+    private void OnEnvironmentGeneration(object obj)
+    {
+        GameHandler gameHandler = GameObject.FindObjectOfType<GameHandler>();
+        System.Random random =  new System.Random(gameHandler.GameSettings.MapSeed + (int) sampleCentre.magnitude);
+        Vector3 vec3 = new Vector3(this.sampleCentre.x + 0.5f + random.Next(0, 24), 0f, this.sampleCentre.y + 0.5f + random.Next(0, 24));
+        List<BuildingProducerData> buildingProducerDatas = gameHandler.ProductProducerManager.EmitterLists[0];
+        foreach (BuildingProducerData buildingProducerData in buildingProducerDatas)
+        {
+            ThreadsafePlaceable threadsafePlaceable = 
+                new ThreadsafePlaceable(buildingProducerData.Prefab.GetComponent<SimpleMapPlaceable>(), vec3, buildingProducerData);
+            ThreadedDataRequester.RequestData(
+                () => ThreadsafePlacementManager.MoveToPlaceablePosition(gameHandler.PlacementController,
+                    gameHandler.TerrainGenerator, threadsafePlaceable), gameHandler.ProductProducerManager.OnPlacementPositionFound);
+        }
+        
+        
+        
     }
 
     void OnMeshDataReceived(object meshDataObject)

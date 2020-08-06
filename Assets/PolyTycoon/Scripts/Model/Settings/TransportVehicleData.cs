@@ -3,11 +3,13 @@ using UnityEngine;
 
 public enum PathType
 {
+    None,
     Water,
     Road,
     Rail,
     Air
 };
+
 [CreateAssetMenu(fileName = "TransportVehicleData", menuName = "PolyTycoon/TransportVehicleData", order = 1)]
 public class TransportVehicleData : ScriptableObject
 {

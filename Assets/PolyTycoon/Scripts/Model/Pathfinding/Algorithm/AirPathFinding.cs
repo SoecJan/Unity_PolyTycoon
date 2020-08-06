@@ -2,7 +2,7 @@
 
 public class AirPathFinding : AbstractPathFindingAlgorithm
 {
-    public override Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
+    public override Path FindPath(PathFindingTarget startNode, PathFindingTarget endNode)
     {
         Airport fromAirport = startNode.GetComponent<Airport>();
         Airport toAirport = endNode.GetComponent<Airport>();

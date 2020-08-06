@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 /// <summary>
 /// Holds a reference to all buildings contained in this cityPlaceable. Represents a wrapper for the city.
 /// </summary>
-public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmitter, IPathNode, ICityPlaceable
+public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmitter, ICityPlaceable
 {
     #region Attributes
 
@@ -234,42 +234,6 @@ public class CityPlaceable : ComplexMapPlaceable, IProductReceiver, IProductEmit
             Level = (int) GetLevelFromExp(ExperiencePoints, Level);
             _OnCityLevelChange?.Invoke(Level, this);
         }
-    }
-
-    /// <summary>
-    /// <inheritdoc cref="IPathNode.PathTo"/>
-    /// </summary>
-    /// <param name="targetNode"></param>
-    /// <returns></returns>
-    public Path PathTo(PathFindingNode targetNode)
-    {
-        return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
-    }
-
-    /// <summary>
-    ///  <inheritdoc cref="IPathNode.AddPath"/>
-    /// </summary>
-    /// <param name="targetNode"></param>
-    /// <param name="path"></param>
-    public void AddPath(PathFindingNode targetNode, Path path)
-    {
-        if (_paths.ContainsKey(targetNode))
-        {
-            _paths[targetNode] = path;
-        }
-        else
-        {
-            _paths.Add(targetNode, path);
-        }
-    }
-
-    /// <summary>
-    ///  <inheritdoc cref="IPathNode.RemovePath"/>
-    /// </summary>
-    /// <param name="targetNode"></param>
-    public void RemovePath(PathFindingNode targetNode)
-    {
-        _paths.Remove(targetNode);
     }
 
     #endregion

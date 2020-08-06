@@ -37,7 +37,7 @@ public class TileAStarPathFinding : AbstractPathFindingAlgorithm
         throw new NotSupportedException("No NeededSpace with the " + _terrainType + " terrain type found in " + simpleMapPlaceable.name);
     }
 
-    public override Path FindPath(PathFindingNode startNode, PathFindingNode endNode)
+    public override Path FindPath(PathFindingTarget startNode, PathFindingTarget endNode)
     {
         List<TileNode> openSet = new List<TileNode>();
         HashSet<Vector2Int> closedSet = new HashSet<Vector2Int>();

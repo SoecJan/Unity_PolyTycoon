@@ -11,7 +11,7 @@ public class BuildingManager : IBuildingManager
 {
     #region Attributes
 
-    private static TransportRouteCreationView _routeCreationView;
+    private static NewRouteController _routeCreationController;
     private static ProductProcessorView _productProcessorView;
     private static CityView _cityView;
     private static StorageContainerView _storageContainerView;
@@ -24,7 +24,8 @@ public class BuildingManager : IBuildingManager
     public BuildingManager()
     {
         _placedBuildingDictionary = new Dictionary<Vector3, SimpleMapPlaceable>();
-        _routeCreationView = Object.FindObjectOfType<TransportRouteCreationView>();
+        GameHandler gameHandler = Object.FindObjectOfType<GameHandler>();
+        _routeCreationController = gameHandler.TransportRouteManager.RouteCreationController;
         _productProcessorView = Object.FindObjectOfType<ProductProcessorView>();
         _cityView = Object.FindObjectOfType<CityView>();
         _storageContainerView = Object.FindObjectOfType<StorageContainerView>();
@@ -51,6 +52,7 @@ public class BuildingManager : IBuildingManager
         try
         {
             SimpleMapPlaceable simpleMapPlaceable = _placedBuildingDictionary[positionVector];
+            if (!simpleMapPlaceable) return null;
             PathFindingNode pathFindingNode = simpleMapPlaceable.GetComponent<PathFindingNode>();
             if (pathFindingNode)
             {
@@ -162,15 +164,9 @@ public class BuildingManager : IBuildingManager
     public void OnPlaceableClick(SimpleMapPlaceable mapPlaceable) 
     {
         Debug.Log("Placeable clicked: " + mapPlaceable.name);
-        if (_routeCreationView && _routeCreationView.VisibleObject.activeSelf)
+        if (_routeCreationController.View.VisibleObject.gameObject.activeSelf && mapPlaceable.GetComponent<PathFindingTarget>() is PathFindingTarget target)
         {
-            CityBuilding cityBuilding = mapPlaceable as CityBuilding;
-            if (cityBuilding != null)
-            {
-                mapPlaceable = cityBuilding.CityPlaceable.MainBuilding.GetComponent<SimpleMapPlaceable>();
-            }
-
-            _routeCreationView.StationManager.OnTransportStationClick(mapPlaceable.GetComponent<PathFindingNode>());
+            _routeCreationController.OnStationClick(target);
             return;
         }
 

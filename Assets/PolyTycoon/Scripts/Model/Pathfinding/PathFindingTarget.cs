@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public interface IPathNode
 {
+	PathType PathType { get; }
+	
 	/// <summary>
 	/// This Method enables other classes to receive the Path from one node to another target node.
 	/// </summary>
@@ -35,6 +37,7 @@ public interface IPathNode
 public class PathFindingTarget : PathFindingNode, IPathNode
 {
 	private Dictionary<PathFindingNode, Path> _paths; // Paths for the IPathNode Interface
+	[SerializeField] private PathType _pathType;
 
 	private void OnDrawGizmos()
 	{
@@ -61,7 +64,9 @@ public class PathFindingTarget : PathFindingNode, IPathNode
     {
 	    return true; // A PathFindingTarget can always be accessed via the node graph
     }
-    
+
+    public PathType PathType => _pathType;
+
     public Path PathTo(PathFindingNode targetNode)
     {
 	    return _paths.ContainsKey(targetNode) ? _paths[targetNode] : null;
